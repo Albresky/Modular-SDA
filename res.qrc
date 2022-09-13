@@ -1,0 +1,13 @@
+<RCC>
+    <qresource prefix="/">
+        <file>res/imgs/build.png</file>
+        <file>res/imgs/debug.png</file>
+        <file>res/imgs/edit.png</file>
+        <file>res/imgs/help.png</file>
+        <file>res/imgs/run.png</file>
+        <file>res/imgs/tool.png</file>
+        <file>res/imgs/welcome.png</file>
+        <file>res/icons/build.ico</file>
+        <file>res/icons/clean.ico</file>
+    </qresource>
+</RCC>
