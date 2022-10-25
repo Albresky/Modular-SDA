@@ -1,6 +1,6 @@
 #include "SyntaxHighlighter.h"
 
-MyHighLighter::MyHighLighter(QTextDocument *parent)
+MyHighLighter::MyHighLighter(QTextDocument* parent)
     : QSyntaxHighlighter(parent)
 {
     HighlightingRule rule;
@@ -18,11 +18,15 @@ MyHighLighter::MyHighLighter(QTextDocument *parent)
                     << "\\btemplate\\b" << "\\btypedef\\b" << "\\btypename\\b"
                     << "\\bunion\\b" << "\\bunsigned\\b" << "\\bvirtual\\b"
                     << "\\bvoid\\b" << "\\bvolatile\\b";
-    foreach (const QString &pattern, keywordPatterns) {
+    foreach (const QString& pattern, keywordPatterns)
+    {
         rule.pattern = QRegExp(pattern);
         rule.format = keywordFormat;
         highlightingRules.append(rule);
     }
+
+
+
     classFormat.setFontWeight(QFont::Bold);
     classFormat.setForeground(Qt::darkMagenta);
     rule.pattern = QRegExp("\\bQ[A-Za-z]+\\b");
@@ -51,12 +55,14 @@ MyHighLighter::MyHighLighter(QTextDocument *parent)
     commentEndExpression = QRegExp("\\*/");
 }
 
-void MyHighLighter::highlightBlock(const QString &text)
+void MyHighLighter::highlightBlock(const QString& text)
 {
-    foreach (const HighlightingRule &rule, highlightingRules) {
+    foreach (const HighlightingRule& rule, highlightingRules)
+    {
         QRegExp expression(rule.pattern);
         int index = expression.indexIn(text);
-        while (index >= 0) {
+        while (index >= 0)
+        {
             int length = expression.matchedLength();
             setFormat(index, length, rule.format);
             index = expression.indexIn(text, index + length);
@@ -67,18 +73,24 @@ void MyHighLighter::highlightBlock(const QString &text)
 
     int startIndex = 0;
     if (previousBlockState() != 1)
+    {
         startIndex = commentStartExpression.indexIn(text);
+    }
 
 
-    while (startIndex >= 0) {
+    while (startIndex >= 0)
+    {
         int endIndex = commentEndExpression.indexIn(text, startIndex);
         int commentLength;
-        if (endIndex == -1) {
+        if (endIndex == -1)
+        {
             setCurrentBlockState(1);
             commentLength = text.length() - startIndex;
-        } else {
+        }
+        else
+        {
             commentLength = endIndex - startIndex
-                    + commentEndExpression.matchedLength();
+                            + commentEndExpression.matchedLength();
         }
         setFormat(startIndex, commentLength, multiLineCommentFormat);
         startIndex = commentStartExpression.indexIn(text, startIndex + commentLength);

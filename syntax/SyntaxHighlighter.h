@@ -1,20 +1,23 @@
 #ifndef MYHIGHLIGHTER_H
 #define MYHIGHLIGHTER_H
+
 #include <QRegExp>
 #include <QSyntaxHighlighter>
 #include <QTextCharFormat>
 #include <QTextDocument>
+
 class MyHighLighter : public QSyntaxHighlighter
 {
     Q_OBJECT
 
 public:
-    MyHighLighter(QTextDocument *parent = 0);
+    MyHighLighter(QTextDocument* parent = 0);
 
 protected:
-    void highlightBlock(const QString &text) Q_DECL_OVERRIDE;
+    void highlightBlock(const QString& text) Q_DECL_OVERRIDE;
 
 private:
+
     struct HighlightingRule
     {
         QRegExp pattern;

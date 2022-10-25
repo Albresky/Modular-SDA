@@ -9,5 +9,11 @@
         <file>res/imgs/welcome.png</file>
         <file>res/icons/build.ico</file>
         <file>res/icons/clean.ico</file>
+        <file>res/icons/fft.ico</file>
+        <file>res/sidebar/graph.png</file>
+        <file>res/sidebar/pencil.png</file>
+        <file>res/sidebar/visualize.png</file>
+        <file>res/sidebar/code.png</file>
+        <file>res/imgs/unknownfile.png</file>
     </qresource>
 </RCC>
