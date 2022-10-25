@@ -13,6 +13,7 @@ requires(qtConfig(combobox))
 
 SOURCES += \
     FileOperator/FileOperator.cpp \
+    Pages/designerpage.cpp \
     algorithmtoolbox.cpp \
     charts.cpp \
     codepage.cpp \
@@ -29,6 +30,7 @@ SOURCES += \
 
 HEADERS += \
     FileOperator/FileOperator.h \
+    Pages/designerpage.h \
     algorithmtoolbox.h \
     charts.h \
     codepage.h \
@@ -45,6 +47,7 @@ HEADERS += \
     visualize.h
 
 FORMS += \
+    Pages/designerpage.ui \
     charts.ui \
     codepage.ui \
     mainwindow.ui \

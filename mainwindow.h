@@ -21,6 +21,7 @@
 #include <QStandardPaths>
 #include <QDebug>
 #include <QSignalMapper>
+#include <Pages/designerpage.h>
 
 #include "qsplitter.h"
 #include "syntax/CodeEditor.h"
@@ -71,6 +72,8 @@ private slots:
 
     void on_btn_charts_clicked();
 
+    void on_btn_design_clicked();
+
 private:
 
     // variable
@@ -90,6 +93,7 @@ private:
     QAction* action_make_clean;
     CodePage* codePage;
     ThemeWidget* qCharts;
+    DesignerPage* designerPage;
     QSignalMapper* signalMapper;
 
     // function

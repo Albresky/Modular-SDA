@@ -45,6 +45,10 @@ void MainWindow::initLayout()
     ui->stackedWidget->addWidget(qCharts);
 //    ui->stackedWidget->setCurrentWidget(qCharts);
 
+    /* initialize Designer Page */
+    designerPage = new DesignerPage();
+    ui->stackedWidget->addWidget(designerPage);
+
     // initialize toolbar
     initToolBar();
 
@@ -189,5 +193,12 @@ void MainWindow::on_btn_charts_clicked()
 {
     qDebug() << "current page:" << qStackedWidget->currentIndex();
     qStackedWidget->setCurrentWidget(qCharts);
+}
+
+
+void MainWindow::on_btn_design_clicked()
+{
+    qDebug() << "current page:" << qStackedWidget->currentIndex();
+    qStackedWidget->setCurrentWidget(designerPage);
 }
 

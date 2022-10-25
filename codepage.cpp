@@ -39,7 +39,7 @@ void CodePage::initElements()
     createFile(tempFilePath);
     newTab("New", tempFilePath, QIcon(":/res/imgs/unknownfile.png"));
 
-    connect(codePageTabs->tabBar(), &QTabBar::tabCloseRequested, codePageTabs->tabBar(), &QTabBar::removeTab);
+    connect(codePageTabs->tabBar(), &QTabBar::tabCloseRequested, this, &CodePage::tabClose);
 }
 
 
@@ -109,7 +109,7 @@ int CodePage::newTab(const QString& fileName, const QString& filePath, const QIc
     CodeEditor* codeEditor = new CodeEditor(this);
     codeEditor->setMode(EDIT);
     codeEditor->setPlainText(readFromFile(filePath));
-    QGridLayout* qGridLayout = new QGridLayout(this);
+    QGridLayout* qGridLayout = new QGridLayout;
     qGridLayout->addWidget(codeEditor);
     MyHighLighter* highlighter = new MyHighLighter(codeEditor->document());
     newTabWidget->setLayout(qGridLayout);
@@ -123,7 +123,10 @@ int CodePage::newTab(const QString& fileName, const QString& filePath, const QIc
     return tabCount;
 }
 
-//void CodePage::tabClose(const QModelIndex& index)
-//{
-//    codeEditors.
-//}
+void CodePage::tabClose(int index)
+{
+    codePageTabs->removeTab(index);
+    codeEditors.removeAt(index);
+    highlighters.removeAt(index);
+    tabCount--;
+}

@@ -36,7 +36,7 @@ private slots:
 
     void on_file_sys_treeview_doubleClicked(const QModelIndex& index);
 
-//    void tabClose(const QModelIndex& index);
+    void tabClose(int index);
 
 private:
 
@@ -45,7 +45,6 @@ private:
     QFileSystemModel* fileSystemModel;
     QList<QSyntaxHighlighter*> highlighters;
     QList<CodeEditor*> codeEditors;
-//    CodeEditor* codeEditor;
     QTabWidget* codePageTabs;
     int tabCount;
 
