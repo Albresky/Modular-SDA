@@ -12,6 +12,10 @@ requires(qtConfig(combobox))
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    Diagram/arrow.cpp \
+    Diagram/diagramitem.cpp \
+    Diagram/diagramscene.cpp \
+    Diagram/diagramtextitem.cpp \
     FileOperator/FileOperator.cpp \
     Pages/designerpage.cpp \
     algorithmtoolbox.cpp \
@@ -29,6 +33,10 @@ SOURCES += \
     visualize.cpp
 
 HEADERS += \
+    Diagram/arrow.h \
+    Diagram/diagramitem.h \
+    Diagram/diagramscene.h \
+    Diagram/diagramtextitem.h \
     FileOperator/FileOperator.h \
     Pages/designerpage.h \
     algorithmtoolbox.h \

@@ -21,18 +21,24 @@
 #include <QStandardPaths>
 #include <QDebug>
 #include <QSignalMapper>
-#include <Pages/designerpage.h>
+#include <QFontComboBox>
+#include <QButtonGroup>
+#include <QIcon>
+#include <QSignalMapper>
+#include <QStackedWidget>
+#include <QSplitter>
+#include <QListView>
+#include <QGraphicsView>
 
-#include "qsplitter.h"
+#include "Pages/designerpage.h"
 #include "syntax/CodeEditor.h"
 #include "syntax/SyntaxHighlighter.h"
 #include "syntax/typedef.h"
-#include "QListView"
 #include "custom/cTabButton.h"
-#include "QStackedWidget"
 #include "codepage.h"
 #include "codepage.h"
 #include "themewidget.h"
+#include "Diagram/diagramscene.h"
 
 
 QT_BEGIN_NAMESPACE
@@ -60,23 +66,40 @@ signals:
 
 private slots:
 
-    void action_build_clicked();
-
-    void action_make_clean_clicked();
-
-    void on_open_file_project_dir_triggered();
-
 //    void switchPage(int);
-
-    void on_bnt_code_clicked();
-
+    void action_build_clicked();
+    void action_make_clean_clicked();
+    void on_open_file_project_dir_triggered();
+    void on_btn_code_clicked();
     void on_btn_charts_clicked();
-
     void on_btn_design_clicked();
+    void currentFontChanged(const QFont& font);
+    void fontSizeChanged(const QString&);
+    void handleFontChange();
+    void pointerGroupClicked();
+    void backgroundBlueGridClicked();
+    void backgroundGrayGridClicked();
+    void backgroundWhiteGridClicked();
+    void backgroundNoGridClicked();
+    void sceneScaleChanged(const QString& scale);
+    void textColorChanged();
+    void itemColorChanged();
+    void lineColorChanged();
+    void itemInserted(DiagramItem* item);
+    void itemSelected(QGraphicsItem* item);
+    void textButtonTriggered();
+    void fillButtonTriggered();
+    void lineButtonTriggered();
+    void bringToFront();
+    void sendToBack();
+    void deleteItem();
+    void about();
+    void hideDesignerToolBars();
+    void showDesignerToolBars();
 
 private:
 
-    // variable
+    /* variables */
     Ui::MainWindow* ui;
     QPlainTextEdit* cmd_readOut;
     QPushButton* btn_execute;
@@ -96,6 +119,43 @@ private:
     DesignerPage* designerPage;
     QSignalMapper* signalMapper;
 
+    DiagramScene* scene = nullptr;
+    QMenu* fileMenu;
+    QMenu* itemMenu;
+    QMenu* toolMenu;
+    QMenu* aboutMenu;
+    QGraphicsView* view;
+    QToolBar* textToolBar;
+    QToolBar* editToolBar;
+    QToolBar* colorToolBar;
+    QToolBar* pointerToolbar;
+    QToolBar* backgroundToolBar;
+    QToolButton* fontColorToolButton;
+    QToolButton* fillColorToolButton;
+    QToolButton* lineColorToolButton;
+    QButtonGroup* buttonGroup;
+    QButtonGroup* pointerTypeGroup;
+    QButtonGroup* backgroundButtonGroup;
+    QAction* exitAction;
+    QAction* addAction;
+    QAction* deleteAction;
+    QAction* toFrontAction;
+    QAction* sendBackAction;
+    QAction* aboutAction;
+    QAction* boldAction;
+    QAction* underlineAction;
+    QAction* italicAction;
+    QAction* textAction;
+    QAction* fillAction;
+    QAction* lineAction;
+
+
+    QComboBox* sceneScaleCombo;
+    QComboBox* itemColorCombo;
+    QComboBox* textColorCombo;
+    QComboBox* fontSizeCombo;
+    QFontComboBox* fontCombo;
+
     // function
     QString executeCMD(QString command);
     void initToolBar();
@@ -105,5 +165,15 @@ private:
     void initStatusBar();
     void initSideBar();
     void initLayout();
+    void initMenubar();
+    void initScene(QObject* parent = nullptr);
+    void createMenus();
+    void createActions();
+    void createDesignerToolbars();
+    QMenu* createColorMenu(const char* slot, QColor defaultColor);
+    QIcon createColorToolButtonIcon(const QString& image, QColor color);
+    QIcon createColorIcon(QColor color);
+    QWidget* createBackgroundCellWidget(const QString& text, const QString& image);
+
 };
 #endif // MAINWINDOW_H

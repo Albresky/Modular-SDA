@@ -22,11 +22,10 @@
     <height>705</height>
    </size>
   </property>
-  <property name="maximumSize">
-   <size>
-    <width>9999</width>
-    <height>9999</height>
-   </size>
+  <property name="font">
+   <font>
+    <stylestrategy>PreferAntialias</stylestrategy>
+   </font>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
@@ -55,7 +54,7 @@
       <item>
        <layout class="QVBoxLayout" name="sidebar">
         <item>
-         <widget class="QPushButton" name="bnt_code">
+         <widget class="QPushButton" name="btn_code">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
             <horstretch>0</horstretch>

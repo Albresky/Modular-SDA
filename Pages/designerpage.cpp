@@ -21,6 +21,11 @@ DesignerPage::~DesignerPage()
     delete ui;
 }
 
+QWidget* DesignerPage::getInstance()
+{
+    return designBoard;
+}
+
 
 void DesignerPage::init()
 {
@@ -60,6 +65,7 @@ void DesignerPage::init()
             QListWidgetItem* item = new QListWidgetItem();
             item->setIcon(QIcon(":/res/imgs/tool.png"));
             item->setText("Tool " + QString::number(i));
+//            item->set
             q->addItem(item);
         }
     }
@@ -72,13 +78,11 @@ void DesignerPage::init()
     vBoxLayout->addWidget(toolBoxName_2);
     vBoxLayout->addWidget(toolBox_2);
 
-    QWidget* toolBoxes = new QWidget();
+    toolBoxes = new QWidget();
     toolBoxes->setLayout(vBoxLayout);
 
-    QWidget* designBoard = new QWidget();
+    designBoard = new QWidget();
     designBoard->setStyleSheet("background-color:#FFFFFF;");
-
-
 
 
     QSplitter* splitter = new QSplitter(Qt::Horizontal);
@@ -90,3 +94,5 @@ void DesignerPage::init()
     this->layout()->replaceWidget(ui->widget, splitter);
     ui->widget->hide();
 }
+
+

@@ -22,6 +22,8 @@ public:
     explicit DesignerPage(QWidget* parent = nullptr);
     ~DesignerPage();
 
+    QWidget* getInstance();
+
 private:
     Ui::DesignerPage* ui;
 
@@ -32,9 +34,12 @@ private:
     QLabel* toolBoxName_0;
     QLabel* toolBoxName_1;
     QLabel* toolBoxName_2;
+    QWidget* toolBoxes;
+    QWidget* designBoard;
 
     // functions
     void init();
+    void createToolbars();
 
 };
 

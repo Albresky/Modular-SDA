@@ -15,5 +15,20 @@
         <file>res/sidebar/visualize.png</file>
         <file>res/sidebar/code.png</file>
         <file>res/imgs/unknownfile.png</file>
+        <file>res/images/background1.png</file>
+        <file>res/images/background2.png</file>
+        <file>res/images/background3.png</file>
+        <file>res/images/background4.png</file>
+        <file>res/images/bold.png</file>
+        <file>res/images/bringtofront.png</file>
+        <file>res/images/delete.png</file>
+        <file>res/images/floodfill.png</file>
+        <file>res/images/italic.png</file>
+        <file>res/images/linecolor.png</file>
+        <file>res/images/linepointer.png</file>
+        <file>res/images/pointer.png</file>
+        <file>res/images/sendtoback.png</file>
+        <file>res/images/textpointer.png</file>
+        <file>res/images/underline.png</file>
     </qresource>
 </RCC>
