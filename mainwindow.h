@@ -32,7 +32,7 @@
 #include <QMessageBox>
 
 #include "Pages/designerpage.h"
-#include "syntax/CodeEditor.h"
+#include "syntax/Codeeditor.h"
 #include "syntax/SyntaxHighlighter.h"
 #include "syntax/typedef.h"
 #include "custom/cTabButton.h"
@@ -61,6 +61,9 @@ public:
     ~MainWindow();
 
     static QString getProjectDir();
+    static const int InsertTextButton = 10;
+    QMenu* itemMenu;
+
 
 signals:
 
@@ -100,6 +103,9 @@ private slots:
     void hideDesignerToolBars();
     void showDesignerToolBars();
 
+public slots:
+
+
 private:
 
     /* variables */
@@ -125,7 +131,6 @@ private:
     QGraphicsView* view = nullptr;
     DiagramScene* scene = nullptr;
     QMenu* fileMenu;
-    QMenu* itemMenu;
     QMenu* toolMenu;
     QMenu* aboutMenu;
     QToolBar* textToolBar;
@@ -136,7 +141,7 @@ private:
     QToolButton* fontColorToolButton;
     QToolButton* fillColorToolButton;
     QToolButton* lineColorToolButton;
-    QButtonGroup* buttonGroup;
+    QButtonGroup* buttonGroup_1;
     QButtonGroup* pointerTypeGroup;
     QButtonGroup* backgroundButtonGroup;
     QAction* exitAction;

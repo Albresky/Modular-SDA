@@ -9,6 +9,7 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QGraphicsView>
+#include <QToolBox>
 
 
 namespace Ui
@@ -21,32 +22,43 @@ class DesignerPage : public QWidget
     Q_OBJECT
 
 public:
-    explicit DesignerPage(QGraphicsView* view, QWidget* parent = nullptr);
+    explicit DesignerPage(QGraphicsView* view, DiagramScene* scene, QMenu* itemMenu, QWidget* parent = nullptr);
     ~DesignerPage();
 
     QWidget* getInstance();
+    void unCheckButtonGroupItem(int index);
+private slots:
 
+    void buttonGroupClicked(QAbstractButton* button);
 
 
 private:
     Ui::DesignerPage* ui;
 
+//    MainWindow* parent;
+
     // variables
-    QListWidget* toolBox_0;
-    QListWidget* toolBox_1;
-    QListWidget* toolBox_2;
-    QLabel* toolBoxName_0;
-    QLabel* toolBoxName_1;
-    QLabel* toolBoxName_2;
+    QGraphicsView* view = nullptr;
+    DiagramScene* scene = nullptr;
+
+    QMenu* itemMenu;
     QWidget* toolBoxes;
     QWidget* designBoard;
+    QButtonGroup* buttonGroup_1;
+    QButtonGroup* buttonGroup_2;
+    QButtonGroup* buttonGroup_3;
+    QLabel* toolBoxName_1;
+    QLabel* toolBoxName_2;
+    QLabel* toolBoxName_3;
 
-    QGraphicsView* view = nullptr;
+    QToolBox* toolBox_1;
+
 
     // functions
     void init();
     void createToolbars();
-
+    void loadToolBox();
+    QWidget* createCellWidget(QButtonGroup*, const QString&, DiagramItem::DiagramType);
 };
 
 #endif // DESIGNERPAGE_H

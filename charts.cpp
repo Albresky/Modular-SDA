@@ -17,7 +17,6 @@ Charts::~Charts()
 
 void Charts::initCharts()
 {
-    //![1]
     constexpr qreal marker_size = 20.;
 
     QSplineSeries* series = new QSplineSeries();
@@ -38,9 +37,7 @@ void Charts::initCharts()
         if (index != -1)
             series->toggleSelection({index});
     });
-    //![1]
 
-    //![2]
     QChart* chart = new QChart();
     chart->addSeries(series);
     chart->createDefaultAxes();
@@ -52,16 +49,12 @@ void Charts::initCharts()
 
     QWidget* controlWidget = new QWidget(this);
     QGridLayout* controlLayout = new QGridLayout(this);
-    //![2]
 
-    //![3]
     QComboBox* charPointCombobox = new QComboBox();
     QComboBox* charPointSelectedCombobox = new QComboBox();
     QComboBox* lineColorCombobox = new QComboBox();
     QCheckBox* showUnselectedPointsCheckbox = new QCheckBox();
-    //![3]
 
-    //![4]
     QLabel* charPoint = new QLabel(QCoreApplication::tr("Char point: "));
     charPointCombobox->addItems({QCoreApplication::tr("Red rectangle"),
                                  QCoreApplication::tr("Green triangle"),
@@ -74,9 +67,7 @@ void Charts::initCharts()
             series->setLightMarker(Utilities::getPointRepresentation(Utilities::PointType(index), marker_size));
         }
     });
-    //![4]
 
-    //![5]
     QLabel* charPointSelected = new QLabel(QCoreApplication::tr("Char point selected: "));
     charPointSelectedCombobox->addItems({QCoreApplication::tr("Blue triangle"),
                                          QCoreApplication::tr("Yellow rectangle"),
@@ -96,9 +87,7 @@ void Charts::initCharts()
     {
         series->setColor(Utilities::makeLineColor(Utilities::LineColor(index)));
     });
-    //![5]
 
-    //![6]
     QLabel* showUnselectedPointsLabel = new QLabel(QCoreApplication::tr("Display unselected points: "));
     showUnselectedPointsCheckbox->setChecked(true);
     QObject::connect(showUnselectedPointsCheckbox, &QCheckBox::stateChanged, series, [&](const int state)
@@ -112,9 +101,7 @@ void Charts::initCharts()
             series->setLightMarker(QImage());
         }
     });
-    //![6]
 
-    //![7]
     controlLayout->addWidget(charPoint, 0, 0);
     controlLayout->addWidget(charPointCombobox, 0, 1);
 
@@ -131,5 +118,4 @@ void Charts::initCharts()
     mainLayout->addWidget(chartView);
     mainLayout->addWidget(controlWidget);
     setLayout(mainLayout);
-    //![7]
 }

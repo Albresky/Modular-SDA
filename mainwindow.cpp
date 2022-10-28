@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 
 
+
 QString MainWindow::projectDir = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
 
 MainWindow::MainWindow(QWidget* parent)
@@ -51,7 +52,7 @@ void MainWindow::initLayout()
     initScene();
 
     /* initialize Designer Page */
-    designerPage = new DesignerPage(view);
+    designerPage = new DesignerPage(view, scene, itemMenu);
     ui->stackedWidget->addWidget(designerPage);
 
     // initialize toolbar
@@ -242,12 +243,6 @@ void MainWindow::on_btn_design_clicked()
 {
     qDebug() << "current page:" << qStackedWidget->currentIndex();
     qStackedWidget->setCurrentWidget(designerPage);
-//    if(scene == nullptr)
-//    {
-//        initScene(designerPage->getInstance());
-//        createDesignerToolbars();
-//    }
-
 }
 
 
@@ -255,7 +250,8 @@ void MainWindow::itemInserted(DiagramItem* item)
 {
     pointerTypeGroup->button(int(DiagramScene::MoveItem))->setChecked(true);
     scene->setMode(DiagramScene::Mode(pointerTypeGroup->checkedId()));
-    buttonGroup->button(int(item->diagramType()))->setChecked(false);
+//    buttonGroup_1->button(int(item->diagramType()))->setChecked(false);
+    designerPage->unCheckButtonGroupItem(int(item->diagramType()));
 }
 
 void MainWindow::itemSelected(QGraphicsItem* item)
@@ -278,7 +274,7 @@ void MainWindow::createActions()
     toFrontAction->setShortcut(tr("Ctrl+F"));
     toFrontAction->setStatusTip(tr("Bring item to front"));
     connect(toFrontAction, &QAction::triggered, this, &MainWindow::bringToFront);
-    //! [23]
+
 
     sendBackAction = new QAction(QIcon(":/res/images/sendtoback.png"), tr("Send to &Back"), this);
     sendBackAction->setShortcut(tr("Ctrl+T"));
@@ -351,7 +347,7 @@ void MainWindow::createDesignerToolbars()
     connect(fontColorToolButton, &QAbstractButton::clicked,
             this, &MainWindow::textButtonTriggered);
 
-    //! [26]
+
     fillColorToolButton = new QToolButton;
     fillColorToolButton->setPopupMode(QToolButton::MenuButtonPopup);
     fillColorToolButton->setMenu(createColorMenu(SLOT(itemColorChanged()), Qt::white));
@@ -360,7 +356,7 @@ void MainWindow::createDesignerToolbars()
                                      ":/res/images/floodfill.png", Qt::white));
     connect(fillColorToolButton, &QAbstractButton::clicked,
             this, &MainWindow::fillButtonTriggered);
-    //! [26]
+
 
     lineColorToolButton = new QToolButton;
     lineColorToolButton->setPopupMode(QToolButton::MenuButtonPopup);

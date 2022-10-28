@@ -1,15 +1,20 @@
 #include "designerpage.h"
 #include "ui_designerpage.h"
 
+#include <QButtonGroup>
+#include <QButtonGroup>
 #include <QSplitter>
 #include <QThread>
+#include <mainwindow.h>
 
 
 
-DesignerPage::DesignerPage(QGraphicsView* view, QWidget* parent) :
+DesignerPage::DesignerPage(QGraphicsView* view, DiagramScene* scene, QMenu* itemMenu, QWidget* parent) :
     QWidget(parent),
     ui(new Ui::DesignerPage),
-    view(view)
+    view(view),
+    scene(scene),
+    itemMenu(itemMenu)
 {
     ui->setupUi(this);
     init();
@@ -28,57 +33,9 @@ QWidget* DesignerPage::getInstance()
 
 void DesignerPage::init()
 {
-    QThread::msleep(200);
+//    QThread::msleep(200);
 
-    // init Layout
-    toolBoxName_0 = ui->label;
-    toolBoxName_1 = ui->label_2;
-    toolBoxName_2 = ui->label_3;
-    toolBox_0 = ui->toolBox;
-    toolBox_1 = ui->toolBox_2;
-    toolBox_2 = ui->toolBox_3;
-
-
-    toolBoxName_0->setText("工具箱 1");
-    toolBoxName_1->setText("工具箱 2");
-    toolBoxName_2->setText("工具箱 3");
-
-    for(int j = 0; j < 3; j++)
-    {
-        QListWidget* q = nullptr;
-        switch(j)
-        {
-            case 0:
-                q = toolBox_0;
-                break;
-            case 1:
-                q = toolBox_1;
-                break;
-            case 2:
-                q = toolBox_2;
-                break;
-        }
-        q->setStyleSheet("background-color:#f0f0f0");
-        for(int i = 0; i < 6; i++)
-        {
-            QListWidgetItem* item = new QListWidgetItem();
-            item->setIcon(QIcon(":/res/imgs/tool.png"));
-            item->setText("Tool " + QString::number(i));
-//            item->set
-            q->addItem(item);
-        }
-    }
-
-    QVBoxLayout* vBoxLayout = new QVBoxLayout;
-    vBoxLayout->addWidget(toolBoxName_0);
-    vBoxLayout->addWidget(toolBox_0);
-    vBoxLayout->addWidget(toolBoxName_1);
-    vBoxLayout->addWidget(toolBox_1);
-    vBoxLayout->addWidget(toolBoxName_2);
-    vBoxLayout->addWidget(toolBox_2);
-
-    toolBoxes = new QWidget();
-    toolBoxes->setLayout(vBoxLayout);
+    loadToolBox();
 
     designBoard = new QWidget();
     designBoard->setStyleSheet("background-color:#FFFFFF;");
@@ -93,4 +50,110 @@ void DesignerPage::init()
     ui->widget->hide();
 }
 
+void DesignerPage::loadToolBox()
+{
+    toolBoxName_1 = new QLabel();
+    toolBoxName_2 = new QLabel();
+    toolBoxName_3 = new QLabel();
+    toolBoxName_1->setText("工具箱1");
+    toolBoxName_2->setText("工具箱2");
+    toolBoxName_3->setText("工具箱3");
 
+
+    buttonGroup_1 = new QButtonGroup(this);
+    buttonGroup_2 = new QButtonGroup(this);
+    buttonGroup_3 = new QButtonGroup(this);
+    buttonGroup_1->setExclusive(false);
+
+    connect(buttonGroup_1, QOverload<QAbstractButton*>::of(&QButtonGroup::buttonClicked),
+            this, &DesignerPage::buttonGroupClicked);
+
+    QVBoxLayout* layout = new QVBoxLayout;
+    layout->addWidget(createCellWidget(buttonGroup_1, tr("Conditional"), DiagramItem::Conditional));
+    layout->addWidget(createCellWidget(buttonGroup_1, tr("Process"), DiagramItem::Step));
+    layout->addWidget(createCellWidget(buttonGroup_1, tr("Input/Output"), DiagramItem::Io));
+
+
+    QToolButton* textButton = new QToolButton;
+    textButton->setCheckable(true);
+    buttonGroup_1->addButton(textButton, MainWindow::InsertTextButton);
+    textButton->setIcon(QIcon(QPixmap(":/res/images/textpointer.png")));
+    textButton->setIconSize(QSize(32, 32));
+
+    QVBoxLayout* textLayout = new QVBoxLayout;
+    textLayout->addWidget(textButton, Qt::AlignHCenter);
+    textLayout->addWidget(new QLabel(tr("文本")), Qt::AlignCenter);
+
+    QWidget* textWidget = new QWidget;
+    textWidget->setLayout(textLayout);
+    layout->addWidget(textWidget);
+
+    QWidget* itemWidget = new QWidget;
+    itemWidget->setLayout(layout);
+
+    toolBox_1 = new QToolBox;
+    toolBox_1->setSizePolicy(QSizePolicy(QSizePolicy::Maximum, QSizePolicy::Ignored));
+    toolBox_1->setMinimumWidth(itemWidget->sizeHint().width());
+    toolBox_1->addItem(itemWidget, tr("基础悬浮控件"));
+
+
+    QVBoxLayout* vToolBoxesLayout = new QVBoxLayout;
+    vToolBoxesLayout->addWidget(toolBoxName_1);
+    vToolBoxesLayout->addWidget(toolBox_1);
+    vToolBoxesLayout->addWidget(toolBoxName_2);
+    vToolBoxesLayout->addWidget(toolBoxName_3);
+    toolBoxes = new QWidget();
+    toolBoxes->setLayout(vToolBoxesLayout);
+}
+
+
+QWidget* DesignerPage::createCellWidget(QButtonGroup* buttonGroup, const QString& text, DiagramItem::DiagramType type)
+{
+
+    DiagramItem item(type, itemMenu);
+    QIcon icon(item.image());
+
+    QToolButton* button = new QToolButton;
+    button->setIcon(icon);
+    button->setIconSize(QSize(50, 50));
+    button->setCheckable(true);
+    buttonGroup->addButton(button, int(type));
+
+    QGridLayout* layout = new QGridLayout;
+    layout->addWidget(button, 0, 0, Qt::AlignHCenter);
+    layout->addWidget(new QLabel(text), 1, 0, Qt::AlignCenter);
+
+    QWidget* widget = new QWidget;
+    widget->setLayout(layout);
+
+    return widget;
+}
+
+void DesignerPage::buttonGroupClicked(QAbstractButton* button)
+{
+    const QList<QAbstractButton*> buttons = buttonGroup_1->buttons();
+    for (QAbstractButton* myButton : buttons)
+    {
+        if (myButton != button)
+        {
+            button->setChecked(false);
+        }
+    }
+
+    const int id = buttonGroup_1->id(button);
+    if (id == MainWindow::InsertTextButton)
+    {
+        scene->setMode(DiagramScene::InsertText);
+    }
+    else
+    {
+        scene->setItemType(DiagramItem::DiagramType(id));
+        scene->setMode(DiagramScene::InsertItem);
+    }
+}
+
+
+void DesignerPage::unCheckButtonGroupItem(int index)
+{
+    buttonGroup_1->button(index)->setChecked(false);
+}

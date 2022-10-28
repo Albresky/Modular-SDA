@@ -6,14 +6,14 @@
 #include <QMenu>
 #include <QPainter>
 
-//! [0]
-DiagramItem::DiagramItem(DiagramType diagramType, QMenu *contextMenu,
-                         QGraphicsItem *parent)
+DiagramItem::DiagramItem(DiagramType diagramType, QMenu* contextMenu,
+                         QGraphicsItem* parent)
     : QGraphicsPolygonItem(parent), myDiagramType(diagramType)
     , myContextMenu(contextMenu)
 {
     QPainterPath path;
-    switch (myDiagramType) {
+    switch (myDiagramType)
+    {
         case StartEnd:
             path.moveTo(200, 50);
             path.arcTo(150, 0, 50, 50, 0, 90);
@@ -44,38 +44,31 @@ DiagramItem::DiagramItem(DiagramType diagramType, QMenu *contextMenu,
     setFlag(QGraphicsItem::ItemIsSelectable, true);
     setFlag(QGraphicsItem::ItemSendsGeometryChanges, true);
 }
-//! [0]
 
-//! [1]
-void DiagramItem::removeArrow(Arrow *arrow)
+void DiagramItem::removeArrow(Arrow* arrow)
 {
     arrows.removeAll(arrow);
 }
-//! [1]
 
-//! [2]
 void DiagramItem::removeArrows()
 {
     // need a copy here since removeArrow() will
     // modify the arrows container
     const auto arrowsCopy = arrows;
-    for (Arrow *arrow : arrowsCopy) {
+    for (Arrow* arrow : arrowsCopy)
+    {
         arrow->startItem()->removeArrow(arrow);
         arrow->endItem()->removeArrow(arrow);
         scene()->removeItem(arrow);
         delete arrow;
     }
 }
-//! [2]
 
-//! [3]
-void DiagramItem::addArrow(Arrow *arrow)
+void DiagramItem::addArrow(Arrow* arrow)
 {
     arrows.append(arrow);
 }
-//! [3]
 
-//! [4]
 QPixmap DiagramItem::image() const
 {
     QPixmap pixmap(250, 250);
@@ -84,28 +77,27 @@ QPixmap DiagramItem::image() const
     painter.setPen(QPen(Qt::black, 8));
     painter.translate(125, 125);
     painter.drawPolyline(myPolygon);
-
+    painter.setRenderHint(QPainter::Antialiasing, true);
     return pixmap;
 }
-//! [4]
 
-//! [5]
-void DiagramItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
+void DiagramItem::contextMenuEvent(QGraphicsSceneContextMenuEvent* event)
 {
     scene()->clearSelection();
     setSelected(true);
     myContextMenu->exec(event->screenPos());
 }
-//! [5]
 
-//! [6]
-QVariant DiagramItem::itemChange(GraphicsItemChange change, const QVariant &value)
+QVariant DiagramItem::itemChange(GraphicsItemChange change, const QVariant& value)
 {
-    if (change == QGraphicsItem::ItemPositionChange) {
-        for (Arrow *arrow : qAsConst(arrows))
+    if (change == QGraphicsItem::ItemPositionChange)
+    {
+        for (Arrow* arrow : qAsConst(arrows))
+        {
             arrow->updatePosition();
+        }
     }
 
     return value;
 }
-//! [6]
+

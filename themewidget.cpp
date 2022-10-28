@@ -82,10 +82,10 @@ ThemeWidget::ThemeWidget(QWidget* parent) :
 //    m_ui->gridLayout->addWidget(chartView, 1, 1);
 //    m_charts << chartView;
 
-//    //![5]
+
 //    chartView = new QChartView(createLineChart());
 //    m_ui->gridLayout->addWidget(chartView, 1, 2);
-//    //![5]
+
 //    m_charts << chartView;
 
 //    chartView = new QChartView(createBarChart(m_valueCount));
@@ -261,12 +261,10 @@ QChart* ThemeWidget::createBarChart(int valueCount) const
 
 QChart* ThemeWidget::createLineChart() const
 {
-    //![1]
+
     QChart* chart = new QChart();
     chart->setTitle("Line chart");
-    //![1]
 
-    //![2]
     QString name("Series ");
     int nameIndex = 0;
     for (const DataList& list : m_dataTable)
@@ -280,19 +278,15 @@ QChart* ThemeWidget::createLineChart() const
         nameIndex++;
         chart->addSeries(series);
     }
-    //![2]
 
-    //![3]
     chart->createDefaultAxes();
     chart->axes(Qt::Horizontal).first()->setRange(0, m_valueMax);
     chart->axes(Qt::Vertical).first()->setRange(0, m_valueCount);
-    //![3]
-    //![4]
+
     // Add space to label to add space between labels and axis
     QValueAxis* axisY = qobject_cast<QValueAxis*>(chart->axes(Qt::Vertical).first());
     Q_ASSERT(axisY);
     axisY->setLabelFormat("%.1f  ");
-    //![4]
 
     return chart;
 }
@@ -380,29 +374,26 @@ QChart* ThemeWidget::createScatterChart() const
 
 void ThemeWidget::updateUI()
 {
-    //![6]
+
     QChart::ChartTheme theme = static_cast<QChart::ChartTheme>(
                                    m_ui->cbox_theme->itemData(m_ui->cbox_theme->currentIndex()).toInt());
-    //![6]
+
     const auto charts = m_charts;
     if (!m_charts.isEmpty() && m_charts.at(0)->chart()->theme() != theme)
     {
-        qDebug() << "aaaaaaaafagagatgaa";
         for (QChartView* chartView : charts)
         {
-            //![7]
             chartView->chart()->setTheme(theme);
-            //![7]
         }
 
         // Set palette colors based on selected theme
-        //![8]
+
         QPalette pal = window()->palette();
         if (theme == QChart::ChartThemeLight)
         {
             pal.setColor(QPalette::Window, QRgb(0xf0f0f0));
             pal.setColor(QPalette::WindowText, QRgb(0x404044));
-            //![8]
+
         }
         else if (theme == QChart::ChartThemeDark)
         {
@@ -443,16 +434,13 @@ void ThemeWidget::updateUI()
     }
 
     // Update antialiasing
-    //![11]
     bool checked = m_ui->antialiasCheckBox->isChecked();
     for (QChartView* chart : charts)
     {
         chart->setRenderHint(QPainter::Antialiasing, checked);
     }
-    //![11]
 
     // Update animation options
-    //![9]
     QChart::AnimationOptions options(
         m_ui->cbox_animation->itemData(m_ui->cbox_animation->currentIndex()).toInt());
     if (!m_charts.isEmpty() && m_charts.at(0)->chart()->animationOptions() != options)
@@ -462,10 +450,8 @@ void ThemeWidget::updateUI()
             chartView->chart()->setAnimationOptions(options);
         }
     }
-    //![9]
 
     // Update legend alignment
-    //![10]
     Qt::Alignment alignment(
         m_ui->cbox_legend->itemData(m_ui->cbox_legend->currentIndex()).toInt());
 
@@ -484,6 +470,5 @@ void ThemeWidget::updateUI()
             chartView->chart()->legend()->show();
         }
     }
-    //![10]
 }
 
