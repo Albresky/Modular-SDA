@@ -1,10 +1,6 @@
 #include "designerpage.h"
 #include "ui_designerpage.h"
 
-#include <QButtonGroup>
-#include <QButtonGroup>
-#include <QSplitter>
-#include <QThread>
 #include <mainwindow.h>
 
 

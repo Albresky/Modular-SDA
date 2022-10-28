@@ -1,8 +1,7 @@
 #include "diagramscene.h"
 #include "arrow.h"
 
-#include <QGraphicsSceneMouseEvent>
-#include <QTextCursor>
+
 
 
 DiagramScene::DiagramScene(QMenu* itemMenu, QObject* parent)
@@ -185,7 +184,6 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* mouseEvent)
     line = nullptr;
     QGraphicsScene::mouseReleaseEvent(mouseEvent);
 }
-
 
 
 bool DiagramScene::isItemChange(int type) const

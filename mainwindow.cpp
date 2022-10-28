@@ -90,7 +90,8 @@ void MainWindow::initScene()
     connect(scene, &DiagramScene::itemSelected,
             this, &MainWindow::itemSelected);
 
-    view = new QGraphicsView(scene);
+    view = new DiagramView(scene);
+
 }
 
 void MainWindow::initSideBar()

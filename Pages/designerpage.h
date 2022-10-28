@@ -10,7 +10,9 @@
 #include <QPushButton>
 #include <QGraphicsView>
 #include <QToolBox>
-
+#include <QButtonGroup>
+#include <QSplitter>
+#include <QThread>
 
 namespace Ui
 {

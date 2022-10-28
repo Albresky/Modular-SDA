@@ -31,6 +31,7 @@
 #include <QGraphicsView>
 #include <QMessageBox>
 
+#include "Diagram/diagramview.h"
 #include "Pages/designerpage.h"
 #include "syntax/Codeeditor.h"
 #include "syntax/SyntaxHighlighter.h"
@@ -128,7 +129,7 @@ private:
     DesignerPage* designerPage;
     QSignalMapper* signalMapper;
 
-    QGraphicsView* view = nullptr;
+    DiagramView* view = nullptr;
     DiagramScene* scene = nullptr;
     QMenu* fileMenu;
     QMenu* itemMenu;

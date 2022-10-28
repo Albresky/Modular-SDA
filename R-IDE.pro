@@ -16,6 +16,7 @@ SOURCES += \
     Diagram/diagramitem.cpp \
     Diagram/diagramscene.cpp \
     Diagram/diagramtextitem.cpp \
+    Diagram/diagramview.cpp \
     FileOperator/FileOperator.cpp \
     Pages/designerpage.cpp \
     algorithmtoolbox.cpp \
@@ -37,6 +38,7 @@ HEADERS += \
     Diagram/diagramitem.h \
     Diagram/diagramscene.h \
     Diagram/diagramtextitem.h \
+    Diagram/diagramview.h \
     FileOperator/FileOperator.h \
     Pages/designerpage.h \
     algorithmtoolbox.h \
