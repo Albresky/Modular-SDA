@@ -29,6 +29,7 @@
 #include <QSplitter>
 #include <QListView>
 #include <QGraphicsView>
+#include <QMessageBox>
 
 #include "Pages/designerpage.h"
 #include "syntax/CodeEditor.h"
@@ -39,6 +40,8 @@
 #include "codepage.h"
 #include "themewidget.h"
 #include "Diagram/diagramscene.h"
+#include "Diagram/arrow.h"
+
 
 
 QT_BEGIN_NAMESPACE
@@ -119,12 +122,12 @@ private:
     DesignerPage* designerPage;
     QSignalMapper* signalMapper;
 
+    QGraphicsView* view = nullptr;
     DiagramScene* scene = nullptr;
     QMenu* fileMenu;
     QMenu* itemMenu;
     QMenu* toolMenu;
     QMenu* aboutMenu;
-    QGraphicsView* view;
     QToolBar* textToolBar;
     QToolBar* editToolBar;
     QToolBar* colorToolBar;
@@ -166,7 +169,7 @@ private:
     void initSideBar();
     void initLayout();
     void initMenubar();
-    void initScene(QObject* parent = nullptr);
+    void initScene();
     void createMenus();
     void createActions();
     void createDesignerToolbars();

@@ -6,14 +6,13 @@
 
 
 
-DesignerPage::DesignerPage(QWidget* parent) :
+DesignerPage::DesignerPage(QGraphicsView* view, QWidget* parent) :
     QWidget(parent),
-    ui(new Ui::DesignerPage)
+    ui(new Ui::DesignerPage),
+    view(view)
 {
     ui->setupUi(this);
-
     init();
-
 }
 
 DesignerPage::~DesignerPage()
@@ -84,10 +83,9 @@ void DesignerPage::init()
     designBoard = new QWidget();
     designBoard->setStyleSheet("background-color:#FFFFFF;");
 
-
     QSplitter* splitter = new QSplitter(Qt::Horizontal);
     splitter->addWidget(toolBoxes);
-    splitter->addWidget(designBoard);
+    splitter->addWidget(view);
 //    splitter->setStyleSheet("QSplitter::handle{border:solid black 2px}");
 //    splitter->setStyleSheet("background-color: #008787;");
 //    splitter->setStyleSheet("QSplitter:handle{background-color: #000000;border: solid 1px;}");

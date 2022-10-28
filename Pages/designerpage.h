@@ -1,12 +1,14 @@
 #ifndef DESIGNERPAGE_H
 #define DESIGNERPAGE_H
 
+#include "Diagram/diagramscene.h"
 #include <QWidget>
 #include <QListWidget>
 #include <QLabel>
 #include <QVBoxLayout>
 #include <QLabel>
 #include <QPushButton>
+#include <QGraphicsView>
 
 
 namespace Ui
@@ -19,10 +21,12 @@ class DesignerPage : public QWidget
     Q_OBJECT
 
 public:
-    explicit DesignerPage(QWidget* parent = nullptr);
+    explicit DesignerPage(QGraphicsView* view, QWidget* parent = nullptr);
     ~DesignerPage();
 
     QWidget* getInstance();
+
+
 
 private:
     Ui::DesignerPage* ui;
@@ -36,6 +40,8 @@ private:
     QLabel* toolBoxName_2;
     QWidget* toolBoxes;
     QWidget* designBoard;
+
+    QGraphicsView* view = nullptr;
 
     // functions
     void init();

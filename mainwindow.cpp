@@ -1,9 +1,5 @@
 #include "mainwindow.h"
-#include "Diagram/arrow.h"
 #include "ui_mainwindow.h"
-
-#include <QMessageBox>
-
 
 
 QString MainWindow::projectDir = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
@@ -40,6 +36,7 @@ void MainWindow::initLayout()
 {
 
     // initialize QStackedWidget
+
     /* initialize CodePage */
     qStackedWidget = ui->stackedWidget;
     codePage = new CodePage(this);
@@ -49,10 +46,12 @@ void MainWindow::initLayout()
     /* initialize Charts */
     qCharts = new ThemeWidget();
     ui->stackedWidget->addWidget(qCharts);
-//    ui->stackedWidget->setCurrentWidget(qCharts);
+
+    /* initialize scene */
+    initScene();
 
     /* initialize Designer Page */
-    designerPage = new DesignerPage();
+    designerPage = new DesignerPage(view);
     ui->stackedWidget->addWidget(designerPage);
 
     // initialize toolbar
@@ -75,16 +74,18 @@ void MainWindow::initLayout()
 }
 
 
-void MainWindow::initScene(QObject* parent)
+void MainWindow::initScene()
 {
     // initialize DiagramScene
-    scene = new DiagramScene(itemMenu, parent);
-    scene->setSceneRect(QRectF(0, 0, 500, 500));
-    scene->addText("Hello");
+    scene = new DiagramScene(itemMenu, this);
+    scene->setSceneRect(QRectF(0, 0, 5000, 5000));
+    scene->setBackgroundBrush(QPixmap(":/res/images/background1.png"));
     connect(scene, &DiagramScene::itemInserted,
             this, &MainWindow::itemInserted);
     connect(scene, &DiagramScene::itemSelected,
             this, &MainWindow::itemSelected);
+
+    view = new QGraphicsView(scene);
 }
 
 void MainWindow::initSideBar()
@@ -676,28 +677,32 @@ void MainWindow::createMenus()
 
 void MainWindow::backgroundBlueGridClicked()
 {
-    scene->setBackgroundBrush(QPixmap(":/images/background1.png"));
+    qDebug() << "backgroundBlueGridClicked() triggerred.";
+    scene->setBackgroundBrush(QPixmap(":/res/images/background1.png"));
     scene->update();
     view->update();
 }
 
 void MainWindow::backgroundWhiteGridClicked()
 {
-    scene->setBackgroundBrush(QPixmap(":/images/background2.png"));
+    qDebug() << "backgroundWhiteGridClicked() triggerred.";
+    scene->setBackgroundBrush(QPixmap(":/res/images/background2.png"));
     scene->update();
     view->update();
 }
 
 void MainWindow::backgroundGrayGridClicked()
 {
-    scene->setBackgroundBrush(QPixmap(":/images/background3.png"));
+    qDebug() << "backgroundGrayGridClicked() triggerred.";
+    scene->setBackgroundBrush(QPixmap(":/res/images/background3.png"));
     scene->update();
     view->update();
 }
 
 void MainWindow::backgroundNoGridClicked()
 {
-    scene->setBackgroundBrush(QPixmap(":/images/background4.png"));
+    qDebug() << "backgroundNoGridClicked() triggerred.";
+    scene->setBackgroundBrush(QPixmap(":/res/images/background4.png"));
     scene->update();
     view->update();
 }
