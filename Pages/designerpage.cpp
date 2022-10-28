@@ -110,7 +110,7 @@ void DesignerPage::loadToolBox()
 QWidget* DesignerPage::createCellWidget(QButtonGroup* buttonGroup, const QString& text, DiagramItem::DiagramType type)
 {
 
-    DiagramItem item(type, itemMenu);
+    DiagramItem item (type, itemMenu);
     QIcon icon(item.image());
 
     QToolButton* button = new QToolButton;
@@ -156,4 +156,9 @@ void DesignerPage::buttonGroupClicked(QAbstractButton* button)
 void DesignerPage::unCheckButtonGroupItem(int index)
 {
     buttonGroup_1->button(index)->setChecked(false);
+}
+
+void DesignerPage::unCheckButtonGroupTextItem()
+{
+    buttonGroup_1->button(MainWindow::InsertTextButton)->setChecked(false);
 }

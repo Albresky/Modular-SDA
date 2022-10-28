@@ -36,6 +36,21 @@ MainWindow::~MainWindow()
 void MainWindow::initLayout()
 {
 
+    // initialize toolbar
+    initToolBar();
+
+    // initialize sidebar buttons
+    initSideBar();
+
+    // initialize statusBar
+    initStatusBar();
+
+    // initialize actions
+    createActions();
+
+    // initialize menuBar
+    initMenubar();
+
     // initialize QStackedWidget
 
     /* initialize CodePage */
@@ -55,20 +70,7 @@ void MainWindow::initLayout()
     designerPage = new DesignerPage(view, scene, itemMenu);
     ui->stackedWidget->addWidget(designerPage);
 
-    // initialize toolbar
-    initToolBar();
 
-    // initialize sidebar buttons
-    initSideBar();
-
-    // initialize statusBar
-    initStatusBar();
-
-    // initialize actions
-    createActions();
-
-    // initialize menuBar
-    initMenubar();
 
     // backgroundButtonGroup = new QButtonGroup(this);
 
@@ -83,6 +85,8 @@ void MainWindow::initScene()
     scene->setBackgroundBrush(QPixmap(":/res/images/background1.png"));
     connect(scene, &DiagramScene::itemInserted,
             this, &MainWindow::itemInserted);
+    connect(scene, &DiagramScene::textInserted,
+            this, &MainWindow::textInserted);
     connect(scene, &DiagramScene::itemSelected,
             this, &MainWindow::itemSelected);
 
@@ -152,7 +156,7 @@ void MainWindow::initMenubar()
 //    fileMenu = menuBar()->addMenu(tr("文件"));
 //    fileMenu->addAction()
 
-    itemMenu = menuBar()->addMenu(tr("&Item"));
+    itemMenu = ui->Edit;
     itemMenu->addAction(deleteAction);
     itemMenu->addSeparator();
     itemMenu->addAction(toFrontAction);
@@ -661,15 +665,6 @@ void MainWindow::deleteItem()
     }
 }
 
-void MainWindow::createMenus()
-{
-    itemMenu = menuBar()->addMenu(tr("&Item"));
-    itemMenu->addAction(deleteAction);
-    itemMenu->addSeparator();
-    itemMenu->addAction(toFrontAction);
-    itemMenu->addAction(sendBackAction);
-}
-
 
 void MainWindow::backgroundBlueGridClicked()
 {
@@ -703,3 +698,9 @@ void MainWindow::backgroundNoGridClicked()
     view->update();
 }
 
+
+void MainWindow::textInserted(QGraphicsTextItem*)
+{
+    designerPage->unCheckButtonGroupTextItem();
+    scene->setMode(DiagramScene::Mode(pointerTypeGroup->checkedId()));
+}

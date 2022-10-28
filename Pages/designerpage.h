@@ -27,6 +27,9 @@ public:
 
     QWidget* getInstance();
     void unCheckButtonGroupItem(int index);
+    void unCheckButtonGroupTextItem();
+
+
 private slots:
 
     void buttonGroupClicked(QAbstractButton* button);
@@ -40,7 +43,6 @@ private:
     // variables
     QGraphicsView* view = nullptr;
     DiagramScene* scene = nullptr;
-
     QMenu* itemMenu;
     QWidget* toolBoxes;
     QWidget* designBoard;

@@ -62,7 +62,6 @@ public:
 
     static QString getProjectDir();
     static const int InsertTextButton = 10;
-    QMenu* itemMenu;
 
 
 signals:
@@ -91,6 +90,7 @@ private slots:
     void textColorChanged();
     void itemColorChanged();
     void lineColorChanged();
+    void textInserted(QGraphicsTextItem* item);
     void itemInserted(DiagramItem* item);
     void itemSelected(QGraphicsItem* item);
     void textButtonTriggered();
@@ -131,8 +131,10 @@ private:
     QGraphicsView* view = nullptr;
     DiagramScene* scene = nullptr;
     QMenu* fileMenu;
+    QMenu* itemMenu;
     QMenu* toolMenu;
     QMenu* aboutMenu;
+
     QToolBar* textToolBar;
     QToolBar* editToolBar;
     QToolBar* colorToolBar;
@@ -175,7 +177,6 @@ private:
     void initLayout();
     void initMenubar();
     void initScene();
-    void createMenus();
     void createActions();
     void createDesignerToolbars();
     QMenu* createColorMenu(const char* slot, QColor defaultColor);
