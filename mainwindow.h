@@ -75,10 +75,10 @@ private slots:
 //    void switchPage(int);
     void action_build_clicked();
     void action_make_clean_clicked();
+    void action_designer_clicked();
+    void action_edit_clicked();
+    void action_charts_clicked();
     void on_open_file_project_dir_triggered();
-    void on_btn_code_clicked();
-    void on_btn_charts_clicked();
-    void on_btn_design_clicked();
     void currentFontChanged(const QFont& font);
     void fontSizeChanged(const QString&);
     void handleFontChange();
@@ -124,6 +124,11 @@ private:
     QStackedWidget* qStackedWidget;
     QAction* action_build;
     QAction* action_make_clean;
+    QAction* sidebar_welcome;
+    QAction* sidebar_edit;
+    QAction* sidebar_designer;
+    QAction* sidebar_charts;
+    QAction* sidebar_tool;
     CodePage* codePage;
     ThemeWidget* qCharts;
     DesignerPage* designerPage;

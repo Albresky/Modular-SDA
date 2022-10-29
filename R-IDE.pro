@@ -27,6 +27,7 @@ SOURCES += \
     globalVar.cpp \
     main.cpp \
     mainwindow.cpp \
+    sidebar.cpp \
     syntax/CodeEditor.cpp \
     syntax/SyntaxHighlighter.cpp \
     themewidget.cpp \
@@ -49,6 +50,7 @@ HEADERS += \
     custom/mypushbutton.h \
     globalVar.h \
     mainwindow.h \
+    sidebar.h \
     syntax/CodeEditor.h \
     syntax/SyntaxHighlighter.h \
     syntax/typedef.h \

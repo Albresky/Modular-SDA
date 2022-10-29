@@ -30,5 +30,12 @@
         <file>res/images/sendtoback.png</file>
         <file>res/images/textpointer.png</file>
         <file>res/images/underline.png</file>
+        <file>res/imgs/circuit.png</file>
+        <file>res/imgs/circuit_selected.png</file>
+        <file>res/imgs/edit_selected.png</file>
+        <file>res/imgs/tool_selected.png</file>
+        <file>res/imgs/welcome_selected.png</file>
+        <file>res/imgs/charts.png</file>
+        <file>res/imgs/charts_selected.png</file>
     </qresource>
 </RCC>

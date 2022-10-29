@@ -20,10 +20,10 @@ MainWindow::MainWindow(QWidget* parent)
     QObject::connect(action_build, &QAction::triggered, this, &MainWindow::action_build_clicked);
     QObject::connect(action_make_clean, &QAction::triggered, this, &MainWindow::action_make_clean_clicked);
     QObject::connect(this, &MainWindow::transmitProDir, codePage, &CodePage::slot_updateProDir);
-    QObject::connect(ui->btn_design, &QPushButton::clicked, this, &MainWindow::showDesignerToolBars);
-    QObject::connect(ui->btn_code, &QPushButton::clicked, this, &MainWindow::hideDesignerToolBars);
-    QObject::connect(ui->btn_charts, &QPushButton::clicked, this, &MainWindow::hideDesignerToolBars);
-    QObject::connect(ui->btn_visualize, &QPushButton::clicked, this, &MainWindow::hideDesignerToolBars);
+//    QObject::connect(ui->btn_design, &QPushButton::clicked, this, &MainWindow::showDesignerToolBars);
+//    QObject::connect(ui->btn_code, &QPushButton::clicked, this, &MainWindow::hideDesignerToolBars);
+//    QObject::connect(ui->btn_charts, &QPushButton::clicked, this, &MainWindow::hideDesignerToolBars);
+//    QObject::connect(ui->btn_visualize, &QPushButton::clicked, this, &MainWindow::hideDesignerToolBars);
 
     qDebug() << "Desktop=>" << QStandardPaths::writableLocation(QStandardPaths::DesktopLocation) << "\n" << projectDir;
 }
@@ -96,22 +96,31 @@ void MainWindow::initScene()
 
 void MainWindow::initSideBar()
 {
-//    QStringList btn_bgImages;
-//    QStringList btn_names;
-//    btn_bgImages << ":res/sidebar/code.png" << ":res/sidebar/pencil.png" << ":res/sidebar/visualize.png" << ":res/sidebar/graph.png";
-//    btn_names << "编辑" << "设计" << "可视化" << "图表";
+    sidebar_welcome = new QAction();
+    sidebar_edit = new QAction();
+    sidebar_designer = new QAction();
+    sidebar_charts = new QAction();
+    sidebar_tool = new QAction();
 
-//    for(int i = 0; i < btn_bgImages.size(); i++)
-//    {
-//        QPushButton* ctBtn = new QPushButton(btn_names.at(i));
-////        cTabButton* ctBtn = new cTabButton(btn_bgImages.at(i));
-////        ctBtn->setText(btn_names.at(i));
-//        signalMapper->setMapping(ctBtn, i);
-//        QObject::connect(ctBtn, SIGNAL(clicked()), signalMapper, SLOT(map()));
-//        ui->sidebar->addWidget(ctBtn, 0, Qt::AlignTop);
-//    }
-//    connect(signalMapper, SIGNAL(mapped(int)), this, SLOT(switchPage(int)));
+    // bind signals with toolbar
+    QObject::connect(sidebar_welcome, &QAction::triggered, this, &MainWindow::hideDesignerToolBars);
+    QObject::connect(sidebar_edit, &QAction::triggered, this, &MainWindow::hideDesignerToolBars);
+    QObject::connect(sidebar_designer, &QAction::triggered, this, &MainWindow::showDesignerToolBars);
+    QObject::connect(sidebar_charts, &QAction::triggered, this, &MainWindow::hideDesignerToolBars);
+    QObject::connect(sidebar_tool, &QAction::triggered, this, &MainWindow::hideDesignerToolBars);
 
+    // bind signals with stackedPage
+    QObject::connect(sidebar_welcome, &QAction::triggered, this, &MainWindow::hideDesignerToolBars);
+    QObject::connect(sidebar_edit, &QAction::triggered, this, &MainWindow::action_edit_clicked);
+    QObject::connect(sidebar_designer, &QAction::triggered, this, &MainWindow::action_designer_clicked);
+    QObject::connect(sidebar_charts, &QAction::triggered, this, &MainWindow::action_charts_clicked);
+
+
+    ui->sidebar->addAction(sidebar_welcome, "欢迎", QString("welcome"));
+    ui->sidebar->addAction(sidebar_edit, "编辑", QString("edit"));
+    ui->sidebar->addAction(sidebar_designer, "设计", QString("circuit"));
+    ui->sidebar->addAction(sidebar_charts, "观察", QString("charts"));
+    ui->sidebar->addAction(sidebar_tool, "项目", QString("tool"));
 }
 
 void MainWindow::initStatusBar()
@@ -208,48 +217,25 @@ QString MainWindow::getProjectDir()
     return MainWindow::projectDir;
 }
 
-//void MainWindow::switchPage(int index)
-//{
-//    qDebug() << "switchPage() triggered=" << index;
-//    switch(index)
-//    {
-//        case 0:
-//            qStackedWidget->setCurrentWidget(codePage);
-//            break;
-//        case 1:
-//            break;
-//        case 2:
-//            break;
-//        case 3:
-//            qStackedWidget->setCurrentWidget(qCharts);
-//            break;
-//        default:
-//            break;
-//    }
-//}
 
+void MainWindow::action_designer_clicked()
+{
+    qDebug() << "current page:" << qStackedWidget->currentIndex();
+    qStackedWidget->setCurrentWidget(designerPage);
+}
 
-void MainWindow::on_btn_code_clicked()
+void MainWindow::action_edit_clicked()
 {
     qDebug() << "current page:" << qStackedWidget->currentIndex();
     qStackedWidget->setCurrentWidget(codePage);
 
 }
 
-
-void MainWindow::on_btn_charts_clicked()
+void MainWindow::action_charts_clicked()
 {
     qDebug() << "current page:" << qStackedWidget->currentIndex();
     qStackedWidget->setCurrentWidget(qCharts);
 }
-
-
-void MainWindow::on_btn_design_clicked()
-{
-    qDebug() << "current page:" << qStackedWidget->currentIndex();
-    qStackedWidget->setCurrentWidget(designerPage);
-}
-
 
 void MainWindow::itemInserted(DiagramItem* item)
 {
