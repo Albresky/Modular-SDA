@@ -3,7 +3,7 @@
 
 #include <QWidget>
 #include "QFileSystemModel"
-#include "syntax/CodeEditor.h"
+#include "syntax/Codeeditor.h"
 #include "syntax/SyntaxHighlighter.h"
 #include "FileOperator/FileOperator.h"
 #include <QDebug>

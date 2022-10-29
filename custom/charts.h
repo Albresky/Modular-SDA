@@ -3,13 +3,15 @@
 
 #include <QWidget>
 #include <QSplineSeries>
-#include "utilities.h"
 #include <QChart>
 #include <QChartView>
 #include <QCheckBox>
 #include <QComboBox>
 #include <QGridLayout>
 #include <QLabel>
+
+#include "custom/utilities.h"
+
 
 namespace Ui
 {

@@ -1,7 +1,7 @@
 #ifndef FILEOPERATOR_H
 #define FILEOPERATOR_H
 
-#include "commonHeaders.h"
+#include "custom/commonHeaders.h"
 #include <QTextStream>
 
 bool isFolder(const QString& pathName);

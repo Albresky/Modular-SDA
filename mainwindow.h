@@ -30,16 +30,16 @@
 #include <QListView>
 #include <QGraphicsView>
 #include <QMessageBox>
+#include <QTextBrowser>
 
 #include "Diagram/diagramview.h"
 #include "Pages/designerpage.h"
+#include "Pages/themewidget.h"
+#include "Pages/codepage.h"
 #include "syntax/Codeeditor.h"
 #include "syntax/SyntaxHighlighter.h"
 #include "syntax/typedef.h"
-#include "custom/cTabButton.h"
-#include "codepage.h"
-#include "codepage.h"
-#include "themewidget.h"
+#include "custom/sidebar.h"
 #include "Diagram/diagramscene.h"
 #include "Diagram/arrow.h"
 
@@ -72,7 +72,6 @@ signals:
 
 private slots:
 
-//    void switchPage(int);
     void action_build_clicked();
     void action_make_clean_clicked();
     void action_designer_clicked();
@@ -87,6 +86,7 @@ private slots:
     void backgroundGrayGridClicked();
     void backgroundWhiteGridClicked();
     void backgroundNoGridClicked();
+    void backgroundDotGridClicked();
     void sceneScaleChanged(const QString& scale);
     void textColorChanged();
     void itemColorChanged();
@@ -103,6 +103,7 @@ private slots:
     void about();
     void hideDesignerToolBars();
     void showDesignerToolBars();
+    void showLogWindow();
 
 public slots:
 
@@ -113,15 +114,16 @@ private:
     Ui::MainWindow* ui;
     QPlainTextEdit* cmd_readOut;
     QPushButton* btn_execute;
+    QPushButton* btn_show_log_window;
     QProcess* process;
     QLineEdit* console;
     QString output;
     static QString projectDir;
     CodeEditor* configEditor;
-    QListView* sidebar;
     MyHighLighter* highlighter;
     const QString MainWindowTitle = "RiscV-IDE";
     QStackedWidget* qStackedWidget;
+    QTextBrowser* logWindow;
     QAction* action_build;
     QAction* action_make_clean;
     QAction* sidebar_welcome;
@@ -129,10 +131,12 @@ private:
     QAction* sidebar_designer;
     QAction* sidebar_charts;
     QAction* sidebar_tool;
+    SideBar* sidebar;
     CodePage* codePage;
-    ThemeWidget* qCharts;
+    ThemeWidget* chartsPage;
     DesignerPage* designerPage;
     QSignalMapper* signalMapper;
+    QProcess* qProcess;
 
     DiagramView* view = nullptr;
     DiagramScene* scene = nullptr;
@@ -141,6 +145,7 @@ private:
     QMenu* toolMenu;
     QMenu* aboutMenu;
 
+    QToolBar* buildToolBar;
     QToolBar* textToolBar;
     QToolBar* editToolBar;
     QToolBar* colorToolBar;
@@ -173,21 +178,27 @@ private:
     QFontComboBox* fontCombo;
 
     // function
-    QString executeCMD(QString command);
-    void initToolBar();
+
+    void initBuildToolBar();
     void updateFileSystem();
     void updateWindowTitle();
-    QString getProjectDirSysDiskPartitionSymbol();
+
+    void initStackedPage();
     void initStatusBar();
     void initSideBar();
     void initLayout();
     void initMenubar();
     void initScene();
+    void initLogWindow();
+    void initQProcess();
     void createActions();
     void createDesignerToolbars();
-    QMenu* createColorMenu(const char* slot, QColor defaultColor);
+    void executeCmd(QString command);
+    void CmdExit(int exitCode);
+    QString getProjectDirSysDiskPartitionSymbol();
     QIcon createColorToolButtonIcon(const QString& image, QColor color);
     QIcon createColorIcon(QColor color);
+    QMenu* createColorMenu(const char* slot, QColor defaultColor);
     QWidget* createBackgroundCellWidget(const QString& text, const QString& image);
 
 };

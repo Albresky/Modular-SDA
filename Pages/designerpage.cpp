@@ -1,6 +1,8 @@
 #include "designerpage.h"
 #include "ui_designerpage.h"
 
+
+
 #include <mainwindow.h>
 
 
@@ -31,22 +33,22 @@ void DesignerPage::init()
 {
 //    QThread::msleep(200);
 
-    loadToolBox();
+    initAttributesBox();
+    initToolBox();
 
-    designBoard = new QWidget();
-    designBoard->setStyleSheet("background-color:#FFFFFF;");
 
     QSplitter* splitter = new QSplitter(Qt::Horizontal);
     splitter->addWidget(toolBoxes);
     splitter->addWidget(view);
-//    splitter->setStyleSheet("QSplitter::handle{border:solid black 2px}");
-//    splitter->setStyleSheet("background-color: #008787;");
-//    splitter->setStyleSheet("QSplitter:handle{background-color: #000000;border: solid 1px;}");
+    splitter->addWidget(attributesBox);
+
+    splitter->setStyleSheet("QSplitter::handle {background-color: rgb(192,192,192);}");
+    splitter->setHandleWidth(5);
     this->layout()->replaceWidget(ui->widget, splitter);
     ui->widget->hide();
 }
 
-void DesignerPage::loadToolBox()
+void DesignerPage::initToolBox()
 {
     toolBoxName_1 = new QLabel();
     toolBoxName_2 = new QLabel();
@@ -98,8 +100,11 @@ void DesignerPage::loadToolBox()
     vToolBoxesLayout->addWidget(toolBox_1);
     vToolBoxesLayout->addWidget(toolBoxName_2);
     vToolBoxesLayout->addWidget(toolBoxName_3);
-    toolBoxes = new QWidget();
+    toolBoxes = new QFrame();
     toolBoxes->setLayout(vToolBoxesLayout);
+    toolBoxes->setFrameShape(QFrame::Shape::Box);
+    toolBoxes->setLineWidth(1);
+    toolBoxes->setMaximumWidth(150);
 }
 
 
@@ -157,4 +162,25 @@ void DesignerPage::unCheckButtonGroupItem(int index)
 void DesignerPage::unCheckButtonGroupTextItem()
 {
     buttonGroup_1->button(MainWindow::InsertTextButton)->setChecked(false);
+}
+
+void DesignerPage::initAttributesBox()
+{
+    QVBoxLayout* attributeLayout = new QVBoxLayout;
+    for(int i = 0; i < 10; i++)
+    {
+        QHBoxLayout* hboxLayout1 = new QHBoxLayout;
+        QLabel* label1 = new QLabel("采样频率：");
+        QDoubleSpinBox* qDoubleSpinBox1 = new QDoubleSpinBox;
+        qDoubleSpinBox1->setRange(0.0, 9999.99);
+        hboxLayout1->addWidget(label1);
+        hboxLayout1->addWidget(qDoubleSpinBox1);
+        attributeLayout->addLayout(hboxLayout1);
+    }
+
+    attributesBox = new QFrame();
+    attributesBox->setLineWidth(1);
+    attributesBox->setLayout(attributeLayout);
+    attributesBox->setFrameShape(QFrame::Shape::Box);
+    attributesBox->setMaximumWidth(150);
 }

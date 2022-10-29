@@ -1,7 +1,6 @@
 #ifndef DESIGNERPAGE_H
 #define DESIGNERPAGE_H
 
-#include "Diagram/diagramscene.h"
 #include <QWidget>
 #include <QListWidget>
 #include <QLabel>
@@ -13,6 +12,10 @@
 #include <QButtonGroup>
 #include <QSplitter>
 #include <QThread>
+#include <QDoubleSpinBox>
+#include <QToolButton>
+
+#include "Diagram/diagramscene.h"
 
 namespace Ui
 {
@@ -40,13 +43,12 @@ private slots:
 private:
     Ui::DesignerPage* ui;
 
-//    MainWindow* parent;
-
     // variables
     QGraphicsView* view = nullptr;
     DiagramScene* scene = nullptr;
     QMenu* itemMenu;
-    QWidget* toolBoxes;
+    QFrame* toolBoxes;
+    QFrame* attributesBox;
     QWidget* designBoard;
     QButtonGroup* buttonGroup_1;
     QButtonGroup* buttonGroup_2;
@@ -54,14 +56,14 @@ private:
     QLabel* toolBoxName_1;
     QLabel* toolBoxName_2;
     QLabel* toolBoxName_3;
-
     QToolBox* toolBox_1;
 
 
     // functions
     void init();
     void createToolbars();
-    void loadToolBox();
+    void initToolBox();
+    void initAttributesBox();
     QWidget* createCellWidget(QButtonGroup*, const QString&, DiagramItem::DiagramType);
 };
 

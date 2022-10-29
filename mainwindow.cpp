@@ -20,10 +20,6 @@ MainWindow::MainWindow(QWidget* parent)
     QObject::connect(action_build, &QAction::triggered, this, &MainWindow::action_build_clicked);
     QObject::connect(action_make_clean, &QAction::triggered, this, &MainWindow::action_make_clean_clicked);
     QObject::connect(this, &MainWindow::transmitProDir, codePage, &CodePage::slot_updateProDir);
-//    QObject::connect(ui->btn_design, &QPushButton::clicked, this, &MainWindow::showDesignerToolBars);
-//    QObject::connect(ui->btn_code, &QPushButton::clicked, this, &MainWindow::hideDesignerToolBars);
-//    QObject::connect(ui->btn_charts, &QPushButton::clicked, this, &MainWindow::hideDesignerToolBars);
-//    QObject::connect(ui->btn_visualize, &QPushButton::clicked, this, &MainWindow::hideDesignerToolBars);
 
     qDebug() << "Desktop=>" << QStandardPaths::writableLocation(QStandardPaths::DesktopLocation) << "\n" << projectDir;
 }
@@ -35,11 +31,10 @@ MainWindow::~MainWindow()
 
 void MainWindow::initLayout()
 {
+    // initialize toolBar
+    initBuildToolBar();
 
-    // initialize toolbar
-    initToolBar();
-
-    // initialize sidebar buttons
+    // initialize sideBar
     initSideBar();
 
     // initialize statusBar
@@ -51,28 +46,14 @@ void MainWindow::initLayout()
     // initialize menuBar
     initMenubar();
 
+    // initialize logWindow
+    initLogWindow();
+
     // initialize QStackedWidget
+    initStackedPage();
 
-    /* initialize CodePage */
-    qStackedWidget = ui->stackedWidget;
-    codePage = new CodePage(this);
-    ui->stackedWidget->addWidget(codePage);
-    ui->stackedWidget->setCurrentWidget(codePage);
-
-    /* initialize Charts */
-    qCharts = new ThemeWidget();
-    ui->stackedWidget->addWidget(qCharts);
-
-    /* initialize scene */
-    initScene();
-
-    /* initialize Designer Page */
-    designerPage = new DesignerPage(view, scene, itemMenu);
-    ui->stackedWidget->addWidget(designerPage);
-
-
-
-    // backgroundButtonGroup = new QButtonGroup(this);
+    // initialize Command Processor
+    initQProcess();
 
 }
 
@@ -82,7 +63,7 @@ void MainWindow::initScene()
     // initialize DiagramScene
     scene = new DiagramScene(itemMenu, this);
     scene->setSceneRect(QRectF(0, 0, 5000, 5000));
-    scene->setBackgroundBrush(QPixmap(":/res/images/background1.png"));
+    scene->setBackgroundBrush(QPixmap(":/res/images/background5.png"));
     connect(scene, &DiagramScene::itemInserted,
             this, &MainWindow::itemInserted);
     connect(scene, &DiagramScene::textInserted,
@@ -94,8 +75,49 @@ void MainWindow::initScene()
 
 }
 
+void MainWindow::initStackedPage()
+{
+    /* initialize CodePage */
+
+    qStackedWidget = new QStackedWidget;
+    codePage = new CodePage(this);
+    qStackedWidget->addWidget(codePage);
+    qStackedWidget->setCurrentWidget(codePage);
+
+    /* initialize Charts */
+    chartsPage = new ThemeWidget();
+    qStackedWidget->addWidget(chartsPage);
+
+    /* initialize scene */
+    initScene();
+
+    /* initialize Designer Page */
+    designerPage = new DesignerPage(view, scene, itemMenu);
+    qStackedWidget->addWidget(designerPage);
+
+    /* conbine stackedPage with logWindow */
+
+
+    QSplitter* splitter = new QSplitter(Qt::Vertical);
+    splitter->setStyleSheet("QSplitter::handle {background-color: rgb(192,192,192);}");
+    splitter->setHandleWidth(5);
+
+    splitter->addWidget(qStackedWidget);
+    splitter->addWidget(logWindow);
+    splitter->widget(1)->hide();
+
+    QHBoxLayout* mainWinLayout = new QHBoxLayout;
+    mainWinLayout->addWidget(sidebar);
+    mainWinLayout->addWidget(splitter);
+    this->centralWidget()->setLayout(mainWinLayout);
+
+    QObject::connect(btn_show_log_window, &QPushButton::clicked, this, &MainWindow::showLogWindow);
+}
+
 void MainWindow::initSideBar()
 {
+    sidebar = new SideBar;
+
     sidebar_welcome = new QAction();
     sidebar_edit = new QAction();
     sidebar_designer = new QAction();
@@ -116,46 +138,58 @@ void MainWindow::initSideBar()
     QObject::connect(sidebar_charts, &QAction::triggered, this, &MainWindow::action_charts_clicked);
 
 
-    ui->sidebar->addAction(sidebar_welcome, "欢迎", QString("welcome"));
-    ui->sidebar->addAction(sidebar_edit, "编辑", QString("edit"));
-    ui->sidebar->addAction(sidebar_designer, "设计", QString("circuit"));
-    ui->sidebar->addAction(sidebar_charts, "观察", QString("charts"));
-    ui->sidebar->addAction(sidebar_tool, "项目", QString("tool"));
+    sidebar->addAction(sidebar_welcome, "欢迎", QString("welcome"));
+    sidebar->addAction(sidebar_edit, "编辑", QString("edit"));
+    sidebar->addAction(sidebar_designer, "设计", QString("circuit"));
+    sidebar->addAction(sidebar_charts, "观察", QString("charts"));
+    sidebar->addAction(sidebar_tool, "项目", QString("tool"));
+    sidebar->setFixedWidth(80);
 }
 
 void MainWindow::initStatusBar()
 {
     // log window
-    QPushButton* btn_show_log_window = new QPushButton();
+    btn_show_log_window = new QPushButton();
     btn_show_log_window->setText("编译输出");
     ui->statusBar->addWidget(btn_show_log_window);
 }
 
-
-
-QString MainWindow::executeCMD(QString command)
+void MainWindow::executeCmd(QString command)
 {
-    QProcess qp;
-    qp.start("cmd.exe", QStringList() << "/C" << command);
-    qp.waitForFinished();
-    QByteArray qba = qp.readAllStandardOutput();
-    QTextCodec* pText  = QTextCodec::codecForName("System");
-    QString str = pText->toUnicode(qba);
-    return str;
+    qProcess->start("cmd.exe", QStringList() << "/C" << command);
+    qProcess->waitForFinished();
+}
+
+void MainWindow::CmdExit(int exitCode)
+{
+    QString str = "";
+    if(exitCode == QProcess::NormalExit)
+    {
+        QByteArray qba =  qProcess->readAllStandardOutput();
+
+        QTextCodec* pText  = QTextCodec::codecForName("System");
+        str = pText->toUnicode(qba);
+        logWindow->setPlainText(str);
+    }
+    else
+    {
+        logWindow->setPlainText(str);
+    }
 }
 
 
-void MainWindow:: initToolBar()
+void MainWindow:: initBuildToolBar()
 {
+    buildToolBar = addToolBar(tr("Build"));
     action_build = new QAction();
     action_build->setText("构建");
     action_build->setIcon(QIcon(":res/icons/build.ico"));
-    ui->toolBar->addAction(action_build);
+    buildToolBar->addAction(action_build);
 
     action_make_clean = new QAction();
     action_make_clean->setText("清理");
     action_make_clean->setIcon(QIcon(":/res/icons/clean.ico"));
-    ui->toolBar->addAction(action_make_clean);
+    buildToolBar->addAction(action_make_clean);
 
     createDesignerToolbars();
 }
@@ -173,21 +207,23 @@ void MainWindow::initMenubar()
     itemMenu->addAction(sendBackAction);
 }
 
+
+void MainWindow::initQProcess()
+{
+    qProcess = new QProcess();
+    connect(qProcess, &QProcess::finished, this, &MainWindow::CmdExit);
+}
+
 void MainWindow:: action_build_clicked()
 {
     qDebug() << "action BUILD clicked";
-    //    QString command=ui->cmd_edit->text();
-    QString res = executeCMD(getProjectDirSysDiskPartitionSymbol() + " && cd " + MainWindow::projectDir + " && make");
-    qDebug() << res;
-//    ui->cmd_readOut->setPlainText(res);
+    executeCmd(getProjectDirSysDiskPartitionSymbol() + " && cd " + MainWindow::projectDir + " && make");
 }
 
 void  MainWindow::action_make_clean_clicked()
 {
     qDebug() << "action make clean clicked";
-    QString res = executeCMD(getProjectDirSysDiskPartitionSymbol() + " && cd " + MainWindow::projectDir + " && make clean");
-    qDebug() << res;
-//    ui->cmd_readOut->setPlainText(res);
+    executeCmd(getProjectDirSysDiskPartitionSymbol() + " && cd " + MainWindow::projectDir + " && make clean");
 }
 
 
@@ -234,7 +270,7 @@ void MainWindow::action_edit_clicked()
 void MainWindow::action_charts_clicked()
 {
     qDebug() << "current page:" << qStackedWidget->currentIndex();
-    qStackedWidget->setCurrentWidget(qCharts);
+    qStackedWidget->setCurrentWidget(chartsPage);
 }
 
 void MainWindow::itemInserted(DiagramItem* item)
@@ -419,6 +455,11 @@ void MainWindow::createDesignerToolbars()
     noGridBgBtn->setChecked(false);
     noGridBgBtn->setIcon(QIcon(":/res/images/background4.png"));
     connect(noGridBgBtn, &QToolButton::clicked, this, &MainWindow::backgroundNoGridClicked);
+    QToolButton* dotGridBgBtn  = new QToolButton;
+    dotGridBgBtn->setCheckable(false);
+    dotGridBgBtn->setChecked(false);
+    dotGridBgBtn->setIcon(QIcon(":/res/images/background5.png"));
+    connect(dotGridBgBtn, &QToolButton::clicked, this, &MainWindow::backgroundDotGridClicked);
 
 
     backgroundToolBar = addToolBar(tr("Set Background"));
@@ -426,8 +467,17 @@ void MainWindow::createDesignerToolbars()
     backgroundToolBar->addWidget(whiteGridBgBtn);
     backgroundToolBar->addWidget(grayGridBgBtn);
     backgroundToolBar->addWidget(noGridBgBtn);
-
+    backgroundToolBar->addWidget(dotGridBgBtn);
     hideDesignerToolBars();
+}
+
+void MainWindow::initLogWindow()
+{
+    logWindow = new QTextBrowser();
+    logWindow->setStyleSheet(QString("background-color: rgb(51, 51, 51); ") +
+                             QString("color:rgb(0, 135, 135); ") +
+                             QString("border-radius:4px;"));
+
 }
 
 
@@ -685,9 +735,30 @@ void MainWindow::backgroundNoGridClicked()
     view->update();
 }
 
+void MainWindow::backgroundDotGridClicked()
+{
+    qDebug() << "backgroundDotGridClicked() triggerred.";
+    scene->setBackgroundBrush(QPixmap(":/res/images/background5.png"));
+    scene->update();
+    view->update();
+}
+
 
 void MainWindow::textInserted(QGraphicsTextItem*)
 {
     designerPage->unCheckButtonGroupTextItem();
     scene->setMode(DiagramScene::Mode(pointerTypeGroup->checkedId()));
+}
+
+
+void MainWindow::showLogWindow()
+{
+    if(logWindow->isVisible())
+    {
+        logWindow->hide();
+    }
+    else
+    {
+        logWindow->show();
+    }
 }

@@ -18,21 +18,21 @@ SOURCES += \
     Diagram/diagramtextitem.cpp \
     Diagram/diagramview.cpp \
     FileOperator/FileOperator.cpp \
+    Pages/codepage.cpp \
     Pages/designerpage.cpp \
-    algorithmtoolbox.cpp \
-    charts.cpp \
-    codepage.cpp \
-    custom/cTabButton.cpp \
-    custom/mypushbutton.cpp \
-    globalVar.cpp \
+    Pages/themewidget.cpp \
+    custom/algorithmtoolbox.cpp \
+    custom/charts.cpp \
+    custom/commonHeaders.cpp \
+    custom/globalVar.cpp \
+    custom/sidebar.cpp \
+    custom/utilities.cpp \
     main.cpp \
     mainwindow.cpp \
-    sidebar.cpp \
     syntax/CodeEditor.cpp \
-    syntax/SyntaxHighlighter.cpp \
-    themewidget.cpp \
-    utilities.cpp \
-    visualize.cpp
+    syntax/SyntaxHighlighter.cpp
+
+
 
 HEADERS += \
     Diagram/arrow.h \
@@ -41,30 +41,31 @@ HEADERS += \
     Diagram/diagramtextitem.h \
     Diagram/diagramview.h \
     FileOperator/FileOperator.h \
+    Pages/codepage.h \
     Pages/designerpage.h \
-    algorithmtoolbox.h \
-    charts.h \
-    codepage.h \
-    commonHeaders.h \
-    custom/cTabButton.h \
-    custom/mypushbutton.h \
-    globalVar.h \
+    Pages/themewidget.h \
+    custom/algorithmtoolbox.h \
+    custom/charts.h \
+    custom/commonHeaders.h \
+    custom/globalVar.h \
+    custom/sidebar.h \
+    custom/utilities.h \
     mainwindow.h \
-    sidebar.h \
-    syntax/CodeEditor.h \
+    syntax/Codeeditor.h \
     syntax/SyntaxHighlighter.h \
-    syntax/typedef.h \
-    themewidget.h \
-    utilities.h \
-    visualize.h
+    syntax/typedef.h
+
+
 
 FORMS += \
     Pages/designerpage.ui \
-    charts.ui \
-    codepage.ui \
-    mainwindow.ui \
-    themewidget.ui \
-    visualize.ui
+    Pages/themewidget.ui \
+    custom/charts.ui \
+    custom/codepage.ui \
+    custom/codewidget.ui \
+    mainwindow.ui
+
+
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -76,4 +77,40 @@ RESOURCES += \
 
 RC_ICONS = $$PWD/res/icons/logo.ico
 
-DISTFILES +=
+DISTFILES += \
+    res/icons/build.ico \
+    res/icons/clean.ico \
+    res/icons/fft.ico \
+    res/icons/logo.ico \
+    res/images/background1.png \
+    res/images/background2.png \
+    res/images/background3.png \
+    res/images/background4.png \
+    res/images/background5.png \
+    res/images/bold.png \
+    res/images/bringtofront.png \
+    res/images/delete.png \
+    res/images/floodfill.png \
+    res/images/italic.png \
+    res/images/linecolor.png \
+    res/images/linepointer.png \
+    res/images/pointer.png \
+    res/images/sendtoback.png \
+    res/images/textpointer.png \
+    res/images/underline.png \
+    res/imgs/build.png \
+    res/imgs/debug.png \
+    res/imgs/help.png \
+    res/imgs/run.png \
+    res/imgs/splitter.png \
+    res/imgs/unknownfile.png \
+    res/sidebar/charts.png \
+    res/sidebar/charts_selected.png \
+    res/sidebar/circuit.png \
+    res/sidebar/circuit_selected.png \
+    res/sidebar/edit.png \
+    res/sidebar/edit_selected.png \
+    res/sidebar/tool.png \
+    res/sidebar/tool_selected.png \
+    res/sidebar/welcome.png \
+    res/sidebar/welcome_selected.png

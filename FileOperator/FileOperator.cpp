@@ -1,5 +1,5 @@
 #include "FileOperator.h"
-#include "commonHeaders.h"
+#include "custom/commonHeaders.h"
 
 bool isFolder(const QString& pathName)
 {

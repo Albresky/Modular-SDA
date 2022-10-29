@@ -1,20 +1,9 @@
 <RCC>
     <qresource prefix="/">
-        <file>res/imgs/build.png</file>
-        <file>res/imgs/debug.png</file>
-        <file>res/imgs/edit.png</file>
-        <file>res/imgs/help.png</file>
-        <file>res/imgs/run.png</file>
-        <file>res/imgs/tool.png</file>
-        <file>res/imgs/welcome.png</file>
         <file>res/icons/build.ico</file>
         <file>res/icons/clean.ico</file>
         <file>res/icons/fft.ico</file>
-        <file>res/sidebar/graph.png</file>
-        <file>res/sidebar/pencil.png</file>
-        <file>res/sidebar/visualize.png</file>
-        <file>res/sidebar/code.png</file>
-        <file>res/imgs/unknownfile.png</file>
+        <file>res/icons/logo.ico</file>
         <file>res/images/background1.png</file>
         <file>res/images/background2.png</file>
         <file>res/images/background3.png</file>
@@ -30,12 +19,22 @@
         <file>res/images/sendtoback.png</file>
         <file>res/images/textpointer.png</file>
         <file>res/images/underline.png</file>
-        <file>res/imgs/circuit.png</file>
-        <file>res/imgs/circuit_selected.png</file>
-        <file>res/imgs/edit_selected.png</file>
-        <file>res/imgs/tool_selected.png</file>
-        <file>res/imgs/welcome_selected.png</file>
-        <file>res/imgs/charts.png</file>
-        <file>res/imgs/charts_selected.png</file>
+        <file>res/imgs/build.png</file>
+        <file>res/imgs/debug.png</file>
+        <file>res/imgs/help.png</file>
+        <file>res/imgs/run.png</file>
+        <file>res/imgs/splitter.png</file>
+        <file>res/imgs/unknownfile.png</file>
+        <file>res/sidebar/charts.png</file>
+        <file>res/sidebar/charts_selected.png</file>
+        <file>res/sidebar/circuit.png</file>
+        <file>res/sidebar/circuit_selected.png</file>
+        <file>res/sidebar/edit.png</file>
+        <file>res/sidebar/edit_selected.png</file>
+        <file>res/sidebar/tool.png</file>
+        <file>res/sidebar/tool_selected.png</file>
+        <file>res/sidebar/welcome.png</file>
+        <file>res/sidebar/welcome_selected.png</file>
+        <file>res/images/background5.png</file>
     </qresource>
 </RCC>
