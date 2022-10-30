@@ -4,6 +4,9 @@
 #include <QtWidgets/QWidget>
 #include <QtCharts/QChartGlobal>
 #include <QGridLayout>
+#include <QLineEdit>
+#include <QTextBrowser>
+#include <custom/myserialport.h>
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
@@ -53,8 +56,25 @@ private:
     int m_valueCount;
     QList<QChartView*> m_charts;
     DataTable m_dataTable;
+    QGridLayout* gridlayout;
+    QCheckBox* antialiasCheckBox;
+    QComboBox* cbox_legend;
+    QComboBox* cbox_theme;
+    QComboBox* cbox_animation;
+    QLineEdit* browser_validValue;
+    QLineEdit* browser_baseFreq;
+    QLineEdit* browser_baseAmplitude;
+    QLineEdit* browser_thirdOrderFreq;
+    QLineEdit* browser_thirdOrderAmplitude;
+    QLineEdit* browser_fifthOrderFreq;
+    QLineEdit* browser_fifthOrderAmplitude;
+    QLineEdit* browser_seventhOrderFreq;
+    QLineEdit* browser_seventhOrderAmplitude;
 
-    Ui_ThemeWidgetForm* m_ui;
+
+    // fuction
+    void initLayout();
+//    void initSerialPortToolBar();
 };
 
 #endif /* THEMEWIDGET_H */

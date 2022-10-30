@@ -36,5 +36,11 @@
         <file>res/sidebar/welcome.png</file>
         <file>res/sidebar/welcome_selected.png</file>
         <file>res/images/background5.png</file>
+        <file>res/icons/download.ico</file>
+        <file>res/imgs/download.png</file>
+        <file>res/imgs/hammer.png</file>
+        <file>res/imgs/clean.png</file>
+        <file>res/imgs/serialPort.png</file>
+        <file>res/imgs/refresh.png</file>
     </qresource>
 </RCC>

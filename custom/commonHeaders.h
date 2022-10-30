@@ -9,6 +9,8 @@
 #include <QFileDialog>
 #include <stdlib.h>
 
+class MainWindow;
+class ProjectPage;
 
 extern QString prefix;
 

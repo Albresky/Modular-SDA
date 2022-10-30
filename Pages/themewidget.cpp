@@ -1,34 +1,4 @@
-/****************************************************************************
-**
-** Copyright (C) 2016 The Qt Company Ltd.
-** Contact: https://www.qt.io/licensing/
-**
-** This file is part of the Qt Charts module of the Qt Toolkit.
-**
-** $QT_BEGIN_LICENSE:GPL$
-** Commercial License Usage
-** Licensees holding valid commercial Qt licenses may use this file in
-** accordance with the commercial license agreement provided with the
-** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and The Qt Company. For licensing terms
-** and conditions see https://www.qt.io/terms-conditions. For further
-** information use the contact form at https://www.qt.io/contact-us.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3 or (at your option) any later version
-** approved by the KDE Free Qt Foundation. The licenses are as published by
-** the Free Software Foundation and appearing in the file LICENSE.GPL3
-** included in the packaging of this file. Please review the following
-** information to ensure the GNU General Public License requirements will
-** be met: https://www.gnu.org/licenses/gpl-3.0.html.
-**
-** $QT_END_LICENSE$
-**
-****************************************************************************/
-
 #include "themewidget.h"
-#include "ui_themewidget.h"
 
 #include <QtCharts/QChartView>
 #include <QtCharts/QPieSeries>
@@ -55,67 +25,63 @@
 #include <QtWidgets/QApplication>
 #include <QtCharts/QValueAxis>
 
-ThemeWidget::ThemeWidget(QWidget* parent) :
-    QWidget(parent),
+ThemeWidget::ThemeWidget(QWidget* parent) : QWidget(parent),
     m_listCount(3),
     m_valueMax(10),
     m_valueCount(7),
-    m_dataTable(generateRandomData(m_listCount, m_valueMax, m_valueCount)),
-    m_ui(new Ui_ThemeWidgetForm)
+    m_dataTable(generateRandomData(m_listCount, m_valueMax, m_valueCount))
 {
-    m_ui->setupUi(this);
+    initLayout();
+
     populateThemeBox();
     populateAnimationBox();
     populateLegendBox();
 
-    //create charts
+    // create charts
 
     QChartView* chartView;
 
-//    chartView = new QChartView(createAreaChart());
-//    m_ui->gridLayout->addWidget(chartView, 1, 0);
-//    m_charts << chartView;
+    //    chartView = new QChartView(createAreaChart());
+    //    m_ui->gridLayout->addWidget(chartView, 1, 0);
+    //    m_charts << chartView;
 
-//    chartView = new QChartView(createPieChart());
-//    // Funny things happen if the pie slice labels do not fit the screen, so we ignore size policy
-//    chartView->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
-//    m_ui->gridLayout->addWidget(chartView, 1, 1);
-//    m_charts << chartView;
+    //    chartView = new QChartView(createPieChart());
+    //    // Funny things happen if the pie slice labels do not fit the screen, so we ignore size policy
+    //    chartView->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
+    //    m_ui->gridLayout->addWidget(chartView, 1, 1);
+    //    m_charts << chartView;
 
+    //    chartView = new QChartView(createLineChart());
+    //    m_ui->gridLayout->addWidget(chartView, 1, 2);
 
-//    chartView = new QChartView(createLineChart());
-//    m_ui->gridLayout->addWidget(chartView, 1, 2);
+    //    m_charts << chartView;
 
-//    m_charts << chartView;
-
-//    chartView = new QChartView(createBarChart(m_valueCount));
-//    m_ui->gridLayout->addWidget(chartView, 2, 0);
-//    m_charts << chartView;
-
-
+    //    chartView = new QChartView(createBarChart(m_valueCount));
+    //    m_ui->gridLayout->addWidget(chartView, 2, 0);
+    //    m_charts << chartView;
 
     chartView = new QChartView(createSplineChart("Chart 1"));
-    m_ui->gridLayout->addWidget(chartView, 1, 0);
+    gridLayout->addWidget(chartView, 1, 0);
     m_charts << chartView;
 
     chartView = new QChartView(createSplineChart("Chart 2"));
-    m_ui->gridLayout->addWidget(chartView, 1, 1);
+    gridLayout->addWidget(chartView, 1, 1);
     m_charts << chartView;
 
     chartView = new QChartView(createSplineChart("Chart 3"));
-    m_ui->gridLayout->addWidget(chartView, 2, 0);
+    gridLayout->addWidget(chartView, 2, 0);
     m_charts << chartView;
 
     chartView = new QChartView(createSplineChart("Chart 4"));
-    m_ui->gridLayout->addWidget(chartView, 2, 1);
+    gridLayout->addWidget(chartView, 2, 1);
     m_charts << chartView;
 
-//    chartView = new QChartView(createScatterChart());
-//    m_ui->gridLayout->addWidget(chartView, 2, 2);
-//    m_charts << chartView;
+    //    chartView = new QChartView(createScatterChart());
+    //    m_ui->gridLayout->addWidget(chartView, 2, 2);
+    //    m_charts << chartView;
 
     // Set defaults
-    m_ui->antialiasCheckBox->setChecked(true);
+    antialiasCheckBox->setChecked(true);
 
     // Set the colors from the light theme as default ones
     QPalette pal = qApp->palette();
@@ -123,14 +89,143 @@ ThemeWidget::ThemeWidget(QWidget* parent) :
     pal.setColor(QPalette::WindowText, QRgb(0x404044));
     qApp->setPalette(pal);
 
-//    QObject::connect(m_ui->cbox_theme, SIGNAL(&QComboBox::currentIndexChanged), this, SLOT(&ThemeWidget::updateUI));
-
     updateUI();
 }
 
 ThemeWidget::~ThemeWidget()
 {
-    delete m_ui;
+}
+
+void ThemeWidget::initLayout()
+{
+    cbox_legend = new QComboBox();
+    cbox_theme = new QComboBox();
+    cbox_animation = new QComboBox();
+    antialiasCheckBox = new QCheckBox("抗锯齿");
+    browser_validValue = new QLineEdit();
+    browser_baseFreq = new QLineEdit();
+    browser_baseAmplitude = new QLineEdit();
+    browser_thirdOrderFreq = new QLineEdit();
+    browser_thirdOrderAmplitude = new QLineEdit();
+    browser_fifthOrderFreq = new QLineEdit();
+    browser_fifthOrderAmplitude = new QLineEdit();
+    browser_seventhOrderFreq = new QLineEdit();
+    browser_seventhOrderAmplitude = new QLineEdit();
+    browser_validValue->setReadOnly(true);
+    browser_baseFreq->setReadOnly(true);
+    browser_baseAmplitude->setReadOnly(true);
+    browser_thirdOrderFreq->setReadOnly(true);
+    browser_thirdOrderAmplitude->setReadOnly(true);
+    browser_fifthOrderFreq->setReadOnly(true);
+    browser_fifthOrderAmplitude->setReadOnly(true);
+    browser_seventhOrderFreq->setReadOnly(true);
+    browser_seventhOrderAmplitude->setReadOnly(true);
+
+    QObject::connect(cbox_legend, &QComboBox::currentIndexChanged, this, &ThemeWidget::updateUI);
+    QObject::connect(cbox_theme, &QComboBox::currentIndexChanged, this, &ThemeWidget::updateUI);
+    QObject::connect(cbox_animation, &QComboBox::currentIndexChanged, this, &ThemeWidget::updateUI);
+    QObject::connect(antialiasCheckBox, &QCheckBox::stateChanged, this, &ThemeWidget::updateUI);
+
+    QHBoxLayout* themeLayout = new QHBoxLayout;
+    QLabel* themeLabel = new QLabel("主题");
+    themeLayout->addWidget(themeLabel);
+    themeLayout->addWidget(cbox_theme);
+
+    QHBoxLayout* legendLayout = new QHBoxLayout;
+    QLabel* legendLabel = new QLabel("图例");
+    themeLayout->addWidget(legendLabel);
+    themeLayout->addWidget(cbox_legend);
+
+    QHBoxLayout* animationLayout = new QHBoxLayout;
+    QLabel* animationLabel = new QLabel("动画");
+    themeLayout->addWidget(animationLabel);
+    themeLayout->addWidget(cbox_animation);
+
+    QFrame* dividingLine1 = new QFrame();
+    dividingLine1->setFrameShape(QFrame::HLine);
+    dividingLine1->setFrameShadow(QFrame::Sunken);
+
+    QHBoxLayout* validValueLayout = new QHBoxLayout;
+    QLabel* validValueLabel = new QLabel("有效值");
+    validValueLabel->setAlignment(Qt::AlignCenter);
+    validValueLabel->setFixedWidth(80);
+    validValueLayout->addWidget(validValueLabel);
+    validValueLayout->addWidget(browser_validValue);
+
+    QHBoxLayout* baseFreqLayout = new QHBoxLayout;
+    QLabel* baseFreqLabel = new QLabel("基波频率");
+    baseFreqLabel->setAlignment(Qt::AlignCenter);
+    baseFreqLabel->setFixedWidth(80);
+    baseFreqLayout->addWidget(baseFreqLabel);
+    baseFreqLayout->addWidget(browser_baseFreq);
+
+    QHBoxLayout* baseAmplitudeLayout = new QHBoxLayout;
+    QLabel* baseAmplitudeLabel = new QLabel("基波幅值");
+    baseAmplitudeLabel->setAlignment(Qt::AlignCenter);
+    baseAmplitudeLabel->setFixedWidth(80);
+    baseAmplitudeLayout->addWidget(baseAmplitudeLabel);
+    baseAmplitudeLayout->addWidget(browser_baseAmplitude);
+
+    QHBoxLayout* thirdOrderFreqLayout = new QHBoxLayout;
+    QLabel* thirdOrderFreqLabel = new QLabel("三次谐波频率");
+    thirdOrderFreqLabel->setFixedWidth(80);
+    thirdOrderFreqLayout->addWidget(thirdOrderFreqLabel);
+    thirdOrderFreqLayout->addWidget(browser_thirdOrderFreq);
+
+    QHBoxLayout* thirdOrderAmplitudeLayout = new QHBoxLayout;
+    QLabel* thirdOrderAmplitudeLabel = new QLabel("三次谐波幅值");
+    thirdOrderAmplitudeLabel->setFixedWidth(80);
+    thirdOrderAmplitudeLayout->addWidget(thirdOrderAmplitudeLabel);
+    thirdOrderAmplitudeLayout->addWidget(browser_thirdOrderAmplitude);
+
+    QHBoxLayout* fifthOrderFreqLayout = new QHBoxLayout;
+    QLabel* fifthOrderFreqLabel = new QLabel("五次谐波频率");
+    fifthOrderFreqLabel->setFixedWidth(80);
+    fifthOrderFreqLayout->addWidget(fifthOrderFreqLabel);
+    fifthOrderFreqLayout->addWidget(browser_fifthOrderFreq);
+
+    QHBoxLayout* fifthOrderAmplitudeLayout = new QHBoxLayout;
+    QLabel* fifthOrderAmplitudeLabel = new QLabel("五次谐波幅值");
+    fifthOrderAmplitudeLabel->setFixedWidth(80);
+    fifthOrderAmplitudeLayout->addWidget(fifthOrderAmplitudeLabel);
+    fifthOrderAmplitudeLayout->addWidget(browser_fifthOrderAmplitude);
+
+    QHBoxLayout* seventhOrderFreqLayout = new QHBoxLayout;
+    QLabel* seventhOrderFreqLabel = new QLabel("七次谐波频率");
+    seventhOrderFreqLabel->setFixedWidth(80);
+    seventhOrderFreqLayout->addWidget(seventhOrderFreqLabel);
+    seventhOrderFreqLayout->addWidget(browser_seventhOrderFreq);
+
+    QHBoxLayout* seventhOrderAmplitudeLayout = new QHBoxLayout;
+    QLabel* seventhOrderAmplitudeLabel = new QLabel("七次谐波幅值");
+    seventhOrderAmplitudeLabel->setFixedWidth(80);
+    seventhOrderAmplitudeLayout->addWidget(seventhOrderAmplitudeLabel);
+    seventhOrderAmplitudeLayout->addWidget(browser_seventhOrderAmplitude);
+
+    QVBoxLayout* parametersLayout = new QVBoxLayout;
+    // parametersLayout->addLayout(themeLayout);
+    // parametersLayout->addLayout(legendLayout);
+    // parametersLayout->addLayout(animationLayout);
+    // parametersLayout->addWidget(antialiasCheckBox);
+    parametersLayout->addWidget(dividingLine1);
+    parametersLayout->addLayout(validValueLayout);
+    parametersLayout->addLayout(baseFreqLayout);
+    parametersLayout->addLayout(baseAmplitudeLayout);
+    parametersLayout->addLayout(thirdOrderFreqLayout);
+    parametersLayout->addLayout(thirdOrderAmplitudeLayout);
+    parametersLayout->addLayout(fifthOrderFreqLayout);
+    parametersLayout->addLayout(fifthOrderAmplitudeLayout);
+    parametersLayout->addLayout(seventhOrderFreqLayout);
+    parametersLayout->addLayout(seventhOrderAmplitudeLayout);
+    QWidget* paramsBox = new QWidget();
+    paramsBox->setFixedWidth(200);
+    paramsBox->setLayout(parametersLayout);
+
+    gridLayout = new QGridLayout;
+    QHBoxLayout* layout = new QHBoxLayout;
+    layout->addLayout(gridLayout);
+    layout->addWidget(paramsBox);
+    this->setLayout(layout);
 }
 
 DataTable ThemeWidget::generateRandomData(int listCount, int valueMax, int valueCount) const
@@ -144,8 +239,8 @@ DataTable ThemeWidget::generateRandomData(int listCount, int valueMax, int value
         qreal yValue(0);
         for (int j(0); j < valueCount; j++)
         {
-            yValue = yValue + QRandomGenerator::global()->bounded(valueMax / (qreal) valueCount);
-            QPointF value((j + QRandomGenerator::global()->generateDouble()) * ((qreal) m_valueMax / (qreal) valueCount),
+            yValue = yValue + QRandomGenerator::global()->bounded(valueMax / (qreal)valueCount);
+            QPointF value((j + QRandomGenerator::global()->generateDouble()) * ((qreal)m_valueMax / (qreal)valueCount),
                           yValue);
             QString label = "Slice " + QString::number(i) + ":" + QString::number(j);
             dataList << Data(value, label);
@@ -159,33 +254,33 @@ DataTable ThemeWidget::generateRandomData(int listCount, int valueMax, int value
 void ThemeWidget::populateThemeBox()
 {
     // add items to theme combobox
-    m_ui->cbox_theme->addItem("Light", QChart::ChartThemeLight);
-    m_ui->cbox_theme->addItem("Blue Cerulean", QChart::ChartThemeBlueCerulean);
-    m_ui->cbox_theme->addItem("Dark", QChart::ChartThemeDark);
-    m_ui->cbox_theme->addItem("Brown Sand", QChart::ChartThemeBrownSand);
-    m_ui->cbox_theme->addItem("Blue NCS", QChart::ChartThemeBlueNcs);
-    m_ui->cbox_theme->addItem("High Contrast", QChart::ChartThemeHighContrast);
-    m_ui->cbox_theme->addItem("Blue Icy", QChart::ChartThemeBlueIcy);
-    m_ui->cbox_theme->addItem("Qt", QChart::ChartThemeQt);
+    cbox_theme->addItem("Light", QChart::ChartThemeLight);
+    cbox_theme->addItem("Blue Cerulean", QChart::ChartThemeBlueCerulean);
+    cbox_theme->addItem("Dark", QChart::ChartThemeDark);
+    cbox_theme->addItem("Brown Sand", QChart::ChartThemeBrownSand);
+    cbox_theme->addItem("Blue NCS", QChart::ChartThemeBlueNcs);
+    cbox_theme->addItem("High Contrast", QChart::ChartThemeHighContrast);
+    cbox_theme->addItem("Blue Icy", QChart::ChartThemeBlueIcy);
+    cbox_theme->addItem("Qt", QChart::ChartThemeQt);
 }
 
 void ThemeWidget::populateAnimationBox()
 {
     // add items to animation combobox
-    m_ui->cbox_animation->addItem("No Animations", QChart::NoAnimation);
-    m_ui->cbox_animation->addItem("GridAxis Animations", QChart::GridAxisAnimations);
-    m_ui->cbox_animation->addItem("Series Animations", QChart::SeriesAnimations);
-    m_ui->cbox_animation->addItem("All Animations", QChart::AllAnimations);
+    cbox_animation->addItem("No Animations", QChart::NoAnimation);
+    cbox_animation->addItem("GridAxis Animations", QChart::GridAxisAnimations);
+    cbox_animation->addItem("Series Animations", QChart::SeriesAnimations);
+    cbox_animation->addItem("All Animations", QChart::AllAnimations);
 }
 
 void ThemeWidget::populateLegendBox()
 {
     // add items to legend combobox
-    m_ui->cbox_legend->addItem("No Legend ", 0);
-    m_ui->cbox_legend->addItem("Legend Top", Qt::AlignTop);
-    m_ui->cbox_legend->addItem("Legend Bottom", Qt::AlignBottom);
-    m_ui->cbox_legend->addItem("Legend Left", Qt::AlignLeft);
-    m_ui->cbox_legend->addItem("Legend Right", Qt::AlignRight);
+    cbox_legend->addItem("No Legend ", 0);
+    cbox_legend->addItem("Legend Top", Qt::AlignTop);
+    cbox_legend->addItem("Legend Bottom", Qt::AlignBottom);
+    cbox_legend->addItem("Legend Left", Qt::AlignLeft);
+    cbox_legend->addItem("Legend Right", Qt::AlignRight);
 }
 
 QChart* ThemeWidget::createAreaChart() const
@@ -375,8 +470,7 @@ QChart* ThemeWidget::createScatterChart() const
 void ThemeWidget::updateUI()
 {
 
-    QChart::ChartTheme theme = static_cast<QChart::ChartTheme>(
-                                   m_ui->cbox_theme->itemData(m_ui->cbox_theme->currentIndex()).toInt());
+    QChart::ChartTheme theme = static_cast<QChart::ChartTheme>(cbox_theme->itemData(cbox_theme->currentIndex()).toInt());
 
     const auto charts = m_charts;
     if (!m_charts.isEmpty() && m_charts.at(0)->chart()->theme() != theme)
@@ -393,7 +487,6 @@ void ThemeWidget::updateUI()
         {
             pal.setColor(QPalette::Window, QRgb(0xf0f0f0));
             pal.setColor(QPalette::WindowText, QRgb(0x404044));
-
         }
         else if (theme == QChart::ChartThemeDark)
         {
@@ -434,7 +527,7 @@ void ThemeWidget::updateUI()
     }
 
     // Update antialiasing
-    bool checked = m_ui->antialiasCheckBox->isChecked();
+    bool checked = antialiasCheckBox->isChecked();
     for (QChartView* chart : charts)
     {
         chart->setRenderHint(QPainter::Antialiasing, checked);
@@ -442,7 +535,7 @@ void ThemeWidget::updateUI()
 
     // Update animation options
     QChart::AnimationOptions options(
-        m_ui->cbox_animation->itemData(m_ui->cbox_animation->currentIndex()).toInt());
+        cbox_animation->itemData(cbox_animation->currentIndex()).toInt());
     if (!m_charts.isEmpty() && m_charts.at(0)->chart()->animationOptions() != options)
     {
         for (QChartView* chartView : charts)
@@ -453,7 +546,7 @@ void ThemeWidget::updateUI()
 
     // Update legend alignment
     Qt::Alignment alignment(
-        m_ui->cbox_legend->itemData(m_ui->cbox_legend->currentIndex()).toInt());
+        cbox_legend->itemData(cbox_legend->currentIndex()).toInt());
 
     if (!alignment)
     {
@@ -472,3 +565,10 @@ void ThemeWidget::updateUI()
     }
 }
 
+
+
+
+//void ThemeWidget::readSerialInfo2logWin()
+//{
+//    mySerialPort->showSerialPostsInfo();
+//}

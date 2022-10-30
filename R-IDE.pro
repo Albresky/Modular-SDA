@@ -1,4 +1,4 @@
-QT       += core gui core5compat charts
+QT       += core gui core5compat charts serialport
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -20,11 +20,13 @@ SOURCES += \
     FileOperator/FileOperator.cpp \
     Pages/codepage.cpp \
     Pages/designerpage.cpp \
+    Pages/projectpage.cpp \
     Pages/themewidget.cpp \
     custom/algorithmtoolbox.cpp \
     custom/charts.cpp \
     custom/commonHeaders.cpp \
     custom/globalVar.cpp \
+    custom/myserialport.cpp \
     custom/sidebar.cpp \
     custom/utilities.cpp \
     main.cpp \
@@ -43,6 +45,7 @@ HEADERS += \
     FileOperator/FileOperator.h \
     Pages/codepage.h \
     Pages/designerpage.h \
+    Pages/projectpage.h \
     Pages/themewidget.h \
     custom/algorithmtoolbox.h \
     custom/charts.h \
@@ -59,10 +62,8 @@ HEADERS += \
 
 FORMS += \
     Pages/designerpage.ui \
-    Pages/themewidget.ui \
     custom/charts.ui \
     custom/codepage.ui \
-    custom/codewidget.ui \
     mainwindow.ui
 
 

@@ -2,7 +2,6 @@
 #include "ui_mainwindow.h"
 
 
-
 QString MainWindow::projectDir = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
 
 MainWindow::MainWindow(QWidget* parent)
@@ -33,7 +32,7 @@ void MainWindow::initLayout()
 {
     // initialize toolBar
     initBuildToolBar();
-
+    initSerialPortToolBar();
     // initialize sideBar
     initSideBar();
 
@@ -95,6 +94,10 @@ void MainWindow::initStackedPage()
     designerPage = new DesignerPage(view, scene, itemMenu);
     qStackedWidget->addWidget(designerPage);
 
+    /* initialize Project Page */
+    projectPage = new ProjectPage(nullptr, this);
+    qStackedWidget->addWidget(projectPage);
+
     /* conbine stackedPage with logWindow */
 
 
@@ -136,7 +139,7 @@ void MainWindow::initSideBar()
     QObject::connect(sidebar_edit, &QAction::triggered, this, &MainWindow::action_edit_clicked);
     QObject::connect(sidebar_designer, &QAction::triggered, this, &MainWindow::action_designer_clicked);
     QObject::connect(sidebar_charts, &QAction::triggered, this, &MainWindow::action_charts_clicked);
-
+    QObject::connect(sidebar_tool, &QAction::triggered, this, &MainWindow::action_project_clicked);
 
     sidebar->addAction(sidebar_welcome, "欢迎", QString("welcome"));
     sidebar->addAction(sidebar_edit, "编辑", QString("edit"));
@@ -152,6 +155,13 @@ void MainWindow::initStatusBar()
     btn_show_log_window = new QPushButton();
     btn_show_log_window->setText("编译输出");
     ui->statusBar->addWidget(btn_show_log_window);
+
+    action_com_state = new QLabel("未连接串口");
+    action_com_state->setMargin(2);
+    action_com_state->setFixedWidth(75);
+    action_com_state->setAlignment(Qt::AlignCenter);
+    action_com_state->setStyleSheet("QLabel { background-color : gray; color : darkgray; }");
+    ui->statusBar->addPermanentWidget(action_com_state);
 }
 
 void MainWindow::executeCmd(QString command)
@@ -181,15 +191,21 @@ void MainWindow::CmdExit(int exitCode)
 void MainWindow:: initBuildToolBar()
 {
     buildToolBar = addToolBar(tr("Build"));
+
     action_build = new QAction();
     action_build->setText("构建");
-    action_build->setIcon(QIcon(":res/icons/build.ico"));
+    action_build->setIcon(QIcon(":res/imgs/hammer.png"));
     buildToolBar->addAction(action_build);
 
     action_make_clean = new QAction();
     action_make_clean->setText("清理");
-    action_make_clean->setIcon(QIcon(":/res/icons/clean.ico"));
+    action_make_clean->setIcon(QIcon(":/res/imgs/clean.png"));
     buildToolBar->addAction(action_make_clean);
+
+    action_download = new QAction();
+    action_download->setText("下载");
+    action_download->setIcon(QIcon(":/res/imgs/download.png"));
+    buildToolBar->addAction(action_download);
 
     createDesignerToolbars();
 }
@@ -271,6 +287,12 @@ void MainWindow::action_charts_clicked()
 {
     qDebug() << "current page:" << qStackedWidget->currentIndex();
     qStackedWidget->setCurrentWidget(chartsPage);
+}
+
+void MainWindow::action_project_clicked()
+{
+    qDebug() << "current page:" << qStackedWidget->currentIndex();
+    qStackedWidget->setCurrentWidget(projectPage);
 }
 
 void MainWindow::itemInserted(DiagramItem* item)
@@ -761,4 +783,86 @@ void MainWindow::showLogWindow()
     {
         logWindow->show();
     }
+}
+
+void MainWindow::closeSerialPort()
+{
+    serialPort->close();
+    logWindow->append("已关闭串口");
+    action_com_state->setText("未连接串口");
+    action_com_state->setStyleSheet("QLabel { background-color : gray; color : darkgray; }");
+}
+
+void MainWindow::openSerialPort()
+{
+    bool isChecked = showSerialPortsInfo->isChecked();
+    if(serialPort != nullptr && serialPort->isOpen())
+    {
+        closeSerialPort();
+    }
+    if(isChecked)
+    {
+        serialPort = new QSerialPort();
+        serialPort->setPortName(projectPage->getCOM());
+        serialPort->setBaudRate(projectPage->getBaudRate());
+        serialPort->setDataBits(projectPage->getDataBits());
+        serialPort->setParity(projectPage->getParity());
+        serialPort->setStopBits(projectPage->getStopBits());
+        serialPort->setFlowControl(projectPage->getFlowControl());
+        if(serialPort->open(QIODevice::ReadWrite))
+        {
+            logWindow->append("已打开串口");
+            action_com_state->setText(serialPort->portName());
+            action_com_state->setStyleSheet("QLabel { background-color : rgb(47, 219, 85); color : black;}");
+            QObject::connect(serialPort, &QSerialPort::readyRead, this, &MainWindow::ReadPortData);
+        }
+        else
+        {
+            logWindow->append("已打开串口");
+        }
+    }
+}
+
+void MainWindow::initSerialPortToolBar()
+{
+    serialPortBar = addToolBar(tr("Serial Port"));
+    showSerialPortsInfo = new QAction();
+    showSerialPortsInfo->setText("显示串口信息");
+    showSerialPortsInfo->setIcon(QIcon(":/res/imgs/serialPort.png"));
+    showSerialPortsInfo->setCheckable(true);
+    QObject::connect(showSerialPortsInfo, &QAction::triggered, this, &MainWindow::openSerialPort);
+    serialPortBar->addAction(showSerialPortsInfo);
+}
+
+void MainWindow::getCOMs()
+{
+    bool flag = true;
+    list_qSerialPortInfo.clear();
+    foreach (const QSerialPortInfo& info, QSerialPortInfo::availablePorts())
+    {
+        QSerialPortInfo* p_info = new QSerialPortInfo(info);
+        list_qSerialPortInfo.append(p_info);
+        flag = false;
+    }
+    logWindow->append(flag ? "无串口信息" : "");
+    projectPage->setCOMs(list_qSerialPortInfo);
+}
+
+QList<QSerialPortInfo*> MainWindow::get_qSerialPortInfo()
+{
+    return list_qSerialPortInfo;
+}
+
+void MainWindow::ReadPortData()
+{
+    QByteArray buf;
+    QString serialBuf = "";
+    buf = serialPort->readAll();
+    if(!buf.isEmpty())
+    {
+        serialBuf += QSerialPort::tr(buf);
+    }
+    buf.clear();
+    qDebug() << serialBuf;
+    logWindow->append(serialBuf);
 }

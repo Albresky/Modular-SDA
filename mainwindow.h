@@ -32,10 +32,12 @@
 #include <QMessageBox>
 #include <QTextBrowser>
 
+#include "custom/commonHeaders.h"
 #include "Diagram/diagramview.h"
 #include "Pages/designerpage.h"
 #include "Pages/themewidget.h"
 #include "Pages/codepage.h"
+#include "Pages/projectpage.h"
 #include "syntax/Codeeditor.h"
 #include "syntax/SyntaxHighlighter.h"
 #include "syntax/typedef.h"
@@ -64,6 +66,7 @@ public:
     static QString getProjectDir();
     static const int InsertTextButton = 10;
 
+    QList<QSerialPortInfo*> get_qSerialPortInfo();
 
 signals:
 
@@ -77,6 +80,7 @@ private slots:
     void action_designer_clicked();
     void action_edit_clicked();
     void action_charts_clicked();
+    void action_project_clicked();
     void on_open_file_project_dir_triggered();
     void currentFontChanged(const QFont& font);
     void fontSizeChanged(const QString&);
@@ -104,9 +108,12 @@ private slots:
     void hideDesignerToolBars();
     void showDesignerToolBars();
     void showLogWindow();
+    void ReadPortData();
+    void openSerialPort();
 
 public slots:
 
+    void getCOMs();
 
 private:
 
@@ -126,17 +133,24 @@ private:
     QTextBrowser* logWindow;
     QAction* action_build;
     QAction* action_make_clean;
+    QAction* action_download;
     QAction* sidebar_welcome;
     QAction* sidebar_edit;
     QAction* sidebar_designer;
     QAction* sidebar_charts;
     QAction* sidebar_tool;
+    QAction* showSerialPortsInfo;
+    QLabel* action_com_state;
     SideBar* sidebar;
     CodePage* codePage;
     ThemeWidget* chartsPage;
     DesignerPage* designerPage;
+    ProjectPage* projectPage;
     QSignalMapper* signalMapper;
     QProcess* qProcess;
+    QSerialPort* serialPort = nullptr;
+    QList<QSerialPortInfo*> list_qSerialPortInfo;
+
 
     DiagramView* view = nullptr;
     DiagramScene* scene = nullptr;
@@ -146,6 +160,7 @@ private:
     QMenu* aboutMenu;
 
     QToolBar* buildToolBar;
+    QToolBar* serialPortBar;
     QToolBar* textToolBar;
     QToolBar* editToolBar;
     QToolBar* colorToolBar;
@@ -180,9 +195,10 @@ private:
     // function
 
     void initBuildToolBar();
+    void initSerialPortToolBar();
     void updateFileSystem();
     void updateWindowTitle();
-
+    void initSerialPort();
     void initStackedPage();
     void initStatusBar();
     void initSideBar();
@@ -193,6 +209,8 @@ private:
     void initQProcess();
     void createActions();
     void createDesignerToolbars();
+    void closeSerialPort();
+
     void executeCmd(QString command);
     void CmdExit(int exitCode);
     QString getProjectDirSysDiskPartitionSymbol();
