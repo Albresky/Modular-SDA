@@ -99,14 +99,13 @@ void MainWindow::initStackedPage()
     /* initialize Designer Page */
     designerPage = new DesignerPage(view, scene, itemMenu);
     qStackedWidget->addWidget(designerPage);
+    scene->setDesignerpage(designerPage);
 
     /* initialize Project Page */
     projectPage = new ProjectPage(nullptr, this);
     qStackedWidget->addWidget(projectPage);
 
     /* conbine stackedPage with logWindow */
-
-
     QSplitter* splitter = new QSplitter(Qt::Vertical);
     splitter->setStyleSheet("QSplitter::handle {background-color: rgb(192,192,192);}");
     splitter->setHandleWidth(5);
@@ -867,18 +866,20 @@ void MainWindow::ReadPortData()
         str += QSerialPort::tr(buf);
     }
     QStringList formatted = str.split("#");
-    serialBuf.append(formatted);
-    logWindow->append(str);
+
 
     int size = formatted.size();
     int index = size >= 2 ? size - 2 : 0;
 
+
     if(formatted[index] == "z")
     {
         buf.clear();
+        serialBuf.append(formatted);
+        logWindow->append(str);
+        qDebug() << str;
         emit serialReadDone();
     }
-
 }
 
 void MainWindow::sendSerialStart()
@@ -917,8 +918,8 @@ void MainWindow::serialBuf2Plot()
             QString indentifier = seg[0];
             QStringList value = seg[1].split(":");
 
-            int x = (int)value[0].toDouble();
-            int y = value[1].toDouble();
+            double x = value[0].toDouble();
+            double y = value[1].toDouble();
             switch(valueMap[indentifier])
             {
                 // "iw"
@@ -963,21 +964,17 @@ void MainWindow::serialBuf2Plot()
     // transform data
     iw_y[0] /= 1000;
     ow_y[0] /= 1000;
-    is_x[0] /= sampleFreq * pointCnt;
-    os_x[0] /= sampleFreq * pointCnt;
+    is_x[0] *= sampleFreq / pointCnt;
+    os_x[0] *= sampleFreq / pointCnt;
     is_y[0] /= 1000 * pointCnt;
     os_y[0] /= 1000 * pointCnt;
-
-
 
     for(int i = 1; i < pointCnt; i++)
     {
         iw_y[i] /= 1000;
         ow_y[i] /= 1000;
-        iw_y[i] /= 1000;
-        ow_y[i] /= 1000;
-        is_x[i] /= sampleFreq * pointCnt;
-        os_x[i] /= sampleFreq * pointCnt;
+        is_x[i] *= sampleFreq / pointCnt;
+        os_x[i] *= sampleFreq / pointCnt;
         is_y[i] /= 500 * pointCnt;
         os_y[i] /= 500 * pointCnt;
     }
@@ -1000,13 +997,22 @@ void MainWindow::serialBuf2Plot()
     analysisVaule._7thFreq = is_x[7];
     analysisVaule._7thAmp = is_y[7];
 
-
-//    chartsPage->updateChartData(pointList, xM + 10, yM + 500);
-//    _y[0] = pointList[0].y() / 1000 / pointCnt;
     chartsPage->updateAnalyses(analysisVaule);
-    chartsPage->updateChartData(iw_x, iw_y, 0);
-    chartsPage->updateChartData(is_x, is_y, 1);
-    chartsPage->updateChartData(ow_x, ow_y, 2);
-    chartsPage->updateChartData(os_x, os_y, 3);
+    if(iw_x.size() && iw_y.size())
+    {
+        chartsPage->updateChartData(iw_x, iw_y, 0);
+    }
+    if(is_x.size() && is_y.size())
+    {
+        chartsPage->updateChartData(is_x, is_y, 1);
+    }
+    if(ow_x.size() && ow_y.size())
+    {
+        chartsPage->updateChartData(ow_x, ow_y, 2);
+    }
+    if(os_x.size() && os_y.size())
+    {
+        chartsPage->updateChartData(os_x, os_y, 3);
+    }
     serialBuf.clear();
 }

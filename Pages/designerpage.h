@@ -14,8 +14,10 @@
 #include <QThread>
 #include <QDoubleSpinBox>
 #include <QToolButton>
-
+#include <qstackedwidget.h>
+#include "custom/commonHeaders.h"
 #include "Diagram/diagramscene.h"
+#include "Diagram/diagramitem.h"
 
 namespace Ui
 {
@@ -35,7 +37,9 @@ public:
     void unCheckButtonGroupTextItem();
     int getSamplePointCnt();
     int getSampleFreq();
-
+    void addAttributesBox(QWidget* widget);
+    void updateAttributesBox(QWidget* widget);
+    void resetAttributesBox();
 private slots:
 
     void buttonGroupClicked(QAbstractButton* button);
@@ -49,8 +53,9 @@ private:
     DiagramScene* scene = nullptr;
     QMenu* itemMenu;
     QFrame* toolBoxes;
-    QFrame* attributesBox;
+    QStackedWidget* attributesBox;
     QWidget* designBoard;
+    QWidget* noModuleSelected;
     QButtonGroup* buttonGroup_1;
     QButtonGroup* buttonGroup_2;
     QButtonGroup* buttonGroup_3;
@@ -67,7 +72,9 @@ private:
     void createToolbars();
     void initToolBox();
     void initAttributesBox();
-    QWidget* createCellWidget(QButtonGroup*, const QString&, DiagramItem::DiagramType);
+
+    // QWidget* createCellWidget(QButtonGroup*, const QString&, DiagramItem::DiagramType);
+    QWidget* createCellWidget(QButtonGroup*, const QString&, DiagramItem::ModuleType);
 };
 
 #endif // DESIGNERPAGE_H

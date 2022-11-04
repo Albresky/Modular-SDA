@@ -22,6 +22,7 @@ SOURCES += \
     Pages/designerpage.cpp \
     Pages/projectpage.cpp \
     Pages/themewidget.cpp \
+    custom/DataItem.cpp \
     custom/algorithmtoolbox.cpp \
     custom/charts.cpp \
     custom/commonHeaders.cpp \
@@ -49,6 +50,7 @@ HEADERS += \
     Pages/designerpage.h \
     Pages/projectpage.h \
     Pages/themewidget.h \
+    custom/DataItem.h \
     custom/algorithmtoolbox.h \
     custom/charts.h \
     custom/commonHeaders.h \

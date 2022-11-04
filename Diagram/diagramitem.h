@@ -3,6 +3,7 @@
 
 #include <QGraphicsPixmapItem>
 #include <QList>
+#include "custom/DataItem.h"
 
 QT_BEGIN_NAMESPACE
 class QPixmap;
@@ -17,13 +18,19 @@ class DiagramItem : public QGraphicsPolygonItem
 {
 public:
     enum { Type = UserType + 15 };
-    enum DiagramType { Step, Conditional, StartEnd, Io };
+    // enum DiagramType { Step, Conditional, StartEnd, Io };
+    enum ModuleType {Input, Output, FFT, IFFT, DFT, HanningWin, BlackmanWin, HT, Filter};
 
-    DiagramItem(DiagramType diagramType, QMenu* contextMenu, QGraphicsItem* parent = nullptr);
+    // DiagramItem(DiagramType diagramType, QMenu* contextMenu, QGraphicsItem* parent = nullptr);
+    DiagramItem(ModuleType moduleType, QMenu* contextMenu, QGraphicsItem* parent = nullptr);
 
     void removeArrow(Arrow* arrow);
     void removeArrows();
-    DiagramType diagramType() const
+//    DiagramType diagramType() const
+//    {
+//        return myDiagramType;
+//    }
+    ModuleType diagramType() const
     {
         return myDiagramType;
     }
@@ -38,15 +45,20 @@ public:
         return Type;
     }
 
+
+    QWidget* Widget()const;
+
 protected:
     void contextMenuEvent(QGraphicsSceneContextMenuEvent* event) override;
     QVariant itemChange(GraphicsItemChange change, const QVariant& value) override;
 
 private:
-    DiagramType myDiagramType;
+    // DiagramType myDiagramType;
+    ModuleType myDiagramType;
     QPolygonF myPolygon;
     QMenu* myContextMenu;
     QList<Arrow*> arrows;
+    AV_DataItem* av_dataItem;
 };
 
 #endif // DIAGRAMITEM_H

@@ -1,12 +1,14 @@
 #ifndef DIAGRAMSCENE_H
 #define DIAGRAMSCENE_H
 
+#include "Pages/designerpage.h"
 #include "diagramitem.h"
 #include "diagramtextitem.h"
 
 #include <QGraphicsScene>
 #include <QGraphicsSceneMouseEvent>
 #include <QTextCursor>
+
 
 QT_BEGIN_NAMESPACE
 class QGraphicsSceneMouseEvent;
@@ -47,10 +49,12 @@ public:
     void setTextColor(const QColor& color);
     void setItemColor(const QColor& color);
     void setFont(const QFont& font);
+    void setDesignerpage(DesignerPage* designerPage);
 
 public slots:
     void setMode(Mode mode);
-    void setItemType(DiagramItem::DiagramType type);
+//    void setItemType(DiagramItem::DiagramType type);
+    void setItemType(DiagramItem::ModuleType type);
     void editorLostFocus(DiagramTextItem* item);
 
 signals:
@@ -65,8 +69,10 @@ protected:
 
 private:
     bool isItemChange(int type) const;
-
-    DiagramItem::DiagramType myItemType;
+    DesignerPage* designerPage;
+    // DiagramItem::DiagramType myItemType;
+    DiagramItem::ModuleType myItemType;
+    QMap<QGraphicsItem*, DiagramItem*> sceneItemsMap;
     QMenu* myItemMenu;
     Mode myMode;
     bool leftButtonDown;

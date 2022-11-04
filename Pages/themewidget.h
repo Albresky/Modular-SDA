@@ -10,7 +10,7 @@
 #include <QTextBrowser>
 #include "lib/XCustomPlot.h"
 #include "mainwindow.h"
-#include "custom/commonHeaders.h"
+#include "custom/DataItem.h"
 
 QT_BEGIN_NAMESPACE
 class QComboBox;

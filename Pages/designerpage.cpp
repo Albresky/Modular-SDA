@@ -31,7 +31,7 @@ QWidget* DesignerPage::getInstance()
 
 void DesignerPage::init()
 {
-//    QThread::msleep(200);
+
 
     initAttributesBox();
     initToolBox();
@@ -54,8 +54,8 @@ void DesignerPage::initToolBox()
     toolBoxName_2 = new QLabel();
     toolBoxName_3 = new QLabel();
     toolBoxName_1->setText("工具箱1");
-    toolBoxName_2->setText("工具箱2");
-    toolBoxName_3->setText("工具箱3");
+    // toolBoxName_2->setText("工具箱2");
+    // toolBoxName_3->setText("工具箱3");
 
 
     buttonGroup_1 = new QButtonGroup(this);
@@ -67,9 +67,15 @@ void DesignerPage::initToolBox()
             this, &DesignerPage::buttonGroupClicked);
 
     QVBoxLayout* layout = new QVBoxLayout;
-    layout->addWidget(createCellWidget(buttonGroup_1, tr("Conditional"), DiagramItem::Conditional));
-    layout->addWidget(createCellWidget(buttonGroup_1, tr("Process"), DiagramItem::Step));
-    layout->addWidget(createCellWidget(buttonGroup_1, tr("Input/Output"), DiagramItem::Io));
+    layout->addWidget(createCellWidget(buttonGroup_1, tr("输入"), DiagramItem::Input));
+    layout->addWidget(createCellWidget(buttonGroup_1, tr("输出"), DiagramItem::Output));
+    layout->addWidget(createCellWidget(buttonGroup_1, tr("FFT"), DiagramItem::FFT));
+    layout->addWidget(createCellWidget(buttonGroup_1, tr("IFFT"), DiagramItem::IFFT));
+    layout->addWidget(createCellWidget(buttonGroup_1, tr("DFT"), DiagramItem::DFT));
+    layout->addWidget(createCellWidget(buttonGroup_1, tr("汉宁窗"), DiagramItem::HanningWin));
+    layout->addWidget(createCellWidget(buttonGroup_1, tr("黑人窗"), DiagramItem::BlackmanWin));
+    layout->addWidget(createCellWidget(buttonGroup_1, tr("HT"), DiagramItem::HT));
+    layout->addWidget(createCellWidget(buttonGroup_1, tr("Filter"), DiagramItem::Filter));
 
 
     QToolButton* textButton = new QToolButton;
@@ -92,14 +98,14 @@ void DesignerPage::initToolBox()
     toolBox_1 = new QToolBox;
     toolBox_1->setSizePolicy(QSizePolicy(QSizePolicy::Maximum, QSizePolicy::Ignored));
     toolBox_1->setMinimumWidth(itemWidget->sizeHint().width());
-    toolBox_1->addItem(itemWidget, tr("基础悬浮控件"));
+    toolBox_1->addItem(itemWidget, tr("基础模块"));
 
 
     QVBoxLayout* vToolBoxesLayout = new QVBoxLayout;
     vToolBoxesLayout->addWidget(toolBoxName_1);
     vToolBoxesLayout->addWidget(toolBox_1);
-    vToolBoxesLayout->addWidget(toolBoxName_2);
-    vToolBoxesLayout->addWidget(toolBoxName_3);
+    // vToolBoxesLayout->addWidget(toolBoxName_2);
+    // vToolBoxesLayout->addWidget(toolBoxName_3);
     toolBoxes = new QFrame();
     toolBoxes->setLayout(vToolBoxesLayout);
     toolBoxes->setFrameShape(QFrame::Shape::Box);
@@ -108,7 +114,7 @@ void DesignerPage::initToolBox()
 }
 
 
-QWidget* DesignerPage::createCellWidget(QButtonGroup* buttonGroup, const QString& text, DiagramItem::DiagramType type)
+QWidget* DesignerPage::createCellWidget(QButtonGroup* buttonGroup, const QString& text, DiagramItem::ModuleType type)
 {
 
     DiagramItem item (type, itemMenu);
@@ -126,7 +132,6 @@ QWidget* DesignerPage::createCellWidget(QButtonGroup* buttonGroup, const QString
 
     QWidget* widget = new QWidget;
     widget->setLayout(layout);
-    widget->s
 
     return widget;
 }
@@ -149,7 +154,8 @@ void DesignerPage::buttonGroupClicked(QAbstractButton* button)
     }
     else
     {
-        scene->setItemType(DiagramItem::DiagramType(id));
+        // scene->setItemType(DiagramItem::DiagramType(id));
+        scene->setItemType(DiagramItem::ModuleType(id));
         scene->setMode(DiagramScene::InsertItem);
     }
 }
@@ -167,52 +173,45 @@ void DesignerPage::unCheckButtonGroupTextItem()
 
 void DesignerPage::initAttributesBox()
 {
-    QVBoxLayout* attributeLayout = new QVBoxLayout;
+    noModuleSelected = new QWidget;
+    QVBoxLayout* layout = new QVBoxLayout;
+    layout->addWidget(new QLabel(tr("当前未选中模块")), Qt::AlignCenter);
+    noModuleSelected->setLayout(layout);
 
-    // 采样点数
-    QHBoxLayout* hboxLayout_pointCnt = new QHBoxLayout;
-    QLabel* label_pointCnt = new QLabel("采样点数：");
-    qSpinBox_pointCnt = new QSpinBox;
-    qSpinBox_pointCnt->setRange(128, 1024);
-    qSpinBox_pointCnt->setValue(512);
-    hboxLayout_pointCnt->addWidget(label_pointCnt);
-    hboxLayout_pointCnt->addWidget(qSpinBox_pointCnt);
-    attributeLayout->addLayout(hboxLayout_pointCnt);
-
-    // 采样频率
-    QHBoxLayout* hboxLayout_pointFreq = new QHBoxLayout;
-    QLabel* label_pointFreq = new QLabel("采样频率：");
-    qSpinBox_SampleFreq = new QSpinBox;
-    qSpinBox_SampleFreq->setRange(0, 10e6);
-    qSpinBox_SampleFreq->setValue(100000);
-    hboxLayout_pointFreq->addWidget(label_pointFreq);
-    hboxLayout_pointFreq->addWidget(qSpinBox_SampleFreq);
-    attributeLayout->addLayout(hboxLayout_pointFreq);
-
-    for(int i = 0; i < 8; i++)
-    {
-        QHBoxLayout* hboxLayout1 = new QHBoxLayout;
-        QLabel* label1 = new QLabel("采样频率：");
-        QDoubleSpinBox* qDoubleSpinBox1 = new QDoubleSpinBox;
-        qDoubleSpinBox1->setRange(0.0, 9999.99);
-        hboxLayout1->addWidget(label1);
-        hboxLayout1->addWidget(qDoubleSpinBox1);
-        attributeLayout->addLayout(hboxLayout1);
-    }
-
-    attributesBox = new QFrame();
+    attributesBox = new QStackedWidget();
     attributesBox->setLineWidth(1);
-    attributesBox->setLayout(attributeLayout);
     attributesBox->setFrameShape(QFrame::Shape::Box);
     attributesBox->setMaximumWidth(150);
+
+    attributesBox->addWidget(noModuleSelected);
 }
 
 int DesignerPage::getSamplePointCnt()
 {
-    return qSpinBox_pointCnt->value();
+    return 512;
+//    return qSpinBox_pointCnt->value();
 }
 
 int DesignerPage::getSampleFreq()
 {
-    return qSpinBox_SampleFreq->value();
+    return 10e6;
+//    return qSpinBox_SampleFreq->value();
+}
+
+void DesignerPage::addAttributesBox(QWidget* widget)
+{
+    qDebug() << "addAttributesBox()";
+    attributesBox->addWidget(widget);
+}
+
+void DesignerPage::updateAttributesBox(QWidget* widget)
+{
+    qDebug() << "updateAttributesBox()";
+    attributesBox->setCurrentWidget(widget);
+}
+
+void DesignerPage::resetAttributesBox()
+{
+    qDebug() << "resetAttributesBox()";
+    attributesBox->setCurrentWidget(noModuleSelected);
 }

@@ -2,14 +2,12 @@
 #include "arrow.h"
 
 
-
-
 DiagramScene::DiagramScene(QMenu* itemMenu, QObject* parent)
     : QGraphicsScene(parent)
 {
     myItemMenu = itemMenu;
     myMode = MoveItem;
-    myItemType = DiagramItem::Step;
+//    myItemType = DiagramItem::Step;
     line = nullptr;
     textItem = nullptr;
     myItemColor = Qt::white;
@@ -68,7 +66,7 @@ void DiagramScene::setMode(Mode mode)
     myMode = mode;
 }
 
-void DiagramScene::setItemType(DiagramItem::DiagramType type)
+void DiagramScene::setItemType(DiagramItem::ModuleType type)
 {
     myItemType = type;
 }
@@ -89,18 +87,23 @@ void DiagramScene::editorLostFocus(DiagramTextItem* item)
 
 void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent)
 {
+    qDebug() << "mousePressEvent()";
     if (mouseEvent->button() != Qt::LeftButton)
     {
         return;
     }
 
     DiagramItem* item;
+    QList<QGraphicsItem*> nowItems;
     switch (myMode)
     {
         case InsertItem:
             item = new DiagramItem(myItemType, myItemMenu);
             item->setBrush(myItemColor);
             addItem(item);
+            nowItems  = this->items();
+            sceneItemsMap.insert(nowItems[0], item);
+            designerPage->addAttributesBox(item->Widget());
             item->setPos(mouseEvent->scenePos());
             emit itemInserted(item);
             break;
@@ -125,15 +128,29 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent)
             textItem->setDefaultTextColor(myTextColor);
             textItem->setPos(mouseEvent->scenePos());
             emit textInserted(textItem);
-
+            break;
+        case MoveItem:
+//            designerPage->updateAttributesBox(item->Widget());
+            break;
         default:
-            ;
+            break;
     }
     QGraphicsScene::mousePressEvent(mouseEvent);
+    qDebug() << "selected count:" << this->selectedItems().size();
+    if(this->selectedItems().size() > 0)
+    {
+        designerPage->updateAttributesBox(sceneItemsMap.value(selectedItems()[0])->Widget());
+    }
+    else
+    {
+        designerPage->resetAttributesBox();
+    }
+    qDebug() << "mousePressEvent() ended ";
 }
 
 void DiagramScene::mouseMoveEvent(QGraphicsSceneMouseEvent* mouseEvent)
 {
+    qDebug() << "mouseMoveEvent() started";
     if (myMode == InsertLine && line != nullptr)
     {
         QLineF newLine(line->line().p1(), mouseEvent->scenePos());
@@ -143,10 +160,12 @@ void DiagramScene::mouseMoveEvent(QGraphicsSceneMouseEvent* mouseEvent)
     {
         QGraphicsScene::mouseMoveEvent(mouseEvent);
     }
+    qDebug() << "mouseMoveEvent() ended";
 }
 
 void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* mouseEvent)
 {
+    qDebug() << "mouseReleaseEvent() started()";
     if (line != nullptr && myMode == InsertLine)
     {
         QList<QGraphicsItem*> startItems = items(line->line().p1());
@@ -183,6 +202,7 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* mouseEvent)
 
     line = nullptr;
     QGraphicsScene::mouseReleaseEvent(mouseEvent);
+    qDebug() << "mouseReleaseEvent() ended()";
 }
 
 
@@ -194,4 +214,9 @@ bool DiagramScene::isItemChange(int type) const
         return item->type() == type;
     };
     return std::find_if(items.begin(), items.end(), cb) != items.end();
+}
+
+void DiagramScene::setDesignerpage(DesignerPage* designerPage)
+{
+    this->designerPage = designerPage;
 }
