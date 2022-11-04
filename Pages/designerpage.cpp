@@ -126,6 +126,7 @@ QWidget* DesignerPage::createCellWidget(QButtonGroup* buttonGroup, const QString
 
     QWidget* widget = new QWidget;
     widget->setLayout(layout);
+    widget->s
 
     return widget;
 }
@@ -167,7 +168,28 @@ void DesignerPage::unCheckButtonGroupTextItem()
 void DesignerPage::initAttributesBox()
 {
     QVBoxLayout* attributeLayout = new QVBoxLayout;
-    for(int i = 0; i < 10; i++)
+
+    // 采样点数
+    QHBoxLayout* hboxLayout_pointCnt = new QHBoxLayout;
+    QLabel* label_pointCnt = new QLabel("采样点数：");
+    qSpinBox_pointCnt = new QSpinBox;
+    qSpinBox_pointCnt->setRange(128, 1024);
+    qSpinBox_pointCnt->setValue(512);
+    hboxLayout_pointCnt->addWidget(label_pointCnt);
+    hboxLayout_pointCnt->addWidget(qSpinBox_pointCnt);
+    attributeLayout->addLayout(hboxLayout_pointCnt);
+
+    // 采样频率
+    QHBoxLayout* hboxLayout_pointFreq = new QHBoxLayout;
+    QLabel* label_pointFreq = new QLabel("采样频率：");
+    qSpinBox_SampleFreq = new QSpinBox;
+    qSpinBox_SampleFreq->setRange(0, 10e6);
+    qSpinBox_SampleFreq->setValue(100000);
+    hboxLayout_pointFreq->addWidget(label_pointFreq);
+    hboxLayout_pointFreq->addWidget(qSpinBox_SampleFreq);
+    attributeLayout->addLayout(hboxLayout_pointFreq);
+
+    for(int i = 0; i < 8; i++)
     {
         QHBoxLayout* hboxLayout1 = new QHBoxLayout;
         QLabel* label1 = new QLabel("采样频率：");
@@ -183,4 +205,14 @@ void DesignerPage::initAttributesBox()
     attributesBox->setLayout(attributeLayout);
     attributesBox->setFrameShape(QFrame::Shape::Box);
     attributesBox->setMaximumWidth(150);
+}
+
+int DesignerPage::getSamplePointCnt()
+{
+    return qSpinBox_pointCnt->value();
+}
+
+int DesignerPage::getSampleFreq()
+{
+    return qSpinBox_SampleFreq->value();
 }

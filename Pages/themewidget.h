@@ -5,8 +5,12 @@
 #include <QtCharts/QChartGlobal>
 #include <QGridLayout>
 #include <QLineEdit>
+#include <QPushButton>
+#include <QSplineSeries>
 #include <QTextBrowser>
-#include <custom/myserialport.h>
+#include "lib/XCustomPlot.h"
+#include "mainwindow.h"
+#include "custom/commonHeaders.h"
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
@@ -29,35 +33,40 @@ class ThemeWidget: public QWidget
 {
     Q_OBJECT
 public:
-    explicit ThemeWidget(QWidget* parent = 0);
+    explicit ThemeWidget(QWidget* parent = nullptr, MainWindow* mainWindow = nullptr);
     ~ThemeWidget();
+
+    void updateChartData(QVector<double> pointsDataX, QVector<double> pointsDataY, int index);
+    void updateAnalyses(AnalysisVaule analysisValue);
+    bool isIngoreEmptyDataChecked();
+    bool isIngoreInvalidDataChecked();
+    void updateAxisXMax(int value);
+    void updateAxisYMax(int value);
 
 private Q_SLOTS:
     void updateUI();
 
-private:
-    DataTable generateRandomData(int listCount, int valueMax, int valueCount) const;
-    void populateThemeBox();
-    void populateAnimationBox();
-    void populateLegendBox();
-    void connectSignals();
-    QChart* createAreaChart() const;
-    QChart* createBarChart(int valueCount) const;
-    QChart* createPieChart() const;
-    QChart* createLineChart() const;
-    QChart* createSplineChart(QString title);
-    QChart* createScatterChart() const;
-
-    QGridLayout* gridLayout;
 
 private:
+    MainWindow* mainWindow;
+
     int m_listCount;
     int m_valueMax;
     int m_valueCount;
+    int axisXMax;
+    int axisYMax;
+    QPen pen;
+    QList<XCustomPlot*> XPlots;
     QList<QChartView*> m_charts;
+    QChartView* spline_chartView;
     DataTable m_dataTable;
-    QGridLayout* gridlayout;
+    QVBoxLayout* chartsLayout;
+    QHBoxLayout* inputLayout;
+    QHBoxLayout* outputLayout;
+    QPushButton* btn_updatePlot;
     QCheckBox* antialiasCheckBox;
+    QCheckBox* ingoreEmptyDataCheckBox;
+    QCheckBox* ingoreInvalidDataCheckBox;
     QComboBox* cbox_legend;
     QComboBox* cbox_theme;
     QComboBox* cbox_animation;
@@ -71,9 +80,24 @@ private:
     QLineEdit* browser_seventhOrderFreq;
     QLineEdit* browser_seventhOrderAmplitude;
 
+    QVector<QPointF> spline_data;
+    QSplineSeries* splineSeries;
+
 
     // fuction
     void initLayout();
+    void initCharts();
+    void initGridChart(QLayout* layout);
+    void initSpectrumChart(QLayout* layout);
+    DataTable generateRandomData(int listCount, int valueMax, int valueCount) const;
+    void populateThemeBox();
+    void populateAnimationBox();
+    void populateLegendBox();
+    void connectSignals();
+    QChart* createBarChart(int valueCount) const;
+    QChart* createSplineChart(QString title);
+
+
 //    void initSerialPortToolBar();
 };
 

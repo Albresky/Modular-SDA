@@ -71,7 +71,7 @@ public:
 signals:
 
     void transmitProDir();
-
+    void serialReadDone();
 
 private slots:
 
@@ -110,10 +110,12 @@ private slots:
     void showLogWindow();
     void ReadPortData();
     void openSerialPort();
+    void serialBuf2Plot();
 
 public slots:
 
     void getCOMs();
+    void sendSerialStart();
 
 private:
 
@@ -150,6 +152,9 @@ private:
     QProcess* qProcess;
     QSerialPort* serialPort = nullptr;
     QList<QSerialPortInfo*> list_qSerialPortInfo;
+    QList<QString> serialBuf;
+    QByteArray buf;
+    QMap<QString, int> valueMap;
 
 
     DiagramView* view = nullptr;
@@ -210,6 +215,7 @@ private:
     void createActions();
     void createDesignerToolbars();
     void closeSerialPort();
+
 
     void executeCmd(QString command);
     void CmdExit(int exitCode);

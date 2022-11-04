@@ -33,7 +33,8 @@ public:
     QWidget* getInstance();
     void unCheckButtonGroupItem(int index);
     void unCheckButtonGroupTextItem();
-
+    int getSamplePointCnt();
+    int getSampleFreq();
 
 private slots:
 
@@ -57,6 +58,8 @@ private:
     QLabel* toolBoxName_2;
     QLabel* toolBoxName_3;
     QToolBox* toolBox_1;
+    QSpinBox* qSpinBox_pointCnt;
+    QSpinBox* qSpinBox_SampleFreq;
 
 
     // functions

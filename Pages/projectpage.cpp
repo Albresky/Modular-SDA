@@ -1,7 +1,6 @@
 #include "projectpage.h"
 
-#include <QHBoxLayout>
-#include <QLabel>
+
 
 ProjectPage::ProjectPage(QWidget* parent, MainWindow* mainWindow)
     : QWidget{parent},
@@ -44,8 +43,10 @@ void ProjectPage::initComboBox()
     mapFlowControl.insert("Software", QSerialPort::SoftwareControl);
 
     cbox_BaudRate->addItems(baudRateList);
+    cbox_BaudRate->setCurrentIndex(7);
     cbox_Parity->addItems(parityList);
     cbox_DataBits->addItems(dataBitsList);
+    cbox_DataBits->setCurrentIndex(3);
     cbox_StopBits->addItems(stopBitsList);
     cbox_FlowControl->addItems(flowControlList);
 }

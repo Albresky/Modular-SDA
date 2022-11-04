@@ -1,6 +1,6 @@
 QT       += core gui core5compat charts serialport
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
 
 CONFIG += c++17
 
@@ -26,9 +26,11 @@ SOURCES += \
     custom/charts.cpp \
     custom/commonHeaders.cpp \
     custom/globalVar.cpp \
-    custom/myserialport.cpp \
     custom/sidebar.cpp \
     custom/utilities.cpp \
+    lib/XCustomPlot.cpp \
+    lib/XTracer.cpp \
+    lib/qcustomplot.cpp \
     main.cpp \
     mainwindow.cpp \
     syntax/CodeEditor.cpp \
@@ -53,6 +55,9 @@ HEADERS += \
     custom/globalVar.h \
     custom/sidebar.h \
     custom/utilities.h \
+    lib/XCustomPlot.h \
+    lib/XTracer.h \
+    lib/qcustomplot.h \
     mainwindow.h \
     syntax/Codeeditor.h \
     syntax/SyntaxHighlighter.h \

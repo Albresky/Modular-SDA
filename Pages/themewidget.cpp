@@ -25,60 +25,20 @@
 #include <QtWidgets/QApplication>
 #include <QtCharts/QValueAxis>
 
-ThemeWidget::ThemeWidget(QWidget* parent) : QWidget(parent),
-    m_listCount(3),
+ThemeWidget::ThemeWidget(QWidget* parent, MainWindow* mainWindow) : QWidget(parent),
+    mainWindow(mainWindow),
+    m_listCount(1),
     m_valueMax(10),
     m_valueCount(7),
     m_dataTable(generateRandomData(m_listCount, m_valueMax, m_valueCount))
 {
+    initCharts();
     initLayout();
 
     populateThemeBox();
     populateAnimationBox();
     populateLegendBox();
 
-    // create charts
-
-    QChartView* chartView;
-
-    //    chartView = new QChartView(createAreaChart());
-    //    m_ui->gridLayout->addWidget(chartView, 1, 0);
-    //    m_charts << chartView;
-
-    //    chartView = new QChartView(createPieChart());
-    //    // Funny things happen if the pie slice labels do not fit the screen, so we ignore size policy
-    //    chartView->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
-    //    m_ui->gridLayout->addWidget(chartView, 1, 1);
-    //    m_charts << chartView;
-
-    //    chartView = new QChartView(createLineChart());
-    //    m_ui->gridLayout->addWidget(chartView, 1, 2);
-
-    //    m_charts << chartView;
-
-    //    chartView = new QChartView(createBarChart(m_valueCount));
-    //    m_ui->gridLayout->addWidget(chartView, 2, 0);
-    //    m_charts << chartView;
-
-    chartView = new QChartView(createSplineChart("Chart 1"));
-    gridLayout->addWidget(chartView, 1, 0);
-    m_charts << chartView;
-
-    chartView = new QChartView(createSplineChart("Chart 2"));
-    gridLayout->addWidget(chartView, 1, 1);
-    m_charts << chartView;
-
-    chartView = new QChartView(createSplineChart("Chart 3"));
-    gridLayout->addWidget(chartView, 2, 0);
-    m_charts << chartView;
-
-    chartView = new QChartView(createSplineChart("Chart 4"));
-    gridLayout->addWidget(chartView, 2, 1);
-    m_charts << chartView;
-
-    //    chartView = new QChartView(createScatterChart());
-    //    m_ui->gridLayout->addWidget(chartView, 2, 2);
-    //    m_charts << chartView;
 
     // Set defaults
     antialiasCheckBox->setChecked(true);
@@ -96,12 +56,155 @@ ThemeWidget::~ThemeWidget()
 {
 }
 
+void  ThemeWidget::initGridChart(QLayout* layout)
+{
+    XCustomPlot* gridPlot = new XCustomPlot();
+    XPlots.append(gridPlot);
+    layout->addWidget(gridPlot);
+    gridPlot->showTracer(true);
+
+    gridPlot->plotLayout()->insertRow(0);
+    gridPlot->plotLayout()->addElement(0, 0, new QCPTextElement(gridPlot, "波形图", QFont("黑体", 15, QFont::Bold)));
+    gridPlot->legend->setVisible(false);
+
+    // by default, the legend is in the inset layout of the main axis rect. So this is how we access it to change legend placement:
+    gridPlot->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignTop | Qt::AlignRight);
+
+    // make left and bottom axes always transfer their ranges to right and top axes:
+    connect(gridPlot->xAxis, SIGNAL(rangeChanged(QCPRange)), gridPlot->xAxis2, SLOT(setRange(QCPRange)));
+    connect(gridPlot->yAxis, SIGNAL(rangeChanged(QCPRange)), gridPlot->yAxis2, SLOT(setRange(QCPRange)));
+
+    // Allow user to drag axis ranges with mouse, zoom with mouse wheel and select graphs by clicking:
+    gridPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables);
+
+    // generate some data:
+    int nCount = 100;
+    QVector<double> x(nCount), y(nCount); // initialize with entries 0..100
+    for (int i = 0; i < nCount; ++i)
+    {
+        x[i] = i; // x goes from -1 to 1
+        y[i] = qSin(i * 10.0f / nCount); //sin
+
+    }
+    // create graph and assign data to it:
+//    QPen pen;
+    pen.setColor(Qt::blue);
+    pen.setWidth(2);
+
+    QCPGraph* pGraph = gridPlot->addGraph();
+
+    pGraph->setData(x, y);
+    pGraph->setPen(pen);
+
+
+    // give the axes some labels:
+    gridPlot->xAxis->setVisible(true);
+    gridPlot->yAxis->setVisible(true);
+    gridPlot->xAxis2->setVisible(true);
+    gridPlot->yAxis2->setVisible(true);
+
+    gridPlot->xAxis->setTickLabels(false);
+    gridPlot->xAxis2->setTickLabels(false);
+
+    gridPlot->yAxis->setLabel("电压/V");
+    // set axes ranges, so we see all data:
+    gridPlot->rescaleAxes(true);
+
+    gridPlot->replot();
+
+    showMaximized();
+}
+
+void  ThemeWidget::initSpectrumChart(QLayout* layout)
+{
+
+    XCustomPlot* spectrumPlot = new XCustomPlot();
+    XPlots.append(spectrumPlot);
+    layout->addWidget(spectrumPlot);
+    spectrumPlot->showTracer(true);
+
+    spectrumPlot->plotLayout()->insertRow(0);
+    spectrumPlot->plotLayout()->addElement(0, 0, new QCPTextElement(spectrumPlot, "频谱图", QFont("黑体", 15, QFont::Bold)));
+    spectrumPlot->legend->setVisible(false);
+
+    // by default, the legend is in the inset layout of the main axis rect. So this is how we access it to change legend placement:
+    spectrumPlot->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignTop | Qt::AlignCenter);
+
+    // make left and bottom axes always transfer their ranges to right and top axes:
+    connect(spectrumPlot->xAxis, SIGNAL(rangeChanged(QCPRange)), spectrumPlot->xAxis2, SLOT(setRange(QCPRange)));
+    connect(spectrumPlot->yAxis, SIGNAL(rangeChanged(QCPRange)), spectrumPlot->yAxis2, SLOT(setRange(QCPRange)));
+
+    // Allow user to drag axis ranges with mouse, zoom with mouse wheel and select graphs by clicking:
+    spectrumPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables);
+
+    // generate some data:
+    int nCount = 100;
+    QVector<double> x(nCount), y(nCount); // initialize with entries 0..100
+    for (int i = 0; i < nCount; ++i)
+    {
+        x[i] = i; // x goes from -1 to 1
+        y[i] = qSin(i * 10.0f / nCount); //sin
+
+    }
+    // create graph and assign data to it:
+    QPen graphPen;
+    graphPen.setColor(QColor(106, 176, 121));
+    graphPen.setWidth(2);
+
+    QCPGraph* pGraph = spectrumPlot->addGraph();
+
+    pGraph->setData(x, y);
+    pGraph->setPen(graphPen);
+    pGraph->setLineStyle(QCPGraph::LineStyle::lsImpulse);
+    pGraph->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, 5));
+
+
+    // give the axes some labels:
+    spectrumPlot->xAxis->setLabel("频率/Hz");
+    spectrumPlot->yAxis->setLabel("幅值/V");
+
+    // set axes ranges, so we see all data:
+    spectrumPlot->rescaleAxes(true);
+
+    spectrumPlot->xAxis->setVisible(true);
+    spectrumPlot->yAxis->setVisible(true);
+    spectrumPlot->xAxis2->setVisible(true);
+    spectrumPlot->yAxis2->setVisible(true);
+
+    spectrumPlot->replot();
+
+    showMaximized();
+}
+
+void ThemeWidget::initCharts()
+{
+    /*   QChartView* chartView;
+       chartsLayout = new QVBoxLayout;
+       chartView = new QChartView(createSplineChart("网格图"));
+       chartsLayout->addWidget(chartView);
+       m_charts << chartView;
+       spline_chartView = chartView;
+    */
+    chartsLayout = new QVBoxLayout;
+    inputLayout = new QHBoxLayout;
+    outputLayout = new QHBoxLayout;
+    initGridChart(inputLayout);         // 0
+    initSpectrumChart(inputLayout);     // 1
+    initGridChart(outputLayout);        // 2
+    initSpectrumChart(outputLayout);    // 3
+    chartsLayout->addLayout(inputLayout);
+    chartsLayout->addLayout(outputLayout);
+
+}
+
 void ThemeWidget::initLayout()
 {
     cbox_legend = new QComboBox();
     cbox_theme = new QComboBox();
     cbox_animation = new QComboBox();
     antialiasCheckBox = new QCheckBox("抗锯齿");
+    ingoreEmptyDataCheckBox = new QCheckBox("忽略空数据");
+    ingoreInvalidDataCheckBox = new QCheckBox("忽略非法据");
     browser_validValue = new QLineEdit();
     browser_baseFreq = new QLineEdit();
     browser_baseAmplitude = new QLineEdit();
@@ -140,6 +243,11 @@ void ThemeWidget::initLayout()
     QLabel* animationLabel = new QLabel("动画");
     themeLayout->addWidget(animationLabel);
     themeLayout->addWidget(cbox_animation);
+
+    btn_updatePlot = new QPushButton();
+    btn_updatePlot->setText("更新波形图");
+    QObject::connect(btn_updatePlot, &QPushButton::clicked, mainWindow, &MainWindow::sendSerialStart);
+
 
     QFrame* dividingLine1 = new QFrame();
     dividingLine1->setFrameShape(QFrame::HLine);
@@ -203,10 +311,13 @@ void ThemeWidget::initLayout()
     seventhOrderAmplitudeLayout->addWidget(browser_seventhOrderAmplitude);
 
     QVBoxLayout* parametersLayout = new QVBoxLayout;
-    // parametersLayout->addLayout(themeLayout);
-    // parametersLayout->addLayout(legendLayout);
-    // parametersLayout->addLayout(animationLayout);
-    // parametersLayout->addWidget(antialiasCheckBox);
+    parametersLayout->addLayout(themeLayout);
+    parametersLayout->addLayout(legendLayout);
+    parametersLayout->addLayout(animationLayout);
+    parametersLayout->addWidget(antialiasCheckBox);
+    parametersLayout->addWidget(ingoreEmptyDataCheckBox);
+    parametersLayout->addWidget(ingoreInvalidDataCheckBox);
+    parametersLayout->addWidget(btn_updatePlot);
     parametersLayout->addWidget(dividingLine1);
     parametersLayout->addLayout(validValueLayout);
     parametersLayout->addLayout(baseFreqLayout);
@@ -221,9 +332,8 @@ void ThemeWidget::initLayout()
     paramsBox->setFixedWidth(200);
     paramsBox->setLayout(parametersLayout);
 
-    gridLayout = new QGridLayout;
     QHBoxLayout* layout = new QHBoxLayout;
-    layout->addLayout(gridLayout);
+    layout->addLayout(chartsLayout);
     layout->addWidget(paramsBox);
     this->setLayout(layout);
 }
@@ -283,48 +393,6 @@ void ThemeWidget::populateLegendBox()
     cbox_legend->addItem("Legend Right", Qt::AlignRight);
 }
 
-QChart* ThemeWidget::createAreaChart() const
-{
-    QChart* chart = new QChart();
-    chart->setTitle("Area chart");
-
-    // The lower series initialized to zero values
-    QLineSeries* lowerSeries = 0;
-    QString name("Series ");
-    int nameIndex = 0;
-    for (int i(0); i < m_dataTable.count(); i++)
-    {
-        QLineSeries* upperSeries = new QLineSeries(chart);
-        for (int j(0); j < m_dataTable[i].count(); j++)
-        {
-            Data data = m_dataTable[i].at(j);
-            if (lowerSeries)
-            {
-                const auto& points = lowerSeries->points();
-                upperSeries->append(QPointF(j, points[i].y() + data.first.y()));
-            }
-            else
-            {
-                upperSeries->append(QPointF(j, data.first.y()));
-            }
-        }
-        QAreaSeries* area = new QAreaSeries(upperSeries, lowerSeries);
-        area->setName(name + QString::number(nameIndex));
-        nameIndex++;
-        chart->addSeries(area);
-        lowerSeries = upperSeries;
-    }
-
-    chart->createDefaultAxes();
-    chart->axes(Qt::Horizontal).first()->setRange(0, m_valueCount - 1);
-    chart->axes(Qt::Vertical).first()->setRange(0, m_valueMax);
-    // Add space to label to add space between labels and axis
-    QValueAxis* axisY = qobject_cast<QValueAxis*>(chart->axes(Qt::Vertical).first());
-    Q_ASSERT(axisY);
-    axisY->setLabelFormat("%.1f  ");
-
-    return chart;
-}
 
 QChart* ThemeWidget::createBarChart(int valueCount) const
 {
@@ -332,7 +400,7 @@ QChart* ThemeWidget::createBarChart(int valueCount) const
     QChart* chart = new QChart();
     chart->setTitle("Bar chart");
 
-    QStackedBarSeries* series = new QStackedBarSeries(chart);
+    QBarSeries* series = new QBarSeries(chart);
     for (int i(0); i < m_dataTable.count(); i++)
     {
         QBarSet* set = new QBarSet("Bar set " + QString::number(i));
@@ -349,65 +417,11 @@ QChart* ThemeWidget::createBarChart(int valueCount) const
     // Add space to label to add space between labels and axis
     QValueAxis* axisY = qobject_cast<QValueAxis*>(chart->axes(Qt::Vertical).first());
     Q_ASSERT(axisY);
-    axisY->setLabelFormat("%.1f  ");
+    axisY->setLabelFormat("%.1f");
 
     return chart;
 }
 
-QChart* ThemeWidget::createLineChart() const
-{
-
-    QChart* chart = new QChart();
-    chart->setTitle("Line chart");
-
-    QString name("Series ");
-    int nameIndex = 0;
-    for (const DataList& list : m_dataTable)
-    {
-        QLineSeries* series = new QLineSeries(chart);
-        for (const Data& data : list)
-        {
-            series->append(data.first);
-        }
-        series->setName(name + QString::number(nameIndex));
-        nameIndex++;
-        chart->addSeries(series);
-    }
-
-    chart->createDefaultAxes();
-    chart->axes(Qt::Horizontal).first()->setRange(0, m_valueMax);
-    chart->axes(Qt::Vertical).first()->setRange(0, m_valueCount);
-
-    // Add space to label to add space between labels and axis
-    QValueAxis* axisY = qobject_cast<QValueAxis*>(chart->axes(Qt::Vertical).first());
-    Q_ASSERT(axisY);
-    axisY->setLabelFormat("%.1f  ");
-
-    return chart;
-}
-
-QChart* ThemeWidget::createPieChart() const
-{
-    QChart* chart = new QChart();
-    chart->setTitle("Pie chart");
-
-    QPieSeries* series = new QPieSeries(chart);
-    for (const Data& data : m_dataTable[0])
-    {
-        QPieSlice* slice = series->append(data.second, data.first.y());
-        if (data == m_dataTable[0].first())
-        {
-            // Show the first slice exploded with label
-            slice->setLabelVisible();
-            slice->setExploded();
-            slice->setExplodeDistanceFactor(0.5);
-        }
-    }
-    series->setPieSize(0.4);
-    chart->addSeries(series);
-
-    return chart;
-}
 
 QChart* ThemeWidget::createSplineChart(QString title)
 {
@@ -427,45 +441,56 @@ QChart* ThemeWidget::createSplineChart(QString title)
         chart->addSeries(series);
     }
 
+
     chart->createDefaultAxes();
     chart->axes(Qt::Horizontal).first()->setRange(0, m_valueMax);
     chart->axes(Qt::Vertical).first()->setRange(0, m_valueCount);
 
     // Add space to label to add space between labels and axis
-    QValueAxis* axisY = qobject_cast<QValueAxis*>(chart->axes(Qt::Vertical).first());
-    Q_ASSERT(axisY);
-    axisY->setLabelFormat("%.1f  ");
-    return chart;
-}
 
-QChart* ThemeWidget::createScatterChart() const
-{
-    // scatter chart
-    QChart* chart = new QChart();
-    chart->setTitle("Scatter chart");
-    QString name("Series ");
-    int nameIndex = 0;
-    for (const DataList& list : m_dataTable)
+    QPen pen;
+    pen.setStyle(Qt::SolidLine);
+    pen.setColor(Qt::black);
+    pen.setWidth(1);
+
+    QList<QAbstractAxis*> xAxies = chart->axes(Qt::Horizontal);
+    foreach(QAbstractAxis* axis, xAxies)
     {
-        QScatterSeries* series = new QScatterSeries(chart);
-        for (const Data& data : list)
-        {
-            series->append(data.first);
-        }
-        series->setName(name + QString::number(nameIndex));
-        nameIndex++;
-        chart->addSeries(series);
+        axis->setLinePen(pen);
+        axis->setGridLinePen(pen);
     }
 
-    chart->createDefaultAxes();
-    chart->axes(Qt::Horizontal).first()->setRange(0, m_valueMax);
-    chart->axes(Qt::Vertical).first()->setRange(0, m_valueCount);
-    // Add space to label to add space between labels and axis
+    QList<QAbstractAxis*> yAxies = chart->axes(Qt::Horizontal);
+    foreach(QAbstractAxis* axis, yAxies)
+    {
+        axis->setLinePen(pen);
+
+        axis->setGridLinePen(pen);
+    }
+
+    QValueAxis* axisX = qobject_cast<QValueAxis*>(chart->axes(Qt::Horizontal).first());
+    Q_ASSERT(axisX);
+    axisX->setLabelFormat("%d");
+    axisX->setTitleFont(QFont("宋体"));
+    axisX->setGridLineVisible(true);
+    axisX->setGridLineColor(Qt::black);
+    axisX->setGridLinePen(pen);
+    axisX->setMinorGridLineVisible(false);
+
+
     QValueAxis* axisY = qobject_cast<QValueAxis*>(chart->axes(Qt::Vertical).first());
     Q_ASSERT(axisY);
-    axisY->setLabelFormat("%.1f  ");
+    axisY->setLabelFormat("%.2f");
+    axisY->setTitleFont(QFont("宋体"));
+    axisY->setGridLineVisible(true);
+    axisY->setGridLinePen(pen);
+    axisY->setGridLineColor(Qt::black);
+    axisY->setMinorGridLineVisible(false);
+
     return chart;
 }
+
+
 
 void ThemeWidget::updateUI()
 {
@@ -567,8 +592,45 @@ void ThemeWidget::updateUI()
 
 
 
+void ThemeWidget::updateChartData(QVector<double> pointsDataX, QVector<double> pointsDataY, int index)
+{
+    XCustomPlot* p = XPlots[index];
+    p->graph()->setData(pointsDataX, pointsDataY);
+    p->rescaleAxes(true);
+    p->replot();
+}
 
-//void ThemeWidget::readSerialInfo2logWin()
-//{
-//    mySerialPort->showSerialPostsInfo();
-//}
+void ThemeWidget::updateAnalyses(AnalysisVaule analysisValue)
+{
+    browser_validValue->setText(QString::number(analysisValue.validValue));
+    browser_baseFreq->setText(QString::number(analysisValue.baseFreq));
+    browser_baseAmplitude->setText(QString::number(analysisValue.baseAmp));
+    browser_thirdOrderFreq->setText(QString::number(analysisValue._3rdFreq));
+    browser_thirdOrderAmplitude->setText(QString::number(analysisValue._3rdAmp));
+    browser_fifthOrderFreq->setText(QString::number(analysisValue._5thFreq));
+    browser_fifthOrderAmplitude->setText(QString::number(analysisValue._5thAmp));
+    browser_seventhOrderFreq->setText(QString::number(analysisValue._7thFreq));
+    browser_seventhOrderAmplitude->setText(QString::number(analysisValue._7thAmp));
+}
+
+
+bool ThemeWidget::isIngoreEmptyDataChecked()
+{
+    return ingoreEmptyDataCheckBox->isChecked();
+}
+
+bool ThemeWidget::isIngoreInvalidDataChecked()
+{
+    return ingoreInvalidDataCheckBox->isChecked();
+}
+
+
+void ThemeWidget::updateAxisXMax(int value)
+{
+    axisXMax = value;
+}
+
+void ThemeWidget::updateAxisYMax(int value)
+{
+    axisYMax = value;
+}

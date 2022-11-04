@@ -13,12 +13,17 @@ MainWindow::MainWindow(QWidget* parent)
     setWindowIcon(QIcon(":/res/icons/logo.ico"));
 
     signalMapper = new QSignalMapper(this);
+    valueMap["iw"] = 0;
+    valueMap["is"] = 1;
+    valueMap["ow"] = 2;
+    valueMap["os"] = 3;
 
     initLayout();
 
     QObject::connect(action_build, &QAction::triggered, this, &MainWindow::action_build_clicked);
     QObject::connect(action_make_clean, &QAction::triggered, this, &MainWindow::action_make_clean_clicked);
     QObject::connect(this, &MainWindow::transmitProDir, codePage, &CodePage::slot_updateProDir);
+    QObject::connect(this, &MainWindow::serialReadDone, this, &MainWindow::serialBuf2Plot);
 
     qDebug() << "Desktop=>" << QStandardPaths::writableLocation(QStandardPaths::DesktopLocation) << "\n" << projectDir;
 }
@@ -33,9 +38,10 @@ void MainWindow::initLayout()
     // initialize toolBar
     initBuildToolBar();
     initSerialPortToolBar();
+    createDesignerToolbars();
+
     // initialize sideBar
     initSideBar();
-
     // initialize statusBar
     initStatusBar();
 
@@ -84,7 +90,7 @@ void MainWindow::initStackedPage()
     qStackedWidget->setCurrentWidget(codePage);
 
     /* initialize Charts */
-    chartsPage = new ThemeWidget();
+    chartsPage = new ThemeWidget(nullptr, this);
     qStackedWidget->addWidget(chartsPage);
 
     /* initialize scene */
@@ -206,8 +212,6 @@ void MainWindow:: initBuildToolBar()
     action_download->setText("下载");
     action_download->setIcon(QIcon(":/res/imgs/download.png"));
     buildToolBar->addAction(action_download);
-
-    createDesignerToolbars();
 }
 
 
@@ -855,14 +859,154 @@ QList<QSerialPortInfo*> MainWindow::get_qSerialPortInfo()
 
 void MainWindow::ReadPortData()
 {
-    QByteArray buf;
-    QString serialBuf = "";
-    buf = serialPort->readAll();
+    qDebug() << "buf size:" << buf.size();
+    buf += serialPort->readAll();
+    QString str = "";
     if(!buf.isEmpty())
     {
-        serialBuf += QSerialPort::tr(buf);
+        str += QSerialPort::tr(buf);
     }
-    buf.clear();
-    qDebug() << serialBuf;
-    logWindow->append(serialBuf);
+    QStringList formatted = str.split("#");
+    serialBuf.append(formatted);
+    logWindow->append(str);
+
+    int size = formatted.size();
+    int index = size >= 2 ? size - 2 : 0;
+
+    if(formatted[index] == "z")
+    {
+        buf.clear();
+        emit serialReadDone();
+    }
+
+}
+
+void MainWindow::sendSerialStart()
+{
+    serialBuf.clear();
+    char updateSignal = 's';
+    serialPort->write(&updateSignal);
+}
+
+void MainWindow::serialBuf2Plot()
+{
+    logWindow->append("开始读取串口数据...");
+
+    qDebug() << "serialBuf2Plot()";
+    if(serialBuf.size() == 0)
+    {
+        logWindow->append("串口缓冲区为空");
+        return;
+    }
+//    QVector<QPointF> pointList;
+    QVector<double> iw_x, iw_y;
+    QVector<double> is_x, is_y;
+    QVector<double> ow_x, ow_y;
+    QVector<double> os_x, os_y;
+    AnalysisVaule analysisVaule;
+    int pointCnt = designerPage->getSamplePointCnt();
+    int sampleFreq = designerPage->getSampleFreq();
+
+    QList<QString> test = serialBuf;
+
+    foreach(QString str, serialBuf)
+    {
+        if(str.contains(":"))
+        {
+            QStringList seg = str.split("_");
+            QString indentifier = seg[0];
+            QStringList value = seg[1].split(":");
+
+            int x = (int)value[0].toDouble();
+            int y = value[1].toDouble();
+            switch(valueMap[indentifier])
+            {
+                // "iw"
+                case 0:
+                    iw_x.append(x);
+                    iw_y.append(y);
+                    break;
+
+                // "is"
+                case 1:
+                    is_x.append(x);
+                    is_y.append(y);
+                    break;
+
+                // "ow"
+                case 2:
+                    ow_x.append(x);
+                    ow_y.append(y);
+                    break;
+
+                // "os"
+                case 3:
+                    os_x.append(x);
+                    os_y.append(y);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        else if((str == "" && chartsPage->isIngoreEmptyDataChecked()) || chartsPage->isIngoreInvalidDataChecked())
+        {
+            continue;
+        }
+        else
+        {
+            logWindow->append("串口缓冲区数据格式错误 =>" + str);
+            return;
+        }
+    }
+
+    // transform data
+    iw_y[0] /= 1000;
+    ow_y[0] /= 1000;
+    is_x[0] /= sampleFreq * pointCnt;
+    os_x[0] /= sampleFreq * pointCnt;
+    is_y[0] /= 1000 * pointCnt;
+    os_y[0] /= 1000 * pointCnt;
+
+
+
+    for(int i = 1; i < pointCnt; i++)
+    {
+        iw_y[i] /= 1000;
+        ow_y[i] /= 1000;
+        iw_y[i] /= 1000;
+        ow_y[i] /= 1000;
+        is_x[i] /= sampleFreq * pointCnt;
+        os_x[i] /= sampleFreq * pointCnt;
+        is_y[i] /= 500 * pointCnt;
+        os_y[i] /= 500 * pointCnt;
+    }
+
+    /*
+    *   [计算输入数据]
+    *
+    *   基波频率：_x[1]
+    *   基波幅值：_y[1]
+    *   三次     _x[3]
+    *
+    */
+    analysisVaule.validValue = 0;
+    analysisVaule.baseFreq = is_x[1];
+    analysisVaule.baseAmp = is_y[1];
+    analysisVaule._3rdFreq = is_x[3];
+    analysisVaule._3rdAmp = is_y[3];
+    analysisVaule._5thFreq = is_x[5];
+    analysisVaule._5thAmp = is_y[5];
+    analysisVaule._7thFreq = is_x[7];
+    analysisVaule._7thAmp = is_y[7];
+
+
+//    chartsPage->updateChartData(pointList, xM + 10, yM + 500);
+//    _y[0] = pointList[0].y() / 1000 / pointCnt;
+    chartsPage->updateAnalyses(analysisVaule);
+    chartsPage->updateChartData(iw_x, iw_y, 0);
+    chartsPage->updateChartData(is_x, is_y, 1);
+    chartsPage->updateChartData(ow_x, ow_y, 2);
+    chartsPage->updateChartData(os_x, os_y, 3);
+    serialBuf.clear();
 }

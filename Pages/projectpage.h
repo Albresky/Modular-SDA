@@ -7,6 +7,9 @@
 #include <QPushButton>
 #include <QSerialPortInfo>
 #include <QSpinBox>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QSerialPort>
 
 #include "custom/commonHeaders.h"
 #include <mainwindow.h>

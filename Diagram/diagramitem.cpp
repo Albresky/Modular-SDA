@@ -77,6 +77,7 @@ QPixmap DiagramItem::image() const
     painter.setPen(QPen(Qt::black, 8));
     painter.translate(125, 125);
     painter.drawPolyline(myPolygon);
+//    painter.drawText();
     painter.setRenderHint(QPainter::Antialiasing, true);
     return pixmap;
 }
