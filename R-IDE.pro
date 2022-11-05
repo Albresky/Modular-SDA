@@ -18,15 +18,16 @@ SOURCES += \
     Diagram/diagramtextitem.cpp \
     Diagram/diagramview.cpp \
     FileOperator/FileOperator.cpp \
+    Pages/analyzerpage.cpp \
     Pages/codepage.cpp \
     Pages/designerpage.cpp \
     Pages/projectpage.cpp \
-    Pages/themewidget.cpp \
     custom/DataItem.cpp \
     custom/algorithmtoolbox.cpp \
     custom/charts.cpp \
     custom/commonHeaders.cpp \
     custom/globalVar.cpp \
+    custom/mygraphicstextitem.cpp \
     custom/sidebar.cpp \
     custom/utilities.cpp \
     lib/XCustomPlot.cpp \
@@ -46,15 +47,16 @@ HEADERS += \
     Diagram/diagramtextitem.h \
     Diagram/diagramview.h \
     FileOperator/FileOperator.h \
+    Pages/analyzerpage.h \
     Pages/codepage.h \
     Pages/designerpage.h \
     Pages/projectpage.h \
-    Pages/themewidget.h \
     custom/DataItem.h \
     custom/algorithmtoolbox.h \
     custom/charts.h \
     custom/commonHeaders.h \
     custom/globalVar.h \
+    custom/mygraphicstextitem.h \
     custom/sidebar.h \
     custom/utilities.h \
     lib/XCustomPlot.h \

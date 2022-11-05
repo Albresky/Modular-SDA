@@ -40,6 +40,7 @@ public:
     void addAttributesBox(QWidget* widget);
     void updateAttributesBox(QWidget* widget);
     void resetAttributesBox();
+
 private slots:
 
     void buttonGroupClicked(QAbstractButton* button);

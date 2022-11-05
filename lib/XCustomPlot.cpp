@@ -21,8 +21,8 @@ void XCustomPlot::mouseMoveEvent(QMouseEvent* event)
         int y_pos = event->pos().y();
 
         //像素坐标转成实际的x,y轴的坐标
-        float x_val = this->xAxis->pixelToCoord(x_pos);
-        float y_val = this->yAxis->pixelToCoord(y_pos);
+        double x_val = this->xAxis->pixelToCoord(x_pos);
+        double y_val = this->yAxis->pixelToCoord(y_pos);
 
         if(Q_NULLPTR == m_xTracer)
         {

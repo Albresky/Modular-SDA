@@ -20,54 +20,58 @@ DiagramItem::DiagramItem(ModuleType moduleType, QMenu* contextMenu,
     path_startend.lineTo(200, 25);
 
     QPolygonF polygon_step;
-    polygon_step << QPointF(-100, -100) << QPointF(100, -100)
-                 << QPointF(100, 100) << QPointF(-100, 100)
-                 << QPointF(-100, -100);
+    polygon_step << QPointF(-100, -61.8) << QPointF(100, -61.8)
+                 << QPointF(100, 61.8) << QPointF(-100, 61.8)
+                 << QPointF(-100, -61.8);
 
     QPolygonF polygon_conditional;
-    polygon_conditional << QPointF(-100, 0) << QPointF(0, 100)
-                        << QPointF(100, 0) << QPointF(0, -100)
-                        << QPointF(-100, 0);
-
-    QPolygonF polygon_io;
-    polygon_io << QPointF(-100, -100) << QPointF(100, -100)
-               << QPointF(100, 100) << QPointF(-100, 100)
-               << QPointF(-100, -100);
+    polygon_conditional  << QPointF(-64.45, -30.9) << QPointF(34.55, -30.9)
+                         << QPointF(65.45, 0) << QPointF(34.55, 30.9)
+                         << QPointF(-64.45, 30.9) << QPointF(-64.45, -30.9);
     switch (myDiagramType)
     {
         case Input:
+            text = "输入";
             myPolygon = polygon_conditional;
             av_dataItem = new AV_Input();
             break;
         case Output:
+            text = "输出";
             myPolygon = polygon_conditional;
             av_dataItem = new AV_DataItem();
             break;
         case FFT:
+            text = "FFT";
             myPolygon = polygon_step;
-            av_dataItem = new AV_FFT_IFFT_DFT();
+            av_dataItem = new AV_FFT_IFFT();
             break;
         case DFT:
+            text = "DFT";
             myPolygon = polygon_step;
-            av_dataItem = new AV_FFT_IFFT_DFT();
+            av_dataItem = new AV_DFT();
             break;
         case IFFT:
+            text = "IFFT";
             myPolygon = polygon_step;
-            av_dataItem = new AV_FFT_IFFT_DFT();
+            av_dataItem = new AV_FFT_IFFT();
             break;
         case HanningWin:
+            text = "HanningWin";
             myPolygon = polygon_step;
             av_dataItem = new AV_HanningWin_BlackmanWin();
             break;
         case BlackmanWin:
+            text = "BlackmanWin";
             myPolygon = polygon_step;
             av_dataItem = new AV_HanningWin_BlackmanWin();
             break;
         case HT:
+            text = "HT";
             myPolygon = polygon_step;
             av_dataItem = new AV_HT();
             break;
         case Filter:
+            text = "Filter";
             myPolygon = polygon_step;
             av_dataItem = new AV_Filter();
             break;
@@ -77,10 +81,26 @@ DiagramItem::DiagramItem(ModuleType moduleType, QMenu* contextMenu,
                       << QPointF(-120, -80);
             break;
     }
+
+    setCursor(Qt::ClosedHandCursor);
+
     setPolygon(myPolygon);
     setFlag(QGraphicsItem::ItemIsMovable, true);
     setFlag(QGraphicsItem::ItemIsSelectable, true);
     setFlag(QGraphicsItem::ItemSendsGeometryChanges, true);
+}
+
+void DiagramItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget)
+{
+    painter->setFont(QFont("黑体", 20, QFont::Bold));
+    painter->setRenderHint(QPainter::Antialiasing);
+//    QPen pen = painter->pen();
+//    pen.setStyle(Qt::SolidLine);
+//    pen.setWidth(2);
+//    pen.setColor(QColor(Qt::blue));
+//    painter->setPen(pen);
+    QGraphicsPolygonItem::paint(painter, option, widget);
+    painter->drawText(boundingRect(), Qt::AlignCenter, text);
 }
 
 void DiagramItem::removeArrow(Arrow* arrow)
@@ -90,8 +110,7 @@ void DiagramItem::removeArrow(Arrow* arrow)
 
 void DiagramItem::removeArrows()
 {
-    // need a copy here since removeArrow() will
-    // modify the arrows container
+    // need a copy here since removeArrow() will modify the arrows container
     const auto arrowsCopy = arrows;
     for (Arrow* arrow : arrowsCopy)
     {
@@ -115,8 +134,6 @@ QPixmap DiagramItem::image() const
     painter.setPen(QPen(Qt::black, 8));
     painter.translate(125, 125);
     painter.drawPolyline(myPolygon);
-    painter.drawText(10, 5, "FFT");
-    painter.setFont(QFont("黑体", 15, QFont::Bold));
     painter.setRenderHint(QPainter::Antialiasing, true);
     return pixmap;
 }

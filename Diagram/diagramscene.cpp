@@ -2,17 +2,27 @@
 #include "arrow.h"
 
 
+
 DiagramScene::DiagramScene(QMenu* itemMenu, QObject* parent)
     : QGraphicsScene(parent)
 {
     myItemMenu = itemMenu;
     myMode = MoveItem;
-//    myItemType = DiagramItem::Step;
+    //    myItemType = DiagramItem::Step;
     line = nullptr;
     textItem = nullptr;
     myItemColor = Qt::white;
     myTextColor = Qt::black;
     myLineColor = Qt::black;
+    moduleStatusMap.insert(DiagramItem::ModuleType::Input, false);
+    moduleStatusMap.insert(DiagramItem::ModuleType::Output, false);
+    moduleStatusMap.insert(DiagramItem::ModuleType::FFT, false);
+    moduleStatusMap.insert(DiagramItem::ModuleType::IFFT, false);
+    moduleStatusMap.insert(DiagramItem::ModuleType::DFT, false);
+    moduleStatusMap.insert(DiagramItem::ModuleType::HanningWin, false);
+    moduleStatusMap.insert(DiagramItem::ModuleType::BlackmanWin, false);
+    moduleStatusMap.insert(DiagramItem::ModuleType::HT, false);
+    moduleStatusMap.insert(DiagramItem::ModuleType::Filter, false);
 }
 
 void DiagramScene::setLineColor(const QColor& color)
@@ -53,7 +63,7 @@ void DiagramScene::setFont(const QFont& font)
     if (isItemChange(DiagramTextItem::Type))
     {
         QGraphicsTextItem* item = qgraphicsitem_cast<DiagramTextItem*>(selectedItems().first());
-        //At this point the selection can change so the first selected item might not be a DiagramTextItem
+        // At this point the selection can change so the first selected item might not be a DiagramTextItem
         if (item)
         {
             item->setFont(myFont);
@@ -70,7 +80,6 @@ void DiagramScene::setItemType(DiagramItem::ModuleType type)
 {
     myItemType = type;
 }
-
 
 void DiagramScene::editorLostFocus(DiagramTextItem* item)
 {
@@ -98,11 +107,30 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent)
     switch (myMode)
     {
         case InsertItem:
+            if (moduleStatusMap[myItemType])
+            {
+                QMessageBox::warning(nullptr, "Warning", tr("该模块已经存在！"));
+                myMode = DiagramScene::MoveItem;
+                return;
+            }
+            if(myItemType == DiagramItem::ModuleType::HT && (moduleStatusMap[DiagramItem::ModuleType::FFT] || moduleStatusMap[DiagramItem::ModuleType::IFFT]))
+            {
+                QMessageBox::warning(nullptr, "Warning", tr("该模块不能与FFT或IFFT共存！"));
+                myMode = DiagramScene::MoveItem;
+                return;
+            }
+            if(moduleStatusMap[DiagramItem::ModuleType::HT] && (myItemType == DiagramItem::ModuleType::FFT || myItemType == DiagramItem::ModuleType::IFFT))
+            {
+                QMessageBox::warning(nullptr, "Warning", tr("该模块不能与HT共存！"));
+                myMode = DiagramScene::MoveItem;
+                return;
+            }
+            moduleStatusMap[myItemType] = true;
             item = new DiagramItem(myItemType, myItemMenu);
             item->setBrush(myItemColor);
             addItem(item);
-            nowItems  = this->items();
-            sceneItemsMap.insert(nowItems[0], item);
+            nowItems  = this->items(Qt::AscendingOrder);
+            sceneItemsMap.insert(item, item);
             designerPage->addAttributesBox(item->Widget());
             item->setPos(mouseEvent->scenePos());
             emit itemInserted(item);
@@ -137,20 +165,28 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent)
     }
     QGraphicsScene::mousePressEvent(mouseEvent);
     qDebug() << "selected count:" << this->selectedItems().size();
-    if(this->selectedItems().size() > 0)
+    if (this->selectedItems().size() > 0)
     {
         designerPage->updateAttributesBox(sceneItemsMap.value(selectedItems()[0])->Widget());
+        if(myItemType == DiagramItem::ModuleType::DFT)
+        {
+            analyzerPage->switchAttributesBox(true);
+        }
+        else
+        {
+            analyzerPage->switchAttributesBox(false);
+        }
     }
     else
     {
         designerPage->resetAttributesBox();
     }
+
     qDebug() << "mousePressEvent() ended ";
 }
 
 void DiagramScene::mouseMoveEvent(QGraphicsSceneMouseEvent* mouseEvent)
 {
-    qDebug() << "mouseMoveEvent() started";
     if (myMode == InsertLine && line != nullptr)
     {
         QLineF newLine(line->line().p1(), mouseEvent->scenePos());
@@ -160,7 +196,6 @@ void DiagramScene::mouseMoveEvent(QGraphicsSceneMouseEvent* mouseEvent)
     {
         QGraphicsScene::mouseMoveEvent(mouseEvent);
     }
-    qDebug() << "mouseMoveEvent() ended";
 }
 
 void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* mouseEvent)
@@ -181,7 +216,6 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* mouseEvent)
 
         removeItem(line);
         delete line;
-
 
         if (startItems.count() > 0 && endItems.count() > 0 &&
                 startItems.first()->type() == DiagramItem::Type &&
@@ -205,7 +239,6 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* mouseEvent)
     qDebug() << "mouseReleaseEvent() ended()";
 }
 
-
 bool DiagramScene::isItemChange(int type) const
 {
     const QList<QGraphicsItem*> items = selectedItems();
@@ -219,4 +252,21 @@ bool DiagramScene::isItemChange(int type) const
 void DiagramScene::setDesignerpage(DesignerPage* designerPage)
 {
     this->designerPage = designerPage;
+}
+
+void DiagramScene::setAnalyzerPage(AnalyzerPage* analyzerPage)
+{
+    this->analyzerPage = analyzerPage;
+}
+
+void DiagramScene::removeDiagramItemInMap(DiagramItem::ModuleType module_type)
+{
+    qDebug() << "DiagramItem deleted in Map, by DiagramItem::ModuleType";
+    moduleStatusMap[module_type] = false;
+}
+
+void DiagramScene::removeDiagramItemInMap(DiagramItem* diagramItem)
+{
+    qDebug() << "DiagramItem deleted in Map, by DiagramItem*";
+    moduleStatusMap[diagramItem->diagramType()] = false;
 }

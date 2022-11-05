@@ -3,7 +3,9 @@
 
 #include <QGraphicsPixmapItem>
 #include <QList>
+#include <QDebug>
 #include "custom/DataItem.h"
+#include "custom/mygraphicstextitem.h"
 
 QT_BEGIN_NAMESPACE
 class QPixmap;
@@ -21,15 +23,12 @@ public:
     // enum DiagramType { Step, Conditional, StartEnd, Io };
     enum ModuleType {Input, Output, FFT, IFFT, DFT, HanningWin, BlackmanWin, HT, Filter};
 
-    // DiagramItem(DiagramType diagramType, QMenu* contextMenu, QGraphicsItem* parent = nullptr);
+
     DiagramItem(ModuleType moduleType, QMenu* contextMenu, QGraphicsItem* parent = nullptr);
 
     void removeArrow(Arrow* arrow);
     void removeArrows();
-//    DiagramType diagramType() const
-//    {
-//        return myDiagramType;
-//    }
+
     ModuleType diagramType() const
     {
         return myDiagramType;
@@ -40,6 +39,7 @@ public:
     }
     void addArrow(Arrow* arrow);
     QPixmap image() const;
+
     int type() const override
     {
         return Type;
@@ -51,14 +51,16 @@ public:
 protected:
     void contextMenuEvent(QGraphicsSceneContextMenuEvent* event) override;
     QVariant itemChange(GraphicsItemChange change, const QVariant& value) override;
+    void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override;
 
 private:
-    // DiagramType myDiagramType;
     ModuleType myDiagramType;
     QPolygonF myPolygon;
     QMenu* myContextMenu;
     QList<Arrow*> arrows;
     AV_DataItem* av_dataItem;
+    QGraphicsTextItem* textItem;
+    QString text;
 };
 
 #endif // DIAGRAMITEM_H

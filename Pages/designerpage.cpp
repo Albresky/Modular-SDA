@@ -51,16 +51,16 @@ void DesignerPage::init()
 void DesignerPage::initToolBox()
 {
     toolBoxName_1 = new QLabel();
-    toolBoxName_2 = new QLabel();
-    toolBoxName_3 = new QLabel();
+//    toolBoxName_2 = new QLabel();
+//    toolBoxName_3 = new QLabel();
     toolBoxName_1->setText("工具箱1");
     // toolBoxName_2->setText("工具箱2");
     // toolBoxName_3->setText("工具箱3");
 
 
     buttonGroup_1 = new QButtonGroup(this);
-    buttonGroup_2 = new QButtonGroup(this);
-    buttonGroup_3 = new QButtonGroup(this);
+//    buttonGroup_2 = new QButtonGroup(this);
+//    buttonGroup_3 = new QButtonGroup(this);
     buttonGroup_1->setExclusive(false);
 
     connect(buttonGroup_1, QOverload<QAbstractButton*>::of(&QButtonGroup::buttonClicked),
@@ -82,11 +82,11 @@ void DesignerPage::initToolBox()
     textButton->setCheckable(true);
     buttonGroup_1->addButton(textButton, MainWindow::InsertTextButton);
     textButton->setIcon(QIcon(QPixmap(":/res/images/textpointer.png")));
-    textButton->setIconSize(QSize(32, 32));
+    textButton->setIconSize(QSize(50, 50));
 
-    QVBoxLayout* textLayout = new QVBoxLayout;
-    textLayout->addWidget(textButton, Qt::AlignHCenter);
-    textLayout->addWidget(new QLabel(tr("文本")), Qt::AlignCenter);
+    QGridLayout* textLayout = new QGridLayout;
+    textLayout->addWidget(textButton, 0, 0, Qt::AlignHCenter);
+    textLayout->addWidget(new QLabel(tr("文本框")), 1, 0, Qt::AlignCenter);
 
     QWidget* textWidget = new QWidget;
     textWidget->setLayout(textLayout);
@@ -96,12 +96,12 @@ void DesignerPage::initToolBox()
     itemWidget->setLayout(layout);
 
     toolBox_1 = new QToolBox;
-    toolBox_1->setSizePolicy(QSizePolicy(QSizePolicy::Maximum, QSizePolicy::Ignored));
-    toolBox_1->setMinimumWidth(itemWidget->sizeHint().width());
+    toolBox_1->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Ignored));
     toolBox_1->addItem(itemWidget, tr("基础模块"));
 
 
     QVBoxLayout* vToolBoxesLayout = new QVBoxLayout;
+
     vToolBoxesLayout->addWidget(toolBoxName_1);
     vToolBoxesLayout->addWidget(toolBox_1);
     // vToolBoxesLayout->addWidget(toolBoxName_2);
@@ -110,7 +110,7 @@ void DesignerPage::initToolBox()
     toolBoxes->setLayout(vToolBoxesLayout);
     toolBoxes->setFrameShape(QFrame::Shape::Box);
     toolBoxes->setLineWidth(1);
-    toolBoxes->setMaximumWidth(150);
+    toolBoxes->setFixedWidth(165);
 }
 
 
@@ -194,7 +194,7 @@ int DesignerPage::getSamplePointCnt()
 
 int DesignerPage::getSampleFreq()
 {
-    return 10e6;
+    return 25641;
 //    return qSpinBox_SampleFreq->value();
 }
 
@@ -215,3 +215,4 @@ void DesignerPage::resetAttributesBox()
     qDebug() << "resetAttributesBox()";
     attributesBox->setCurrentWidget(noModuleSelected);
 }
+

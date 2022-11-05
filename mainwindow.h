@@ -35,7 +35,7 @@
 #include "custom/commonHeaders.h"
 #include "Diagram/diagramview.h"
 #include "Pages/designerpage.h"
-#include "Pages/themewidget.h"
+#include "Pages/analyzerpage.h"
 #include "Pages/codepage.h"
 #include "Pages/projectpage.h"
 #include "syntax/Codeeditor.h"
@@ -77,6 +77,7 @@ private slots:
 
     void action_build_clicked();
     void action_make_clean_clicked();
+    void action_convert_triggerred();
     void action_designer_clicked();
     void action_edit_clicked();
     void action_charts_clicked();
@@ -136,6 +137,7 @@ private:
     QAction* action_build;
     QAction* action_make_clean;
     QAction* action_download;
+    QAction* action_convert;
     QAction* sidebar_welcome;
     QAction* sidebar_edit;
     QAction* sidebar_designer;
@@ -145,7 +147,7 @@ private:
     QLabel* action_com_state;
     SideBar* sidebar;
     CodePage* codePage;
-    ThemeWidget* chartsPage;
+    AnalyzerPage* chartsPage;
     DesignerPage* designerPage;
     ProjectPage* projectPage;
     QSignalMapper* signalMapper;

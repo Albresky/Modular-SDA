@@ -7,15 +7,15 @@
 
 struct AnalysisVaule
 {
-    int validValue;
-    float baseFreq;
-    int baseAmp;
-    float _3rdFreq;
-    int _3rdAmp;
-    float _5thFreq;
-    int _5thAmp;
-    float _7thFreq;
-    int _7thAmp;
+    double validValue;
+    double baseFreq;
+    double baseAmp;
+    double _3rdFreq;
+    double _3rdAmp;
+    double _5thFreq;
+    double _5thAmp;
+    double _7thFreq;
+    double _7thAmp;
 };
 
 
@@ -52,24 +52,42 @@ private:
 };
 
 
-class AV_FFT_IFFT_DFT: public AV_DataItem
+class AV_FFT_IFFT: public AV_DataItem
 {
 public:
-    AV_FFT_IFFT_DFT(int pointCnt = 0, int signalFreq = 0, int sampleFreq = 0);
-    ~AV_FFT_IFFT_DFT();
+    AV_FFT_IFFT(int pointCnt = 0, int sampleFreq = 0);
+    ~AV_FFT_IFFT();
 
     QWidget* Widget() const override
     {
         return widget;
     }
     int getPointCnt();
-    int getSignalFreq();
     int getSampleFreq();
 private:
     QWidget* widget;
     QSpinBox* PointCnt;
-    QSpinBox* SignalFreq;
     QSpinBox* SampleFreq;
+};
+
+class AV_DFT: public AV_DataItem
+{
+public:
+    AV_DFT(int pointCnt = 0, int sampleFreq = 0, int calcuFreq = 0);
+    ~AV_DFT();
+
+    QWidget* Widget() const override
+    {
+        return widget;
+    }
+    int getPointCnt();
+    int getSampleFreq();
+    int getCalcuFreq();
+private:
+    QWidget* widget;
+    QSpinBox* PointCnt;
+    QSpinBox* SampleFreq;
+    QSpinBox* CalcuFreq;
 };
 
 class AV_HanningWin_BlackmanWin: public AV_DataItem
@@ -92,10 +110,9 @@ private:
 class AV_HT : public AV_DataItem
 {
 public:
-    AV_HT(int pointCnt = 0, int signalFreq = 0, int sampleFreq = 0);
+    AV_HT(int pointCnt = 0, int sampleFreq = 0);
     ~AV_HT();
     int getPointCnt();
-    int getSignalFreq();
     int getSampleFreq();
 
     QWidget* Widget() const override
@@ -105,19 +122,18 @@ public:
 private:
     QWidget* widget;
     QSpinBox* PointCnt;
-    QSpinBox* SignalFreq;
     QSpinBox* SampleFreq;
 };
 
 class AV_Filter: public AV_DataItem
 {
 public:
-    AV_Filter(int ufl = 0, int dfl = 0, float gain = 0.0);
+    AV_Filter(int ufl = 0, int dfl = 0, double passbandgain = 0.0, double stopbandgain = 0.0);
     ~AV_Filter();
     int getUFL();
     int getDFL();
-    float getGain();
-
+    double getPassBandGain();
+    double getStopBandGain();
 
     QWidget* Widget() const override
     {
@@ -127,7 +143,8 @@ private:
     QWidget* widget;
     QSpinBox* UFL;
     QSpinBox* DFL;
-    QDoubleSpinBox* Gain;
+    QDoubleSpinBox* PassBandGain;
+    QDoubleSpinBox* StopBandGain;
 };
 
 #endif // DATAITEM_H

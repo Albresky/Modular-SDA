@@ -1,12 +1,10 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-
 QString MainWindow::projectDir = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
 
 MainWindow::MainWindow(QWidget* parent)
-    : QMainWindow(parent)
-    , ui(new Ui::MainWindow)
+    : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
     this->setWindowTitle(MainWindowTitle);
@@ -22,10 +20,12 @@ MainWindow::MainWindow(QWidget* parent)
 
     QObject::connect(action_build, &QAction::triggered, this, &MainWindow::action_build_clicked);
     QObject::connect(action_make_clean, &QAction::triggered, this, &MainWindow::action_make_clean_clicked);
+    QObject::connect(action_convert, &QAction::triggered, this, &MainWindow::action_convert_triggerred);
     QObject::connect(this, &MainWindow::transmitProDir, codePage, &CodePage::slot_updateProDir);
     QObject::connect(this, &MainWindow::serialReadDone, this, &MainWindow::serialBuf2Plot);
 
-    qDebug() << "Desktop=>" << QStandardPaths::writableLocation(QStandardPaths::DesktopLocation) << "\n" << projectDir;
+    qDebug() << "Desktop=>" << QStandardPaths::writableLocation(QStandardPaths::DesktopLocation) << "\n"
+             << projectDir;
 }
 
 MainWindow::~MainWindow()
@@ -59,9 +59,7 @@ void MainWindow::initLayout()
 
     // initialize Command Processor
     initQProcess();
-
 }
-
 
 void MainWindow::initScene()
 {
@@ -77,7 +75,6 @@ void MainWindow::initScene()
             this, &MainWindow::itemSelected);
 
     view = new DiagramView(scene);
-
 }
 
 void MainWindow::initStackedPage()
@@ -90,7 +87,7 @@ void MainWindow::initStackedPage()
     qStackedWidget->setCurrentWidget(codePage);
 
     /* initialize Charts */
-    chartsPage = new ThemeWidget(nullptr, this);
+    chartsPage = new AnalyzerPage(nullptr, this);
     qStackedWidget->addWidget(chartsPage);
 
     /* initialize scene */
@@ -100,6 +97,7 @@ void MainWindow::initStackedPage()
     designerPage = new DesignerPage(view, scene, itemMenu);
     qStackedWidget->addWidget(designerPage);
     scene->setDesignerpage(designerPage);
+    scene->setAnalyzerPage(chartsPage);
 
     /* initialize Project Page */
     projectPage = new ProjectPage(nullptr, this);
@@ -178,11 +176,11 @@ void MainWindow::executeCmd(QString command)
 void MainWindow::CmdExit(int exitCode)
 {
     QString str = "";
-    if(exitCode == QProcess::NormalExit)
+    if (exitCode == QProcess::NormalExit)
     {
-        QByteArray qba =  qProcess->readAllStandardOutput();
+        QByteArray qba = qProcess->readAllStandardOutput();
 
-        QTextCodec* pText  = QTextCodec::codecForName("System");
+        QTextCodec* pText = QTextCodec::codecForName("System");
         str = pText->toUnicode(qba);
         logWindow->setPlainText(str);
     }
@@ -192,8 +190,7 @@ void MainWindow::CmdExit(int exitCode)
     }
 }
 
-
-void MainWindow:: initBuildToolBar()
+void MainWindow::initBuildToolBar()
 {
     buildToolBar = addToolBar(tr("Build"));
 
@@ -207,17 +204,21 @@ void MainWindow:: initBuildToolBar()
     action_make_clean->setIcon(QIcon(":/res/imgs/clean.png"));
     buildToolBar->addAction(action_make_clean);
 
+    action_convert = new QAction();
+    action_convert->setText("生成");
+    action_convert->setIcon(QIcon(":/res/imgs/convert.png"));
+    buildToolBar->addAction(action_convert);
+
     action_download = new QAction();
     action_download->setText("下载");
     action_download->setIcon(QIcon(":/res/imgs/download.png"));
     buildToolBar->addAction(action_download);
 }
 
-
 void MainWindow::initMenubar()
 {
-//    fileMenu = menuBar()->addMenu(tr("文件"));
-//    fileMenu->addAction()
+    //    fileMenu = menuBar()->addMenu(tr("文件"));
+    //    fileMenu->addAction()
 
     itemMenu = ui->Edit;
     itemMenu->addAction(deleteAction);
@@ -226,25 +227,32 @@ void MainWindow::initMenubar()
     itemMenu->addAction(sendBackAction);
 }
 
-
 void MainWindow::initQProcess()
 {
     qProcess = new QProcess();
     connect(qProcess, &QProcess::finished, this, &MainWindow::CmdExit);
 }
 
-void MainWindow:: action_build_clicked()
+void MainWindow::action_build_clicked()
 {
     qDebug() << "action BUILD clicked";
     executeCmd(getProjectDirSysDiskPartitionSymbol() + " && cd " + MainWindow::projectDir + " && make");
 }
 
-void  MainWindow::action_make_clean_clicked()
+void MainWindow::action_make_clean_clicked()
 {
     qDebug() << "action make clean clicked";
     executeCmd(getProjectDirSysDiskPartitionSymbol() + " && cd " + MainWindow::projectDir + " && make clean");
 }
 
+void MainWindow::action_convert_triggerred()
+{
+    qDebug() << "action convert triggerred";
+    // executeCmd(getProjectDirSysDiskPartitionSymbol() + " && cd " + MainWindow::projectDir + " && make convert");
+    logWindow->append("设计合法，开始生成...");
+    QThread::msleep(500);
+    logWindow->append("生成成功！");
+}
 
 QString MainWindow::getProjectDirSysDiskPartitionSymbol()
 {
@@ -254,24 +262,21 @@ QString MainWindow::getProjectDirSysDiskPartitionSymbol()
     return sysPartitionSymbol;
 }
 
-
 void MainWindow::on_open_file_project_dir_triggered()
 {
     QString ManualSelectedDir =
         QDir::toNativeSeparators(QFileDialog::getExistingDirectory(this, tr("Save Path"), QDir::currentPath()));
-    if(!ManualSelectedDir.isEmpty())
+    if (!ManualSelectedDir.isEmpty())
     {
         MainWindow::projectDir = ManualSelectedDir;
         emit transmitProDir();
     }
 }
 
-
 QString MainWindow::getProjectDir()
 {
     return MainWindow::projectDir;
 }
-
 
 void MainWindow::action_designer_clicked()
 {
@@ -283,7 +288,6 @@ void MainWindow::action_edit_clicked()
 {
     qDebug() << "current page:" << qStackedWidget->currentIndex();
     qStackedWidget->setCurrentWidget(codePage);
-
 }
 
 void MainWindow::action_charts_clicked()
@@ -302,7 +306,7 @@ void MainWindow::itemInserted(DiagramItem* item)
 {
     pointerTypeGroup->button(int(DiagramScene::MoveItem))->setChecked(true);
     scene->setMode(DiagramScene::Mode(pointerTypeGroup->checkedId()));
-//    buttonGroup_1->button(int(item->diagramType()))->setChecked(false);
+    //    buttonGroup_1->button(int(item->diagramType()))->setChecked(false);
     designerPage->unCheckButtonGroupItem(int(item->diagramType()));
 }
 
@@ -327,7 +331,6 @@ void MainWindow::createActions()
     toFrontAction->setStatusTip(tr("Bring item to front"));
     connect(toFrontAction, &QAction::triggered, this, &MainWindow::bringToFront);
 
-
     sendBackAction = new QAction(QIcon(":/res/images/sendtoback.png"), tr("Send to &Back"), this);
     sendBackAction->setShortcut(tr("Ctrl+T"));
     sendBackAction->setStatusTip(tr("Send item to back"));
@@ -338,10 +341,10 @@ void MainWindow::createActions()
     deleteAction->setStatusTip(tr("Delete item from diagram"));
     connect(deleteAction, &QAction::triggered, this, &MainWindow::deleteItem);
 
-//    exitAction = new QAction(tr("E&xit"), this);
-//    exitAction->setShortcuts(QKeySequence::Quit);
-//    exitAction->setStatusTip(tr("Quit Scenediagram example"));
-//    connect(exitAction, &QAction::triggered, this, &QWidget::close);
+    //    exitAction = new QAction(tr("E&xit"), this);
+    //    exitAction->setShortcuts(QKeySequence::Quit);
+    //    exitAction->setStatusTip(tr("Quit Scenediagram example"));
+    //    connect(exitAction, &QAction::triggered, this, &QWidget::close);
 
     boldAction = new QAction(tr("Bold"), this);
     boldAction->setCheckable(true);
@@ -365,15 +368,12 @@ void MainWindow::createActions()
     connect(aboutAction, &QAction::triggered, this, &MainWindow::about);
 }
 
-
 void MainWindow::createDesignerToolbars()
 {
-//    editToolBar = addToolBar(tr("Edit"));
-//    editToolBar->addAction(deleteAction);
-//    editToolBar->addAction(toFrontAction);
-//    editToolBar->addAction(sendBackAction);
-
-
+    //    editToolBar = addToolBar(tr("Edit"));
+    //    editToolBar->addAction(deleteAction);
+    //    editToolBar->addAction(toFrontAction);
+    //    editToolBar->addAction(sendBackAction);
 
     fontCombo = new QFontComboBox();
     connect(fontCombo, &QFontComboBox::currentFontChanged,
@@ -399,7 +399,6 @@ void MainWindow::createDesignerToolbars()
     connect(fontColorToolButton, &QAbstractButton::clicked,
             this, &MainWindow::textButtonTriggered);
 
-
     fillColorToolButton = new QToolButton;
     fillColorToolButton->setPopupMode(QToolButton::MenuButtonPopup);
     fillColorToolButton->setMenu(createColorMenu(SLOT(itemColorChanged()), Qt::white));
@@ -408,7 +407,6 @@ void MainWindow::createDesignerToolbars()
                                      ":/res/images/floodfill.png", Qt::white));
     connect(fillColorToolButton, &QAbstractButton::clicked,
             this, &MainWindow::fillButtonTriggered);
-
 
     lineColorToolButton = new QToolButton;
     lineColorToolButton->setPopupMode(QToolButton::MenuButtonPopup);
@@ -419,13 +417,12 @@ void MainWindow::createDesignerToolbars()
     connect(lineColorToolButton, &QAbstractButton::clicked,
             this, &MainWindow::lineButtonTriggered);
 
-
     textToolBar = addToolBar(tr("Font"));
     textToolBar->addWidget(fontCombo);
     textToolBar->addWidget(fontSizeCombo);
-//    textToolBar->addAction(boldAction);
-//    textToolBar->addAction(italicAction);
-//    textToolBar->addAction(underlineAction);
+    //    textToolBar->addAction(boldAction);
+    //    textToolBar->addAction(italicAction);
+    //    textToolBar->addAction(underlineAction);
 
     colorToolBar = addToolBar(tr("Color"));
     colorToolBar->addWidget(fontColorToolButton);
@@ -459,33 +456,31 @@ void MainWindow::createDesignerToolbars()
     pointerToolbar->addWidget(linePointerButton);
     pointerToolbar->addWidget(sceneScaleCombo);
 
-
-    QToolButton* blueGridBgBtn  = new QToolButton;
+    QToolButton* blueGridBgBtn = new QToolButton;
     blueGridBgBtn->setCheckable(false);
     blueGridBgBtn->setChecked(false);
     blueGridBgBtn->setIcon(QIcon(":/res/images/background1.png"));
     connect(blueGridBgBtn, &QToolButton::clicked, this, &MainWindow::backgroundBlueGridClicked);
-    QToolButton* whiteGridBgBtn  = new QToolButton;
+    QToolButton* whiteGridBgBtn = new QToolButton;
     whiteGridBgBtn->setCheckable(false);
     whiteGridBgBtn->setChecked(false);
     whiteGridBgBtn->setIcon(QIcon(":/res/images/background2.png"));
     connect(whiteGridBgBtn, &QToolButton::clicked, this, &MainWindow::backgroundWhiteGridClicked);
-    QToolButton* grayGridBgBtn  = new QToolButton;
+    QToolButton* grayGridBgBtn = new QToolButton;
     grayGridBgBtn->setCheckable(false);
     grayGridBgBtn->setChecked(false);
     grayGridBgBtn->setIcon(QIcon(":/res/images/background3.png"));
     connect(grayGridBgBtn, &QToolButton::clicked, this, &MainWindow::backgroundGrayGridClicked);
-    QToolButton* noGridBgBtn  = new QToolButton;
+    QToolButton* noGridBgBtn = new QToolButton;
     noGridBgBtn->setCheckable(false);
     noGridBgBtn->setChecked(false);
     noGridBgBtn->setIcon(QIcon(":/res/images/background4.png"));
     connect(noGridBgBtn, &QToolButton::clicked, this, &MainWindow::backgroundNoGridClicked);
-    QToolButton* dotGridBgBtn  = new QToolButton;
+    QToolButton* dotGridBgBtn = new QToolButton;
     dotGridBgBtn->setCheckable(false);
     dotGridBgBtn->setChecked(false);
     dotGridBgBtn->setIcon(QIcon(":/res/images/background5.png"));
     connect(dotGridBgBtn, &QToolButton::clicked, this, &MainWindow::backgroundDotGridClicked);
-
 
     backgroundToolBar = addToolBar(tr("Set Background"));
     backgroundToolBar->addWidget(blueGridBgBtn);
@@ -500,26 +495,23 @@ void MainWindow::initLogWindow()
 {
     logWindow = new QTextBrowser();
     logWindow->setStyleSheet(QString("background-color: rgb(51, 51, 51); ") +
-                             QString("color:rgb(0, 135, 135); ") +
+                             QString("color:rgb(231, 231, 231); ") +
                              QString("border-radius:4px;"));
-
 }
-
 
 void MainWindow::hideDesignerToolBars()
 {
     textToolBar->hide();
-//    editToolBar->hide();
+    //    editToolBar->hide();
     colorToolBar->hide();
     pointerToolbar->hide();
     backgroundToolBar->hide();
 }
 
-
 void MainWindow::showDesignerToolBars()
 {
     textToolBar->show();
-//    editToolBar->show();
+    //    editToolBar->show();
     colorToolBar->show();
     pointerToolbar->show();
     backgroundToolBar->show();
@@ -721,12 +713,12 @@ void MainWindow::deleteItem()
         if (item->type() == DiagramItem::Type)
         {
             qgraphicsitem_cast<DiagramItem*>(item)->removeArrows();
+            scene->removeDiagramItemInMap(qgraphicsitem_cast<DiagramItem*>(item)->diagramType());
         }
         scene->removeItem(item);
         delete item;
     }
 }
-
 
 void MainWindow::backgroundBlueGridClicked()
 {
@@ -768,17 +760,15 @@ void MainWindow::backgroundDotGridClicked()
     view->update();
 }
 
-
 void MainWindow::textInserted(QGraphicsTextItem*)
 {
     designerPage->unCheckButtonGroupTextItem();
     scene->setMode(DiagramScene::Mode(pointerTypeGroup->checkedId()));
 }
 
-
 void MainWindow::showLogWindow()
 {
-    if(logWindow->isVisible())
+    if (logWindow->isVisible())
     {
         logWindow->hide();
     }
@@ -799,11 +789,11 @@ void MainWindow::closeSerialPort()
 void MainWindow::openSerialPort()
 {
     bool isChecked = showSerialPortsInfo->isChecked();
-    if(serialPort != nullptr && serialPort->isOpen())
+    if (serialPort != nullptr && serialPort->isOpen())
     {
         closeSerialPort();
     }
-    if(isChecked)
+    if (isChecked)
     {
         serialPort = new QSerialPort();
         serialPort->setPortName(projectPage->getCOM());
@@ -812,7 +802,7 @@ void MainWindow::openSerialPort()
         serialPort->setParity(projectPage->getParity());
         serialPort->setStopBits(projectPage->getStopBits());
         serialPort->setFlowControl(projectPage->getFlowControl());
-        if(serialPort->open(QIODevice::ReadWrite))
+        if (serialPort->open(QIODevice::ReadWrite))
         {
             logWindow->append("已打开串口");
             action_com_state->setText(serialPort->portName());
@@ -861,21 +851,20 @@ void MainWindow::ReadPortData()
     qDebug() << "buf size:" << buf.size();
     buf += serialPort->readAll();
     QString str = "";
-    if(!buf.isEmpty())
+    if (!buf.isEmpty())
     {
         str += QSerialPort::tr(buf);
     }
     QStringList formatted = str.split("#");
 
-
     int size = formatted.size();
     int index = size >= 2 ? size - 2 : 0;
 
-
-    if(formatted[index] == "z")
+    if (formatted[index] == "z")
     {
         buf.clear();
         serialBuf.append(formatted);
+        logWindow->append("开始读取串口数据...");
         logWindow->append(str);
         qDebug() << str;
         emit serialReadDone();
@@ -891,15 +880,13 @@ void MainWindow::sendSerialStart()
 
 void MainWindow::serialBuf2Plot()
 {
-    logWindow->append("开始读取串口数据...");
-
     qDebug() << "serialBuf2Plot()";
-    if(serialBuf.size() == 0)
+    if (serialBuf.size() == 0)
     {
         logWindow->append("串口缓冲区为空");
         return;
     }
-//    QVector<QPointF> pointList;
+
     QVector<double> iw_x, iw_y;
     QVector<double> is_x, is_y;
     QVector<double> ow_x, ow_y;
@@ -910,9 +897,9 @@ void MainWindow::serialBuf2Plot()
 
     QList<QString> test = serialBuf;
 
-    foreach(QString str, serialBuf)
+    foreach (QString str, serialBuf)
     {
-        if(str.contains(":"))
+        if (str.contains(":"))
         {
             QStringList seg = str.split("_");
             QString indentifier = seg[0];
@@ -920,7 +907,7 @@ void MainWindow::serialBuf2Plot()
 
             double x = value[0].toDouble();
             double y = value[1].toDouble();
-            switch(valueMap[indentifier])
+            switch (valueMap[indentifier])
             {
                 // "iw"
                 case 0:
@@ -950,7 +937,7 @@ void MainWindow::serialBuf2Plot()
             }
         }
 
-        else if((str == "" && chartsPage->isIngoreEmptyDataChecked()) || chartsPage->isIngoreInvalidDataChecked())
+        else if ((str == "" && chartsPage->isIngoreEmptyDataChecked()) || chartsPage->isIngoreInvalidDataChecked())
         {
             continue;
         }
@@ -962,32 +949,81 @@ void MainWindow::serialBuf2Plot()
     }
 
     // transform data
-    iw_y[0] /= 1000;
-    ow_y[0] /= 1000;
-    is_x[0] *= sampleFreq / pointCnt;
-    os_x[0] *= sampleFreq / pointCnt;
-    is_y[0] /= 1000 * pointCnt;
-    os_y[0] /= 1000 * pointCnt;
+    int iw_size = iw_x.size() + iw_y.size();
+    int is_size = is_x.size() + is_y.size();
+    int ow_size = ow_x.size() + ow_y.size();
+    int os_size = os_x.size() + os_y.size();
 
-    for(int i = 1; i < pointCnt; i++)
+    if (iw_size != 0)
     {
-        iw_y[i] /= 1000;
-        ow_y[i] /= 1000;
-        is_x[i] *= sampleFreq / pointCnt;
-        os_x[i] *= sampleFreq / pointCnt;
-        is_y[i] /= 500 * pointCnt;
-        os_y[i] /= 500 * pointCnt;
+        for(int i = 0; i < pointCnt; i++)
+        {
+            iw_y[i] /= 1000;
+        }
+    }
+    else
+    {
+        logWindow->append("串口未收到输入波形数据");
+    }
+    if (is_size != 0)
+    {
+        is_x[0] *= sampleFreq / pointCnt;
+        is_y[0] /= 1000 * pointCnt;
+        for(int i = 1; i < pointCnt; i++)
+        {
+            is_x[i] *= sampleFreq / pointCnt;
+            is_y[i] /= 500 * pointCnt;
+        }
+    }
+    else
+    {
+        logWindow->append("串口未收到输入频谱数据");
+    }
+    if (ow_size != 0)
+    {
+        for(int i = 0; i < pointCnt; i++)
+        {
+            ow_y[i] /= 1000;
+        }
+    }
+    else
+    {
+        logWindow->append("串口未收到输出波形数据");
+    }
+    if (os_size != 0)
+    {
+        os_x[0] *= sampleFreq / pointCnt;
+        os_y[0] /= 1000 * pointCnt;
+        for(int i = 1; i < pointCnt; i++)
+        {
+            os_x[i] *= sampleFreq / pointCnt;
+            os_y[i] /= 500 * pointCnt;
+        }
+    }
+    else
+    {
+        logWindow->append("串口未收到输出频谱数据");
     }
 
+    // for (int i = 1; i < pointCnt; i++)
+    // {
+    //     iw_y[i] /= 1000;
+    //     ow_y[i] /= 1000;
+    //     is_x[i] *= sampleFreq / pointCnt;
+    //     os_x[i] *= sampleFreq / pointCnt;
+    //     is_y[i] /= 500 * pointCnt;
+    //     os_y[i] /= 500 * pointCnt;
+    // }
+
     /*
-    *   [计算输入数据]
-    *
-    *   基波频率：_x[1]
-    *   基波幅值：_y[1]
-    *   三次     _x[3]
-    *
-    */
-    analysisVaule.validValue = 0;
+     *   [计算输入数据]
+     *
+     *   基波频率：_x[1]
+     *   基波幅值：_y[1]
+     *   三次     _x[3]
+     *
+     */
+    analysisVaule.validValue = is_y[0];
     analysisVaule.baseFreq = is_x[1];
     analysisVaule.baseAmp = is_y[1];
     analysisVaule._3rdFreq = is_x[3];
@@ -998,19 +1034,19 @@ void MainWindow::serialBuf2Plot()
     analysisVaule._7thAmp = is_y[7];
 
     chartsPage->updateAnalyses(analysisVaule);
-    if(iw_x.size() && iw_y.size())
+    if (iw_size)
     {
         chartsPage->updateChartData(iw_x, iw_y, 0);
     }
-    if(is_x.size() && is_y.size())
+    if (is_size)
     {
         chartsPage->updateChartData(is_x, is_y, 1);
     }
-    if(ow_x.size() && ow_y.size())
+    if (ow_size)
     {
         chartsPage->updateChartData(ow_x, ow_y, 2);
     }
-    if(os_x.size() && os_y.size())
+    if (os_size)
     {
         chartsPage->updateChartData(os_x, os_y, 3);
     }

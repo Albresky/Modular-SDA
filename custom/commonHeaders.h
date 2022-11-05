@@ -11,9 +11,12 @@
 
 class MainWindow;
 class ProjectPage;
-class ThemeWidget;
+class AnalyzerPage;
 class DesignerPage;
 class DiagramScene;
+class DiagramItem;
+class DiagramView;
+
 
 extern QString prefix;
 

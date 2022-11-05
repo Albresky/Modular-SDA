@@ -1,6 +1,8 @@
 #ifndef DIAGRAMSCENE_H
 #define DIAGRAMSCENE_H
 
+
+#include "Pages/analyzerpage.h"
 #include "Pages/designerpage.h"
 #include "diagramitem.h"
 #include "diagramtextitem.h"
@@ -8,6 +10,7 @@
 #include <QGraphicsScene>
 #include <QGraphicsSceneMouseEvent>
 #include <QTextCursor>
+#include <QMessageBox>
 
 
 QT_BEGIN_NAMESPACE
@@ -50,10 +53,11 @@ public:
     void setItemColor(const QColor& color);
     void setFont(const QFont& font);
     void setDesignerpage(DesignerPage* designerPage);
-
+    void setAnalyzerPage(AnalyzerPage* analyzerPage);
+    void removeDiagramItemInMap(DiagramItem::ModuleType module_type);
+    void removeDiagramItemInMap(DiagramItem* diagramItem);
 public slots:
-    void setMode(Mode mode);
-//    void setItemType(DiagramItem::DiagramType type);
+    void setMode(DiagramScene::Mode mode);
     void setItemType(DiagramItem::ModuleType type);
     void editorLostFocus(DiagramTextItem* item);
 
@@ -70,11 +74,12 @@ protected:
 private:
     bool isItemChange(int type) const;
     DesignerPage* designerPage;
-    // DiagramItem::DiagramType myItemType;
+    AnalyzerPage* analyzerPage;
     DiagramItem::ModuleType myItemType;
     QMap<QGraphicsItem*, DiagramItem*> sceneItemsMap;
+    QMap<DiagramItem::ModuleType, bool> moduleStatusMap;
     QMenu* myItemMenu;
-    Mode myMode;
+    DiagramScene::Mode myMode;
     bool leftButtonDown;
     QPointF startPoint;
     QGraphicsLineItem* line;

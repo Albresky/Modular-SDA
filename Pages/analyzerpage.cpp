@@ -537,6 +537,7 @@ void AnalyzerPage::btn_clear_plot_clicked()
 
 void AnalyzerPage::switchAttributesBox(bool showDFT)
 {
+    qDebug() << "switchAttributesBox()";
     if(paramsBox != nullptr)
     {
         if(showDFT)

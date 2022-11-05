@@ -27,6 +27,9 @@
     <stylestrategy>PreferAntialias</stylestrategy>
    </font>
   </property>
+  <property name="cursor">
+   <cursorShape>ArrowCursor</cursorShape>
+  </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
