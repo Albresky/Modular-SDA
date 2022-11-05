@@ -228,7 +228,8 @@ void AnalyzerPage::initLayout()
 
     btn_updatePlot = new QPushButton();
     btn_updatePlot->setText("更新波形图");
-    QObject::connect(btn_updatePlot, &QPushButton::clicked, mainWindow, &MainWindow::sendSerialStart);
+    QObject::connect(btn_updatePlot, &QPushButton::clicked, this, &AnalyzerPage::loadParameters);
+    QObject::connect(this, &AnalyzerPage::updatePlot, mainWindow, &MainWindow::sendSerialStart);
 
     btn_clearPlot = new QPushButton();
     btn_clearPlot->setText("重置波形图");
@@ -308,31 +309,23 @@ void AnalyzerPage::initLayout()
     commonAnalysesResultsFrame_layout->addLayout(seventhOrderFreqLayout);
     commonAnalysesResultsFrame_layout->addLayout(seventhOrderAmplitudeLayout);
     commonAnalysesResultsFrame->setLayout(commonAnalysesResultsFrame_layout);
+    commonAnalysesResultsFrame->hide();
 
     QVBoxLayout* parametersLayout = new QVBoxLayout;
-//    parametersLayout->addLayout(themeLayout);
-//    parametersLayout->addLayout(legendLayout);
-//    parametersLayout->addLayout(animationLayout);
+
     parametersLayout->addWidget(antialiasCheckBox);
     parametersLayout->addWidget(ingoreEmptyDataCheckBox);
     parametersLayout->addWidget(ingoreInvalidDataCheckBox);
     parametersLayout->addWidget(btn_updatePlot);
     parametersLayout->addWidget(btn_clearPlot);
     parametersLayout->addWidget(dividingLine1);
-    // parametersLayout->addLayout(validValueLayout);
-    // parametersLayout->addLayout(baseFreqLayout);
-    // parametersLayout->addLayout(baseAmplitudeLayout);
-    // parametersLayout->addLayout(thirdOrderFreqLayout);
-    // parametersLayout->addLayout(thirdOrderAmplitudeLayout);
-    // parametersLayout->addLayout(fifthOrderFreqLayout);
-    // parametersLayout->addLayout(fifthOrderAmplitudeLayout);
-    // parametersLayout->addLayout(seventhOrderFreqLayout);
-    // parametersLayout->addLayout(seventhOrderAmplitudeLayout);
 
     QHBoxLayout* dftResult_layout = new QHBoxLayout;
     browser_dftResult = new QLineEdit();
     browser_dftResult->setReadOnly(true);
-    dftResult_layout->addWidget(new QLabel("DFT结果"));
+    QLabel* dft_Result_label = new QLabel("DFT结果");
+    dft_Result_label->setFixedWidth(80);
+    dftResult_layout->addWidget(dft_Result_label);
     dftResult_layout->addWidget(browser_dftResult);
     dftResult_widget = new QWidget();
     dftResult_widget->setLayout(dftResult_layout);
@@ -535,21 +528,70 @@ void AnalyzerPage::btn_clear_plot_clicked()
     }
 }
 
-void AnalyzerPage::switchAttributesBox(bool showDFT)
+void AnalyzerPage::setDftVisibility(bool visiable)
 {
-    qDebug() << "switchAttributesBox()";
-    if(paramsBox != nullptr)
+    qDebug() << "setDftVisibility()";
+    visiable ? dftResult_widget->show() : dftResult_widget->hide();
+}
+
+void AnalyzerPage::set_FFT_IFFT_HT_Visibility(bool visiable)
+{
+    qDebug() << "set_FFT_IFFT_HT_Visibility()";
+    visiable ? commonAnalysesResultsFrame->show() : commonAnalysesResultsFrame->hide();
+}
+
+void AnalyzerPage::setDiagramScene(DiagramScene* scene)
+{
+    this->scene = scene;
+}
+
+void AnalyzerPage::loadParameters()
+{
+    bool flag = true;
+    if(!commonAnalysesResultsFrame->isHidden())
     {
-        if(showDFT)
-        {
-            commonAnalysesResultsFrame->hide();
-            dftResult_widget->show();
-        }
-        else
-        {
-            commonAnalysesResultsFrame->show();
-            dftResult_widget->hide();
-        }
+        /* TODO
+        *  select DiagramItem::Module
+        */
+        AV_FFT_IFFT* module = dynamic_cast<AV_FFT_IFFT*>(scene->getModule(DiagramItem::FFT)->av_DataItem());
+        pointCnt = module->getPointCnt();
+        sampleFreq = module->getSampleFreq();
+        flag = false;
+        qDebug() << "pointCnt:" << pointCnt;
+        qDebug() << "sampleFreq:" << sampleFreq;
+    }
+    if(!dftResult_widget->isHidden())
+    {
+        AV_DFT* module = dynamic_cast<AV_DFT*>(scene->getModule(DiagramItem::DFT)->av_DataItem());
+        calcuFreq = module->getCalcuFreq();
+        flag = false;
+        qDebug() << "calcuFreq:" << calcuFreq;
+    }
+    if(flag)
+    {
+        QMessageBox::warning(this, tr("警告"), tr("未选择算法模块！"));
+        return;
+    }
+    if(!mainWindow->isSerialPortOnline())
+    {
+        QMessageBox::warning(this, tr("警告"), tr("串口未连接！"));
+        return;
     }
 
+    emit updatePlot();
+}
+
+int AnalyzerPage::getPointCnt()
+{
+    return pointCnt;
+}
+
+int AnalyzerPage::getSampleFreq()
+{
+    return sampleFreq;
+}
+
+int AnalyzerPage::getCalcuFreq()
+{
+    return calcuFreq;
 }

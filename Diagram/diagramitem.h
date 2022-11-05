@@ -45,6 +45,7 @@ public:
         return Type;
     }
 
+    AV_DataItem* av_DataItem()const;
 
     QWidget* Widget()const;
 

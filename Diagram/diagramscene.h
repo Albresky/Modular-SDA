@@ -11,6 +11,7 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QTextCursor>
 #include <QMessageBox>
+#include <QList>
 
 
 QT_BEGIN_NAMESPACE
@@ -56,6 +57,7 @@ public:
     void setAnalyzerPage(AnalyzerPage* analyzerPage);
     void removeDiagramItemInMap(DiagramItem::ModuleType module_type);
     void removeDiagramItemInMap(DiagramItem* diagramItem);
+    DiagramItem* getModule(DiagramItem::ModuleType module_type);
 public slots:
     void setMode(DiagramScene::Mode mode);
     void setItemType(DiagramItem::ModuleType type);
@@ -78,6 +80,7 @@ private:
     DiagramItem::ModuleType myItemType;
     QMap<QGraphicsItem*, DiagramItem*> sceneItemsMap;
     QMap<DiagramItem::ModuleType, bool> moduleStatusMap;
+    QMap<DiagramItem::ModuleType, DiagramItem*> moduleMap;
     QMenu* myItemMenu;
     DiagramScene::Mode myMode;
     bool leftButtonDown;

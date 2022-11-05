@@ -103,7 +103,7 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent)
     }
 
     DiagramItem* item;
-    QList<QGraphicsItem*> nowItems;
+//    QList<QGraphicsItem*> nowItems;
     switch (myMode)
     {
         case InsertItem:
@@ -125,14 +125,29 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent)
                 myMode = DiagramScene::MoveItem;
                 return;
             }
+
             moduleStatusMap[myItemType] = true;
+
             item = new DiagramItem(myItemType, myItemMenu);
             item->setBrush(myItemColor);
             addItem(item);
-            nowItems  = this->items(Qt::AscendingOrder);
+
+            // store Diagram info, mapping diagram to ModuleType and *pointer
             sceneItemsMap.insert(item, item);
             designerPage->addAttributesBox(item->Widget());
+            moduleMap.insert(myItemType, item);
+
             item->setPos(mouseEvent->scenePos());
+
+            if(myItemType == DiagramItem::ModuleType::DFT)
+            {
+                analyzerPage->setDftVisibility(true);
+            }
+            else if(myItemType == DiagramItem::ModuleType::FFT || myItemType == DiagramItem::ModuleType::IFFT || myItemType == DiagramItem::ModuleType::HT)
+            {
+                analyzerPage->set_FFT_IFFT_HT_Visibility(true);
+            }
+
             emit itemInserted(item);
             break;
 
@@ -165,17 +180,9 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent)
     }
     QGraphicsScene::mousePressEvent(mouseEvent);
     qDebug() << "selected count:" << this->selectedItems().size();
-    if (this->selectedItems().size() > 0)
+    if (isItemChange(DiagramItem::Type) && this->selectedItems().size() > 0)
     {
         designerPage->updateAttributesBox(sceneItemsMap.value(selectedItems()[0])->Widget());
-        if(myItemType == DiagramItem::ModuleType::DFT)
-        {
-            analyzerPage->switchAttributesBox(true);
-        }
-        else
-        {
-            analyzerPage->switchAttributesBox(false);
-        }
     }
     else
     {
@@ -263,10 +270,37 @@ void DiagramScene::removeDiagramItemInMap(DiagramItem::ModuleType module_type)
 {
     qDebug() << "DiagramItem deleted in Map, by DiagramItem::ModuleType";
     moduleStatusMap[module_type] = false;
+    moduleMap.remove(module_type);
+    if(module_type == DiagramItem::ModuleType::DFT)
+    {
+        analyzerPage->setDftVisibility(false);
+    }
+    else if(module_type == DiagramItem::ModuleType::FFT || myItemType == DiagramItem::ModuleType::IFFT || myItemType == DiagramItem::ModuleType::HT)
+    {
+        analyzerPage->set_FFT_IFFT_HT_Visibility(false);
+    }
 }
 
 void DiagramScene::removeDiagramItemInMap(DiagramItem* diagramItem)
 {
     qDebug() << "DiagramItem deleted in Map, by DiagramItem*";
-    moduleStatusMap[diagramItem->diagramType()] = false;
+    DiagramItem::ModuleType _type = diagramItem->diagramType();
+    moduleStatusMap[_type] = false;
+    moduleMap.remove(_type);
+    if(_type == DiagramItem::ModuleType::DFT)
+    {
+        analyzerPage->setDftVisibility(false);
+    }
+    else if(_type == DiagramItem::ModuleType::FFT || myItemType == DiagramItem::ModuleType::IFFT || myItemType == DiagramItem::ModuleType::HT)
+    {
+        analyzerPage->set_FFT_IFFT_HT_Visibility(false);
+    }
+}
+
+DiagramItem* DiagramScene::getModule(DiagramItem::ModuleType module_type)
+{
+    /* TODO
+    *   null Key!!
+    */
+    return moduleMap.value(module_type);
 }

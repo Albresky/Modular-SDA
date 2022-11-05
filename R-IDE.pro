@@ -24,7 +24,6 @@ SOURCES += \
     Pages/projectpage.cpp \
     custom/DataItem.cpp \
     custom/algorithmtoolbox.cpp \
-    custom/charts.cpp \
     custom/commonHeaders.cpp \
     custom/globalVar.cpp \
     custom/mygraphicstextitem.cpp \
@@ -53,7 +52,6 @@ HEADERS += \
     Pages/projectpage.h \
     custom/DataItem.h \
     custom/algorithmtoolbox.h \
-    custom/charts.h \
     custom/commonHeaders.h \
     custom/globalVar.h \
     custom/mygraphicstextitem.h \
@@ -71,7 +69,6 @@ HEADERS += \
 
 FORMS += \
     Pages/designerpage.ui \
-    custom/charts.ui \
     custom/codepage.ui \
     mainwindow.ui
 

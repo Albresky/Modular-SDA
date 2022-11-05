@@ -162,3 +162,8 @@ QWidget* DiagramItem::Widget()const
 {
     return av_dataItem->Widget();
 }
+
+AV_DataItem* DiagramItem::av_DataItem()const
+{
+    return av_dataItem;
+}

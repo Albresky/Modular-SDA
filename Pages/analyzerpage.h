@@ -40,14 +40,24 @@ public:
     void updateAnalyses(AnalysisVaule analysisValue);
     bool isIngoreEmptyDataChecked();
     bool isIngoreInvalidDataChecked();
-    void switchAttributesBox(bool showDFT);
+    void setDftVisibility(bool visiable);
+    void set_FFT_IFFT_HT_Visibility(bool visiable);
+    void setDiagramScene(DiagramScene* scene);
+    int getPointCnt();
+    int getSampleFreq();
+    int getCalcuFreq();
 
 private slots:
     void btn_clear_plot_clicked();
     void updateUI();
+    void loadParameters();
+
+signals:
+    void updatePlot();
 
 private:
     MainWindow* mainWindow;
+    DiagramScene* scene;
     QPen pen;
     QList<XCustomPlot*> XPlots;
     QList<QChartView*> m_charts;
@@ -76,7 +86,9 @@ private:
     QWidget* dftResult_widget;
     QWidget* paramsBox;
     QFrame* commonAnalysesResultsFrame;
-
+    int pointCnt;
+    int sampleFreq;
+    int calcuFreq;
     QVector<double> default_xdata, default_ydata;
 
     // fuction

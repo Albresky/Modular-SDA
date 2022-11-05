@@ -87,17 +87,18 @@ void MainWindow::initStackedPage()
     qStackedWidget->setCurrentWidget(codePage);
 
     /* initialize Charts */
-    chartsPage = new AnalyzerPage(nullptr, this);
-    qStackedWidget->addWidget(chartsPage);
+    analyzerPage = new AnalyzerPage(nullptr, this);
+    qStackedWidget->addWidget(analyzerPage);
 
     /* initialize scene */
     initScene();
+    analyzerPage->setDiagramScene(scene);
 
     /* initialize Designer Page */
     designerPage = new DesignerPage(view, scene, itemMenu);
     qStackedWidget->addWidget(designerPage);
     scene->setDesignerpage(designerPage);
-    scene->setAnalyzerPage(chartsPage);
+    scene->setAnalyzerPage(analyzerPage);
 
     /* initialize Project Page */
     projectPage = new ProjectPage(nullptr, this);
@@ -293,7 +294,7 @@ void MainWindow::action_edit_clicked()
 void MainWindow::action_charts_clicked()
 {
     qDebug() << "current page:" << qStackedWidget->currentIndex();
-    qStackedWidget->setCurrentWidget(chartsPage);
+    qStackedWidget->setCurrentWidget(analyzerPage);
 }
 
 void MainWindow::action_project_clicked()
@@ -781,6 +782,8 @@ void MainWindow::showLogWindow()
 void MainWindow::closeSerialPort()
 {
     serialPort->close();
+    serialPort = nullptr;
+    serialPortOnline = false;
     logWindow->append("已关闭串口");
     action_com_state->setText("未连接串口");
     action_com_state->setStyleSheet("QLabel { background-color : gray; color : darkgray; }");
@@ -804,6 +807,7 @@ void MainWindow::openSerialPort()
         serialPort->setFlowControl(projectPage->getFlowControl());
         if (serialPort->open(QIODevice::ReadWrite))
         {
+            serialPortOnline = true;
             logWindow->append("已打开串口");
             action_com_state->setText(serialPort->portName());
             action_com_state->setStyleSheet("QLabel { background-color : rgb(47, 219, 85); color : black;}");
@@ -811,7 +815,7 @@ void MainWindow::openSerialPort()
         }
         else
         {
-            logWindow->append("已打开串口");
+            logWindow->append("打开串口失败");
         }
     }
 }
@@ -892,8 +896,8 @@ void MainWindow::serialBuf2Plot()
     QVector<double> ow_x, ow_y;
     QVector<double> os_x, os_y;
     AnalysisVaule analysisVaule;
-    int pointCnt = designerPage->getSamplePointCnt();
-    int sampleFreq = designerPage->getSampleFreq();
+    int pointCnt = analyzerPage->getPointCnt();
+    int sampleFreq = analyzerPage->getSampleFreq();
 
     QList<QString> test = serialBuf;
 
@@ -937,7 +941,7 @@ void MainWindow::serialBuf2Plot()
             }
         }
 
-        else if ((str == "" && chartsPage->isIngoreEmptyDataChecked()) || chartsPage->isIngoreInvalidDataChecked())
+        else if ((str == "" && analyzerPage->isIngoreEmptyDataChecked()) || analyzerPage->isIngoreInvalidDataChecked())
         {
             continue;
         }
@@ -1033,22 +1037,28 @@ void MainWindow::serialBuf2Plot()
     analysisVaule._7thFreq = is_x[7];
     analysisVaule._7thAmp = is_y[7];
 
-    chartsPage->updateAnalyses(analysisVaule);
+    analyzerPage->updateAnalyses(analysisVaule);
     if (iw_size)
     {
-        chartsPage->updateChartData(iw_x, iw_y, 0);
+        analyzerPage->updateChartData(iw_x, iw_y, 0);
     }
     if (is_size)
     {
-        chartsPage->updateChartData(is_x, is_y, 1);
+        analyzerPage->updateChartData(is_x, is_y, 1);
     }
     if (ow_size)
     {
-        chartsPage->updateChartData(ow_x, ow_y, 2);
+        analyzerPage->updateChartData(ow_x, ow_y, 2);
     }
     if (os_size)
     {
-        chartsPage->updateChartData(os_x, os_y, 3);
+        analyzerPage->updateChartData(os_x, os_y, 3);
     }
     serialBuf.clear();
+}
+
+
+bool MainWindow::isSerialPortOnline()
+{
+    return serialPortOnline;
 }

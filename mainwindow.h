@@ -66,6 +66,7 @@ public:
     static QString getProjectDir();
     static const int InsertTextButton = 10;
 
+    bool isSerialPortOnline();
     QList<QSerialPortInfo*> get_qSerialPortInfo();
 
 signals:
@@ -147,12 +148,13 @@ private:
     QLabel* action_com_state;
     SideBar* sidebar;
     CodePage* codePage;
-    AnalyzerPage* chartsPage;
+    AnalyzerPage* analyzerPage;
     DesignerPage* designerPage;
     ProjectPage* projectPage;
     QSignalMapper* signalMapper;
     QProcess* qProcess;
     QSerialPort* serialPort = nullptr;
+    bool serialPortOnline = false;
     QList<QSerialPortInfo*> list_qSerialPortInfo;
     QList<QString> serialBuf;
     QByteArray buf;
