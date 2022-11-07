@@ -1,10 +1,14 @@
-QT       += core gui core5compat charts serialport
+QT += core gui core5compat serialport network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
 
 CONFIG += c++17
 
 requires(qtConfig(combobox))
+
+#win32{
+#    LIBS += -lc
+#}
 
 
 # You can make your code fail to compile if it uses deprecated APIs.
@@ -17,6 +21,7 @@ SOURCES += \
     Diagram/diagramscene.cpp \
     Diagram/diagramtextitem.cpp \
     Diagram/diagramview.cpp \
+    Dialog/about.cpp \
     FileOperator/FileOperator.cpp \
     Pages/analyzerpage.cpp \
     Pages/codepage.cpp \
@@ -25,10 +30,12 @@ SOURCES += \
     custom/DataItem.cpp \
     custom/commonHeaders.cpp \
     custom/globalVar.cpp \
+    custom/mythread.cpp \
     custom/sidebar.cpp \
     lib/XCustomPlot.cpp \
     lib/XTracer.cpp \
     lib/qcustomplot.cpp \
+    lib/qtelnet.cpp \
     main.cpp \
     mainwindow.cpp \
     syntax/CodeEditor.cpp \
@@ -42,6 +49,7 @@ HEADERS += \
     Diagram/diagramscene.h \
     Diagram/diagramtextitem.h \
     Diagram/diagramview.h \
+    Dialog/about.h \
     FileOperator/FileOperator.h \
     Pages/analyzerpage.h \
     Pages/codepage.h \
@@ -50,10 +58,12 @@ HEADERS += \
     custom/DataItem.h \
     custom/commonHeaders.h \
     custom/globalVar.h \
+    custom/mythread.h \
     custom/sidebar.h \
     lib/XCustomPlot.h \
     lib/XTracer.h \
     lib/qcustomplot.h \
+    lib/qtelnet.h \
     mainwindow.h \
     syntax/Codeeditor.h \
     syntax/SyntaxHighlighter.h \
@@ -63,8 +73,7 @@ HEADERS += \
 
 FORMS += \
     Pages/designerpage.ui \
-    custom/codepage.ui \
-    mainwindow.ui
+    custom/codepage.ui
 
 
 
@@ -115,3 +124,4 @@ DISTFILES += \
     res/sidebar/tool_selected.png \
     res/sidebar/welcome.png \
     res/sidebar/welcome_selected.png
+

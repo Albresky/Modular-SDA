@@ -2,32 +2,14 @@
 #define ANALYZERPAGE_H
 
 #include <QtWidgets/QWidget>
-#include <QtCharts/QChartGlobal>
 #include <QGridLayout>
 #include <QLineEdit>
 #include <QPushButton>
-#include <QSplineSeries>
 #include <QTextBrowser>
 #include "lib/XCustomPlot.h"
 #include "mainwindow.h"
 #include "custom/DataItem.h"
 
-QT_BEGIN_NAMESPACE
-class QComboBox;
-class QCheckBox;
-class Ui_AnalyzerPageForm;
-QT_END_NAMESPACE
-
-QT_BEGIN_NAMESPACE
-class QChartView;
-class QChart;
-QT_END_NAMESPACE
-
-typedef QPair<QPointF, QString> Data;
-typedef QList<Data> DataList;
-typedef QList<DataList> DataTable;
-
-QT_USE_NAMESPACE
 
 class AnalyzerPage: public QWidget
 {
@@ -50,7 +32,6 @@ public:
 
 private slots:
     void btn_clear_plot_clicked();
-    void updateUI();
     void loadParameters();
 
 signals:
@@ -61,8 +42,6 @@ private:
     DiagramScene* scene;
     QPen pen;
     QList<XCustomPlot*> XPlots;
-    QList<QChartView*> m_charts;
-    QChartView* spline_chartView;
     QGridLayout* chartsLayout;
     QHBoxLayout* inputLayout;
     QHBoxLayout* outputLayout;

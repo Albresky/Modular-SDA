@@ -22,7 +22,6 @@
         <file>res/imgs/build.png</file>
         <file>res/imgs/debug.png</file>
         <file>res/imgs/help.png</file>
-        <file>res/imgs/run.png</file>
         <file>res/imgs/splitter.png</file>
         <file>res/imgs/unknownfile.png</file>
         <file>res/sidebar/charts.png</file>
@@ -45,5 +44,7 @@
         <file>res/imgs/convert.png</file>
         <file>res/imgs/console.png</file>
         <file>res/imgs/connect.png</file>
+        <file>res/imgs/resume.png</file>
+        <file>res/imgs/halt.png</file>
     </qresource>
 </RCC>

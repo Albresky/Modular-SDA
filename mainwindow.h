@@ -31,6 +31,9 @@
 #include <QGraphicsView>
 #include <QMessageBox>
 #include <QTextBrowser>
+#include <lib/qtelnet.h>
+
+#include "Dialog/about.h"
 
 #include "custom/commonHeaders.h"
 #include "Diagram/diagramview.h"
@@ -45,23 +48,12 @@
 #include "Diagram/diagramscene.h"
 #include "Diagram/arrow.h"
 
-
-
-QT_BEGIN_NAMESPACE
-namespace Ui
-{
-    class MainWindow;
-}
-QT_END_NAMESPACE
-
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
     MainWindow(QWidget* parent = nullptr);
-
-    ~MainWindow();
 
     static QString getProjectDir();
     static const int InsertTextButton = 10;
@@ -86,8 +78,10 @@ private slots:
     void action_charts_clicked();
     void action_project_clicked();
     void action_connect_clicked();
+    void action_halt_resume_clicked();
     void action_download_clicked();
-    void on_open_file_project_dir_triggered();
+    void action_open_file_project_dir_triggered();
+    void action_about_triggered();
     void currentFontChanged(const QFont& font);
     void fontSizeChanged(const QString&);
     void handleFontChange();
@@ -110,7 +104,6 @@ private slots:
     void bringToFront();
     void sendToBack();
     void deleteItem();
-    void about();
     void hideDesignerToolBars();
     void showDesignerToolBars();
     void showLogWindow();
@@ -122,11 +115,14 @@ public slots:
 
     void getCOMs();
     void sendSerialStart();
+    void connectEstablished();
 
 private:
 
     /* variables */
-    Ui::MainWindow* ui;
+    QWidget* centralwidget;
+
+
     QPlainTextEdit* cmd_readOut;
     QPushButton* btn_execute;
 
@@ -143,6 +139,7 @@ private:
     QAction* action_build;
     QAction* action_make_clean;
     QAction* action_connect;
+    QAction* action_halt_resume;
     QAction* action_download;
     QAction* action_convert;
     QAction* sidebar_welcome;
@@ -166,18 +163,28 @@ private:
     QMap<QString, int> valueMap;
 
     bool serialPortOnline = false;
-
+    bool action_is_halt = false;
+    bool openOCD_online = false;
 
     QProcess* qProcess;
     QProcess* process_connect = nullptr;
     QProcess* process_download = nullptr;
+    QTelnet* telnet = nullptr;
 
     DiagramView* view = nullptr;
     DiagramScene* scene = nullptr;
+
+    /* MenuBar */
+    QMenuBar* menubar;
     QMenu* fileMenu;
-    QMenu* itemMenu;
+    QMenu* editMenu;
+    QMenu* action_encoding; // submenu of editMenu
+    QMenu* itemMenu; // submenu of editMenu
     QMenu* toolMenu;
     QMenu* aboutMenu;
+    QAction* action_open_project_dir;
+    QAction* action_exit;
+
 
     QToolBar* buildToolBar;
     QToolBar* downloadToolBar;
@@ -214,7 +221,8 @@ private:
 
     QAction* action_show_logWin;
     QLabel* action_com_state;
-    QStatusBar* statusbar;
+    QLabel* openOCD_state;
+    QStatusBar* statusBar;
 
     // function
 
@@ -228,14 +236,15 @@ private:
     void initStatusBar();
     void initSideBar();
     void initLayout();
+    void initActions();
     void initMenubar();
     void initScene();
     void initLogWindow();
     void initQProcess();
-    void createActions();
     void createDesignerToolbars();
     void closeSerialPort();
 
+    void switch_openOCD_state();
     void update_action_com_state(QString portName);
     void executeCmd(QString command);
     void CmdExit(int exitCode);

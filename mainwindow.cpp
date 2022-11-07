@@ -1,15 +1,15 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#include "custom/mythread.h"
+
 QString MainWindow::projectDir = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
 
 
 MainWindow::MainWindow(QWidget* parent)
-    : QMainWindow(parent), ui(new Ui::MainWindow)
+    : QMainWindow(parent)
 {
-    ui->setupUi(this);
-    this->setWindowTitle(MainWindowTitle);
-    setWindowIcon(QIcon(":/res/icons/logo.ico"));
+    initLayout();
 
     signalMapper = new QSignalMapper(this);
     valueMap["iw"] = 0;
@@ -17,8 +17,6 @@ MainWindow::MainWindow(QWidget* parent)
     valueMap["ow"] = 2;
     valueMap["os"] = 3;
     valueMap["dft"] = 4;
-
-    initLayout();
 
     QObject::connect(action_build, &QAction::triggered, this, &MainWindow::action_build_clicked);
     QObject::connect(action_make_clean, &QAction::triggered, this, &MainWindow::action_make_clean_clicked);
@@ -30,13 +28,19 @@ MainWindow::MainWindow(QWidget* parent)
              << projectDir;
 }
 
-MainWindow::~MainWindow()
-{
-    delete ui;
-}
-
 void MainWindow::initLayout()
 {
+    // [0] initialze window
+    centralwidget = new QWidget;
+    centralwidget->setMinimumWidth(1230);
+    setCentralWidget(centralwidget);
+
+    this->setWindowTitle(MainWindowTitle);
+    setWindowIcon(QIcon(":/res/icons/logo.ico"));
+
+    // [1] initialize actions
+    initActions();
+
     // initialize toolBar
     initBuildToolBar();
     initDownloadToolBar();
@@ -48,9 +52,6 @@ void MainWindow::initLayout()
 
     // initialize statusBar
     initStatusBar();
-
-    // initialize actions
-    createActions();
 
     // initialize menuBar
     initMenubar();
@@ -158,13 +159,26 @@ void MainWindow::initSideBar()
 
 void MainWindow::initStatusBar()
 {
-    // show serial port status
+    statusBar = new QStatusBar(this);
+    statusBar->setObjectName(QString::fromUtf8("statusBar"));
+    this->setStatusBar(statusBar);
+
+
+    // [1] show OpenOCD service status
+    openOCD_state = new QLabel("OpenOCD offline");
+    openOCD_state->setMargin(2);
+    openOCD_state->setFixedWidth(105);
+    openOCD_state->setAlignment(Qt::AlignCenter);
+    openOCD_state->setStyleSheet("QLabel { background-color : gray; color : darkgray; }");
+    statusBar->addPermanentWidget(openOCD_state);
+
+    // [2] show serial port status
     action_com_state = new QLabel("未连接串口");
     action_com_state->setMargin(2);
     action_com_state->setFixedWidth(75);
     action_com_state->setAlignment(Qt::AlignCenter);
     action_com_state->setStyleSheet("QLabel { background-color : gray; color : darkgray; }");
-    ui->statusBar->addPermanentWidget(action_com_state);
+    statusBar->addPermanentWidget(action_com_state);
 }
 
 void MainWindow::executeCmd(QString command)
@@ -222,6 +236,14 @@ void MainWindow::initDownloadToolBar()
     downloadToolBar->addAction(action_connect);
     QObject::connect(action_connect, &QAction::triggered, this, &MainWindow::action_connect_clicked);
 
+    // halt or resume device
+    action_halt_resume = new QAction();
+    action_halt_resume->setIcon(QIcon(":/res/imgs/halt.png"));
+    action_halt_resume->setText("继续");
+    action_halt_resume->setCheckable(true);
+    downloadToolBar->addAction(action_halt_resume);
+    QObject::connect(action_halt_resume, &QAction::triggered, this, &MainWindow::action_halt_resume_clicked);
+
     // download to device
     action_download = new QAction();
     action_download->setText("下载");
@@ -252,14 +274,83 @@ void MainWindow::initSerialPortToolBar()
 
 void MainWindow::initMenubar()
 {
-    //    fileMenu = menuBar()->addMenu(tr("文件"));
-    //    fileMenu->addAction()
+    /* Initialize MenuBar */
+    menubar = menuBar();
 
-    itemMenu = ui->Edit;
+    /* Initialize MenuBar in Level-1 */
+    fileMenu = menubar->addMenu(tr("文件"));
+    editMenu = menubar->addMenu(tr("编辑"));
+    toolMenu = menubar->addMenu(tr("工具"));
+    aboutMenu = menubar->addMenu(tr("帮助"));
+
+    /* Initialize FileMenu in Level-2 */
+    action_open_project_dir = new QAction(fileMenu);
+    action_open_project_dir->setText("打开文件或项目路径");
+    fileMenu->addAction(action_open_project_dir);
+    QObject::connect(action_open_project_dir, &QAction::triggered, this, &MainWindow::action_open_file_project_dir_triggered);
+
+    exitAction = new QAction(tr("退出"), this);
+    exitAction->setShortcuts(QKeySequence::Quit);
+    exitAction->setStatusTip(tr("退出Rsic-V IDE"));
+    fileMenu->addAction(exitAction);
+    QObject::connect(exitAction, &QAction::triggered, this, &QWidget::close);
+
+    /* Initialize EditMenu in Level-2 */
+    action_encoding = new QMenu(tr("编码"), editMenu);
+    editMenu->addMenu(action_encoding);
+    editMenu->addSeparator();
+
+    /* Initialize ToolMenu in Level-2 */
+
+    /* Initialize itemMenu in Designer right click */
+    itemMenu = new QMenu(tr("模块"), editMenu);
     itemMenu->addAction(deleteAction);
-    itemMenu->addSeparator();
     itemMenu->addAction(toFrontAction);
     itemMenu->addAction(sendBackAction);
+
+    /* Initialize AboutMenu in Level-2 */
+    aboutAction = new QAction(tr("关于"), this);
+    aboutAction->setStatusTip(tr("关于Rsic-V IDE"));
+    aboutMenu->addAction(aboutAction);
+    QObject::connect(aboutAction, &QAction::triggered, this, &MainWindow::action_about_triggered);
+
+
+}
+
+void MainWindow::initActions()
+{
+
+    deleteAction = new QAction(QIcon(":/res/images/delete.png"), tr("&删除"), this);
+    deleteAction->setShortcut(QKeySequence::Delete);
+    deleteAction->setStatusTip(tr("从设计页删除模块"));
+    QObject::connect(deleteAction, &QAction::triggered, this, &MainWindow::deleteItem);
+
+    toFrontAction = new QAction(QIcon(":/res/images/bringtofront.png"), tr("置顶"), this);
+    toFrontAction->setShortcut(tr("Ctrl+F"));
+    toFrontAction->setStatusTip(tr("将模块移到顶层"));
+    QObject::connect(toFrontAction, &QAction::triggered, this, &MainWindow::bringToFront);
+
+    sendBackAction = new QAction(QIcon(":/res/images/sendtoback.png"), tr("置底"), this);
+    sendBackAction->setShortcut(tr("Ctrl+T"));
+    sendBackAction->setStatusTip(tr("将模块移到底层"));
+    QObject::connect(sendBackAction, &QAction::triggered, this, &MainWindow::sendToBack);
+
+    boldAction = new QAction(tr("粗体"), this);
+    boldAction->setCheckable(true);
+    QPixmap pixmap(":/res/images/bold.png");
+    boldAction->setIcon(QIcon(pixmap));
+    boldAction->setShortcut(tr("Ctrl+B"));
+    QObject::connect(boldAction, &QAction::triggered, this, &MainWindow::handleFontChange);
+
+    italicAction = new QAction(QIcon(":/res/images/italic.png"), tr("斜体"), this);
+    italicAction->setCheckable(true);
+    italicAction->setShortcut(tr("Ctrl+I"));
+    QObject::connect(italicAction, &QAction::triggered, this, &MainWindow::handleFontChange);
+
+    underlineAction = new QAction(QIcon(":/res/images/underline.png"), tr("下划线"), this);
+    underlineAction->setCheckable(true);
+    underlineAction->setShortcut(tr("Ctrl+U"));
+    QObject::connect(underlineAction, &QAction::triggered, this, &MainWindow::handleFontChange);
 }
 
 void MainWindow::initQProcess()
@@ -297,7 +388,7 @@ QString MainWindow::getProjectDirSysDiskPartitionSymbol()
     return sysPartitionSymbol;
 }
 
-void MainWindow::on_open_file_project_dir_triggered()
+void MainWindow::action_open_file_project_dir_triggered()
 {
     QString ManualSelectedDir =
         QDir::toNativeSeparators(QFileDialog::getExistingDirectory(this, tr("Save Path"), QDir::currentPath()));
@@ -358,57 +449,13 @@ void MainWindow::itemSelected(QGraphicsItem* item)
     underlineAction->setChecked(font.underline());
 }
 
-void MainWindow::createActions()
-{
-    toFrontAction = new QAction(QIcon(":/res/images/bringtofront.png"),
-                                tr("Bring to &Front"), this);
-    toFrontAction->setShortcut(tr("Ctrl+F"));
-    toFrontAction->setStatusTip(tr("Bring item to front"));
-    connect(toFrontAction, &QAction::triggered, this, &MainWindow::bringToFront);
-
-    sendBackAction = new QAction(QIcon(":/res/images/sendtoback.png"), tr("Send to &Back"), this);
-    sendBackAction->setShortcut(tr("Ctrl+T"));
-    sendBackAction->setStatusTip(tr("Send item to back"));
-    connect(sendBackAction, &QAction::triggered, this, &MainWindow::sendToBack);
-
-    deleteAction = new QAction(QIcon(":/res/images/delete.png"), tr("&Delete"), this);
-    deleteAction->setShortcut(tr("Delete"));
-    deleteAction->setStatusTip(tr("Delete item from diagram"));
-    connect(deleteAction, &QAction::triggered, this, &MainWindow::deleteItem);
-
-    //    exitAction = new QAction(tr("E&xit"), this);
-    //    exitAction->setShortcuts(QKeySequence::Quit);
-    //    exitAction->setStatusTip(tr("Quit Scenediagram example"));
-    //    connect(exitAction, &QAction::triggered, this, &QWidget::close);
-
-    boldAction = new QAction(tr("Bold"), this);
-    boldAction->setCheckable(true);
-    QPixmap pixmap(":/res/images/bold.png");
-    boldAction->setIcon(QIcon(pixmap));
-    boldAction->setShortcut(tr("Ctrl+B"));
-    connect(boldAction, &QAction::triggered, this, &MainWindow::handleFontChange);
-
-    italicAction = new QAction(QIcon(":/res/images/italic.png"), tr("Italic"), this);
-    italicAction->setCheckable(true);
-    italicAction->setShortcut(tr("Ctrl+I"));
-    connect(italicAction, &QAction::triggered, this, &MainWindow::handleFontChange);
-
-    underlineAction = new QAction(QIcon(":/res/images/underline.png"), tr("Underline"), this);
-    underlineAction->setCheckable(true);
-    underlineAction->setShortcut(tr("Ctrl+U"));
-    connect(underlineAction, &QAction::triggered, this, &MainWindow::handleFontChange);
-
-    aboutAction = new QAction(tr("A&bout"), this);
-    aboutAction->setShortcut(tr("F1"));
-    connect(aboutAction, &QAction::triggered, this, &MainWindow::about);
-}
 
 void MainWindow::createDesignerToolbars()
 {
-    //    editToolBar = addToolBar(tr("Edit"));
-    //    editToolBar->addAction(deleteAction);
-    //    editToolBar->addAction(toFrontAction);
-    //    editToolBar->addAction(sendBackAction);
+    editToolBar = addToolBar(tr("编辑"));
+    editToolBar->addAction(deleteAction);
+    editToolBar->addAction(toFrontAction);
+    editToolBar->addAction(sendBackAction);
 
     fontCombo = new QFontComboBox();
     connect(fontCombo, &QFontComboBox::currentFontChanged,
@@ -452,14 +499,14 @@ void MainWindow::createDesignerToolbars()
     connect(lineColorToolButton, &QAbstractButton::clicked,
             this, &MainWindow::lineButtonTriggered);
 
-    textToolBar = addToolBar(tr("Font"));
+    textToolBar = addToolBar(tr("字体"));
     textToolBar->addWidget(fontCombo);
     textToolBar->addWidget(fontSizeCombo);
-    //    textToolBar->addAction(boldAction);
-    //    textToolBar->addAction(italicAction);
-    //    textToolBar->addAction(underlineAction);
+    textToolBar->addAction(boldAction);
+    textToolBar->addAction(italicAction);
+    textToolBar->addAction(underlineAction);
 
-    colorToolBar = addToolBar(tr("Color"));
+    colorToolBar = addToolBar(tr("颜色"));
     colorToolBar->addWidget(fontColorToolButton);
     colorToolBar->addWidget(fillColorToolButton);
     colorToolBar->addWidget(lineColorToolButton);
@@ -538,7 +585,7 @@ void MainWindow::initLogWindow()
 void MainWindow::hideDesignerToolBars()
 {
     textToolBar->hide();
-    //    editToolBar->hide();
+    editToolBar->hide();
     colorToolBar->hide();
     pointerToolbar->hide();
     backgroundToolBar->hide();
@@ -547,7 +594,7 @@ void MainWindow::hideDesignerToolBars()
 void MainWindow::showDesignerToolBars()
 {
     textToolBar->show();
-    //    editToolBar->show();
+    editToolBar->show();
     colorToolBar->show();
     pointerToolbar->show();
     backgroundToolBar->show();
@@ -606,8 +653,8 @@ QMenu* MainWindow::createColorMenu(const char* slot, QColor defaultColor)
     QList<QColor> colors;
     colors << Qt::black << Qt::white << Qt::red << Qt::blue << Qt::yellow;
     QStringList names;
-    names << tr("black") << tr("white") << tr("red") << tr("blue")
-          << tr("yellow");
+    names << tr("黑色") << tr("白色") << tr("红色") << tr("蓝色")
+          << tr("黄色");
 
     QMenu* colorMenu = new QMenu(this);
     for (int i = 0; i < colors.count(); ++i)
@@ -615,7 +662,7 @@ QMenu* MainWindow::createColorMenu(const char* slot, QColor defaultColor)
         QAction* action = new QAction(names.at(i), this);
         action->setData(colors.at(i));
         action->setIcon(createColorIcon(colors.at(i)));
-        connect(action, SIGNAL(triggered()), this, slot);
+        QObject::connect(action, SIGNAL(triggered()), this, slot);
         colorMenu->addAction(action);
         if (colors.at(i) == defaultColor)
         {
@@ -679,11 +726,10 @@ void MainWindow::lineButtonTriggered()
     scene->setLineColor(qvariant_cast<QColor>(lineAction->data()));
 }
 
-void MainWindow::about()
+void MainWindow::action_about_triggered()
 {
-    QMessageBox::about(this, tr("About RiscV-IDE"),
-                       tr("The <b>RiscV-IDE</b> a demo "
-                          "for FPGA."));
+    About* about_window = new About();
+    about_window->show();
 }
 
 void MainWindow::bringToFront()
@@ -814,6 +860,22 @@ void MainWindow::showLogWindow()
         logWindow->show();
         logWindow->setMinimumHeight(0);
     }
+}
+
+
+void MainWindow::switch_openOCD_state()
+{
+    if(openOCD_online)
+    {
+        openOCD_state->setText("OpenOCD Offline");
+        openOCD_state->setStyleSheet("QLabel { background-color : gray; color : darkgray; }");
+    }
+    else
+    {
+        openOCD_state->setText("OpenOCD Online");
+        openOCD_state->setStyleSheet("QLabel { background-color : rgb(1, 135, 250); color : black;}");
+    }
+
 }
 
 void MainWindow::update_action_com_state(QString portName)
@@ -1067,18 +1129,6 @@ void MainWindow::serialBuf2Plot()
         logWindow->append("串口未收到输出频谱数据");
     }
 
-    // for (int i = 1; i < pointCnt; i++)
-    // {
-    //     iw_y[i] /= 1000;
-    //     ow_y[i] /= 1000;
-    //     is_x[i] *= sampleFreq / pointCnt;
-    //     os_x[i] *= sampleFreq / pointCnt;
-    //     is_y[i] /= 500 * pointCnt;
-    //     os_y[i] /= 500 * pointCnt;
-    // }
-
-
-
     if (iw_size)
     {
         analyzerPage->updateChartData(iw_x, iw_y, 0);
@@ -1110,17 +1160,22 @@ bool MainWindow::isSerialPortOnline()
 
 void MainWindow::showStatusBarMessage(const QString msg)
 {
-    ui->statusBar->showMessage(msg);
+    statusBar->showMessage(msg);
 }
 
 void MainWindow::action_connect_clicked()
 {
-    if(!action_connect->isChecked() && process_connect != nullptr)
+    action_connect->setChecked(false);
+    if(openOCD_online && process_connect != nullptr)
     {
         process_connect->close();
-        logWindow->append("设备已断开!");
+        logWindow->append("OpenOCD已离线!");
+        action_connect->setChecked(false);
+        openOCD_online = false;
+        switch_openOCD_state();
         return;
     }
+    delete process_connect;
     process_connect = new QProcess();
     QString command = "C:\\Users\\Albre\\Desktop\\R-IDE\\openocd\\openocd.exe";
     QStringList args;
@@ -1133,12 +1188,24 @@ void MainWindow::action_connect_clicked()
         if(state == QProcess::NotRunning)
         {
             logWindow->append("设备连接失败!");
-            action_connect->setChecked(false);
         }
         else if(state == QProcess::Running)
         {
             logWindow->append(readProcessOutput(process_connect));
             logWindow->append("设备已连接!");
+
+            openOCD_online = true;
+            switch_openOCD_state();
+
+
+            // establish telnet connection to OpenOCD
+            delete telnet;
+            telnet = new QTelnet(this);
+
+            MyThread* thread_telnet = new MyThread();
+            thread_telnet->setMainW(this);
+            thread_telnet->setTelnet(telnet);
+            thread_telnet->start();
         }
     }
 
@@ -1147,69 +1214,7 @@ void MainWindow::action_connect_clicked()
 
 void MainWindow::action_download_clicked()
 {
-    if(process_download == nullptr)
-    {
-        process_download = new QProcess();
-    }
-    else if(process_download->state() == QProcess::Running)
-    {
-        logWindow->append("当前正在下载...");
-        delete process_download;
-        return;
-    }
-
-//    QProcess* telnet = process_download;
-
-    QString telnet = "telnet";
-    QStringList args;
-    args << "localhost" << "4444";
-
-    process_download->start(telnet, args);
-    if(process_download->waitForStarted())
-    {
-        logWindow->append(readProcessOutput(process_download));
-    }
-
-    QProcess::ProcessState state = process_download->state();
-    if(state == QProcess::Running)
-    {
-        logWindow->append("已进入Telnet");
-    }
-    else
-    {
-        logWindow->append("进入Telnet失败");
-        delete process_download;
-        return;
-    }
-
-
-    const char* HALT = "halt \n";
-    process_download->write(HALT);
-    process_download->waitForReadyRead();
-//    logWindow->append(HALT);
-
-
-//    QString LOAD_IMAGE = "load_image";
-//    QString BIN_PATH = " C:/Users/Albre/Desktop/R-IDE/example/SigDesign/main.bin";
-//    QString LOAD_IMAGE_args = " bin 0x0 0x1000000\n";
-
-//    QString DOWNLOAD_COMMAND_STRING = QString(LOAD_IMAGE + BIN_PATH + LOAD_IMAGE_args);
-//    qDebug() << DOWNLOAD_COMMAND_STRING;
-
-//    const char* DOWNLOAD_COMMAND = DOWNLOAD_COMMAND_STRING.toUtf8().data();
-//    qDebug() << DOWNLOAD_COMMAND;
-
-    process_download->write("load_image C:\\Users\\Albre\\Desktop\\R-IDE\\example\\SigDesign\\main.bin 0x0 bin 0x0 0x1000000\n");
-    process_download->waitForReadyRead();
-    logWindow->append(readProcessOutput(process_download));
-
-    process_download->write("resume 0 \n");
-    process_download->waitForReadyRead();
-//    logWindow->append("resume 0 \n");
-
-    process_download->write("exit \n");
-    process_download->waitForFinished();
-    logWindow->append(readProcessOutput(process_download));
+    telnet->sendData("load_image C:/Users/Albre/Desktop/R-IDE/example/SigDesign/main.bin 0x0 bin 0x0 0x1000000\r\n");
 
 }
 
@@ -1220,3 +1225,39 @@ QString MainWindow::readProcessOutput(QProcess* process)
     QString str = pText->toUnicode(qba);
     return str;
 }
+
+void MainWindow::action_halt_resume_clicked()
+{
+    action_halt_resume->setChecked(false);
+    if(action_connect->isChecked())
+    {
+        if(action_is_halt)
+        {
+            telnet->sendData("resume 0 \r\n");
+            action_is_halt = false;
+            action_halt_resume->setIcon(QIcon(":/res/imgs/resume.png"));
+            action_halt_resume->setText("暂停");
+            action_halt_resume->setChecked(true);
+        }
+        else
+        {
+            telnet->sendData("halt \r\n");
+            action_is_halt = true;
+            action_halt_resume->setIcon(QIcon(":/res/imgs/halt.png"));
+            action_halt_resume->setText("继续");
+            action_halt_resume->setChecked(true);
+        }
+    }
+    else
+    {
+        qDebug() << "未连接设备！";
+        logWindow->append("未连接设备!");
+    }
+}
+
+void MainWindow::connectEstablished()
+{
+    qDebug() << "OpenOCD and telnet connected!";
+    action_connect->setChecked(true);
+}
+
