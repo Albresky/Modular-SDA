@@ -45,16 +45,9 @@ void DesignerPage::init()
 void DesignerPage::initToolBox()
 {
     toolBoxName_1 = new QLabel();
-//    toolBoxName_2 = new QLabel();
-//    toolBoxName_3 = new QLabel();
     toolBoxName_1->setText("工具箱1");
-    // toolBoxName_2->setText("工具箱2");
-    // toolBoxName_3->setText("工具箱3");
-
 
     buttonGroup_1 = new QButtonGroup(this);
-//    buttonGroup_2 = new QButtonGroup(this);
-//    buttonGroup_3 = new QButtonGroup(this);
     buttonGroup_1->setExclusive(false);
 
     connect(buttonGroup_1, QOverload<QAbstractButton*>::of(&QButtonGroup::buttonClicked),
@@ -98,8 +91,6 @@ void DesignerPage::initToolBox()
 
     vToolBoxesLayout->addWidget(toolBoxName_1);
     vToolBoxesLayout->addWidget(toolBox_1);
-    // vToolBoxesLayout->addWidget(toolBoxName_2);
-    // vToolBoxesLayout->addWidget(toolBoxName_3);
     toolBoxes = new QFrame();
     toolBoxes->setLayout(vToolBoxesLayout);
     toolBoxes->setFrameShape(QFrame::Shape::Box);
@@ -147,7 +138,6 @@ void DesignerPage::buttonGroupClicked(QAbstractButton* button)
     }
     else
     {
-        // scene->setItemType(DiagramItem::DiagramType(id));
         scene->setItemType(DiagramItem::ModuleType(id));
         scene->setMode(DiagramScene::InsertItem);
     }
@@ -179,17 +169,6 @@ void DesignerPage::initAttributesBox()
     attributesBox->addWidget(noModuleSelected);
 }
 
-int DesignerPage::getSamplePointCnt()
-{
-    return 512;
-//    return qSpinBox_pointCnt->value();
-}
-
-int DesignerPage::getSampleFreq()
-{
-    return 25641;
-//    return qSpinBox_SampleFreq->value();
-}
 
 void DesignerPage::addAttributesBox(QWidget* widget)
 {

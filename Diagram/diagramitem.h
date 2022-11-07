@@ -5,7 +5,6 @@
 #include <QList>
 #include <QDebug>
 #include "custom/DataItem.h"
-#include "custom/mygraphicstextitem.h"
 
 QT_BEGIN_NAMESPACE
 class QPixmap;
@@ -20,7 +19,6 @@ class DiagramItem : public QGraphicsPolygonItem
 {
 public:
     enum { Type = UserType + 15 };
-    // enum DiagramType { Step, Conditional, StartEnd, Io };
     enum ModuleType {Input, Output, FFT, IFFT, DFT, HanningWin, BlackmanWin, HT, Filter};
 
 

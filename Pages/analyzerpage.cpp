@@ -180,9 +180,6 @@ void AnalyzerPage::initCharts()
 
 void AnalyzerPage::initLayout()
 {
-    // cbox_legend = new QComboBox();
-    // cbox_theme = new QComboBox();
-    // cbox_animation = new QComboBox();
     antialiasCheckBox = new QCheckBox("抗锯齿");
     ingoreEmptyDataCheckBox = new QCheckBox("忽略空数据");
     ingoreInvalidDataCheckBox = new QCheckBox("忽略非法据");
@@ -222,21 +219,6 @@ void AnalyzerPage::initLayout()
     // QObject::connect(cbox_theme, &QComboBox::currentIndexChanged, this, &AnalyzerPage::updateUI);
     // QObject::connect(cbox_animation, &QComboBox::currentIndexChanged, this, &AnalyzerPage::updateUI);
     // QObject::connect(antialiasCheckBox, &QCheckBox::stateChanged, this, &AnalyzerPage::updateUI);
-
-//    QHBoxLayout* themeLayout = new QHBoxLayout;
-//    QLabel* themeLabel = new QLabel("主题");
-//    themeLayout->addWidget(themeLabel);
-//    themeLayout->addWidget(cbox_theme);
-
-//    QHBoxLayout* legendLayout = new QHBoxLayout;
-//    QLabel* legendLabel = new QLabel("图例");
-//    themeLayout->addWidget(legendLabel);
-//    themeLayout->addWidget(cbox_legend);
-
-//    QHBoxLayout* animationLayout = new QHBoxLayout;
-//    QLabel* animationLabel = new QLabel("动画");
-//    themeLayout->addWidget(animationLabel);
-//    themeLayout->addWidget(cbox_animation);
 
 
     btn_updatePlot = new QPushButton();

@@ -71,29 +71,29 @@ void ProjectPage::initLayout()
 
     QHBoxLayout* COM_layout = new QHBoxLayout;
 
-    COM_layout->addWidget(new QLabel("COM:"));
+    COM_layout->addWidget(new QLabel("COM"));
     COM_layout->addWidget(btn_refresh);
     COM_layout->addWidget(cbox_COM);
 
 
     QHBoxLayout* baudRate_layout = new QHBoxLayout;
-    baudRate_layout->addWidget(new QLabel("波特率:"));
+    baudRate_layout->addWidget(new QLabel("波特率"));
     baudRate_layout->addWidget(cbox_BaudRate);
 
     QHBoxLayout* parity_layout = new QHBoxLayout;
-    parity_layout->addWidget(new QLabel("校验位:"));
+    parity_layout->addWidget(new QLabel("校验位"));
     parity_layout->addWidget(cbox_Parity);
 
     QHBoxLayout* dataBits_layout = new QHBoxLayout;
-    dataBits_layout->addWidget(new QLabel("数据位:"));
+    dataBits_layout->addWidget(new QLabel("数据位"));
     dataBits_layout->addWidget(cbox_DataBits);
 
     QHBoxLayout* stopBits_layout = new QHBoxLayout;
-    stopBits_layout->addWidget(new QLabel("停止位:"));
+    stopBits_layout->addWidget(new QLabel("停止位"));
     stopBits_layout->addWidget(cbox_StopBits);
 
     QHBoxLayout* flowControl_layout = new QHBoxLayout;
-    flowControl_layout->addWidget(new QLabel("流控制:"));
+    flowControl_layout->addWidget(new QLabel("流控制"));
     flowControl_layout->addWidget(cbox_FlowControl);
 
     QVBoxLayout* serialPortConfig_layout = new QVBoxLayout;

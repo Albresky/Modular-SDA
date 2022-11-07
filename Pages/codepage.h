@@ -2,16 +2,17 @@
 #define CODEPAGE_H
 
 #include <QWidget>
-#include "QFileSystemModel"
-#include "syntax/Codeeditor.h"
-#include "syntax/SyntaxHighlighter.h"
-#include "FileOperator/FileOperator.h"
 #include <QDebug>
 #include <QFileDialog>
 #include <QString>
 #include <QGridLayout>
 #include <QRegExp>
 #include <QTabWidget>
+#include "QFileSystemModel"
+#include "syntax/Codeeditor.h"
+#include "syntax/SyntaxHighlighter.h"
+#include "FileOperator/FileOperator.h"
+
 
 namespace Ui
 {

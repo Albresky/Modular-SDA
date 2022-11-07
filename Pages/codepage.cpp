@@ -35,7 +35,7 @@ void CodePage::initElements()
     codePageTabs = ui->tabWidget;
     this->tabCount = -1;
 
-    QString tempFilePath = QDir::tempPath() + "r_ide_temp_001";
+    QString tempFilePath = QDir::tempPath() + "r-ide_temp_001";
     createFile(tempFilePath);
     newTab("New", tempFilePath, QIcon(":/res/imgs/unknownfile.png"));
 

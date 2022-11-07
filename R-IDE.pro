@@ -23,12 +23,9 @@ SOURCES += \
     Pages/designerpage.cpp \
     Pages/projectpage.cpp \
     custom/DataItem.cpp \
-    custom/algorithmtoolbox.cpp \
     custom/commonHeaders.cpp \
     custom/globalVar.cpp \
-    custom/mygraphicstextitem.cpp \
     custom/sidebar.cpp \
-    custom/utilities.cpp \
     lib/XCustomPlot.cpp \
     lib/XTracer.cpp \
     lib/qcustomplot.cpp \
@@ -51,12 +48,9 @@ HEADERS += \
     Pages/designerpage.h \
     Pages/projectpage.h \
     custom/DataItem.h \
-    custom/algorithmtoolbox.h \
     custom/commonHeaders.h \
     custom/globalVar.h \
-    custom/mygraphicstextitem.h \
     custom/sidebar.h \
-    custom/utilities.h \
     lib/XCustomPlot.h \
     lib/XTracer.h \
     lib/qcustomplot.h \
