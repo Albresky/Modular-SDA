@@ -57,7 +57,9 @@ public:
     void setAnalyzerPage(AnalyzerPage* analyzerPage);
     void removeDiagramItemInMap(DiagramItem::ModuleType module_type);
     void removeDiagramItemInMap(DiagramItem* diagramItem);
+    void setMainWindow(MainWindow* mainwindow);
     DiagramItem* getModule(DiagramItem::ModuleType module_type);
+    bool isModuleAdded(DiagramItem::ModuleType module_type);
 public slots:
     void setMode(DiagramScene::Mode mode);
     void setItemType(DiagramItem::ModuleType type);
@@ -75,6 +77,7 @@ protected:
 
 private:
     bool isItemChange(int type) const;
+    MainWindow* mainwindow;
     DesignerPage* designerPage;
     AnalyzerPage* analyzerPage;
     DiagramItem::ModuleType myItemType;
@@ -91,6 +94,7 @@ private:
     QColor myTextColor;
     QColor myItemColor;
     QColor myLineColor;
+    void showNowItemsCnt();
 };
 
 

@@ -147,8 +147,8 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent)
             {
                 analyzerPage->set_FFT_IFFT_HT_Visibility(true);
             }
-
             emit itemInserted(item);
+            showNowItemsCnt();
             break;
 
         case InsertLine:
@@ -279,6 +279,7 @@ void DiagramScene::removeDiagramItemInMap(DiagramItem::ModuleType module_type)
     {
         analyzerPage->set_FFT_IFFT_HT_Visibility(false);
     }
+    showNowItemsCnt();
 }
 
 void DiagramScene::removeDiagramItemInMap(DiagramItem* diagramItem)
@@ -295,6 +296,7 @@ void DiagramScene::removeDiagramItemInMap(DiagramItem* diagramItem)
     {
         analyzerPage->set_FFT_IFFT_HT_Visibility(false);
     }
+    showNowItemsCnt();
 }
 
 DiagramItem* DiagramScene::getModule(DiagramItem::ModuleType module_type)
@@ -303,4 +305,21 @@ DiagramItem* DiagramScene::getModule(DiagramItem::ModuleType module_type)
     *   null Key!!
     */
     return moduleMap.value(module_type);
+}
+
+void DiagramScene::setMainWindow(MainWindow* mainwindow)
+{
+    this->mainwindow = mainwindow;
+}
+
+void DiagramScene::showNowItemsCnt()
+{
+    QString _msg = QString("当前控件数量: ") + QString::number(moduleMap.size());
+    mainwindow->showStatusBarMessage(_msg);
+}
+
+
+bool DiagramScene::isModuleAdded(DiagramItem::ModuleType module_type)
+{
+    return moduleStatusMap[module_type];
 }

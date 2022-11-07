@@ -3,6 +3,7 @@
 
 QString MainWindow::projectDir = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
 
+
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent), ui(new Ui::MainWindow)
 {
@@ -15,6 +16,7 @@ MainWindow::MainWindow(QWidget* parent)
     valueMap["is"] = 1;
     valueMap["ow"] = 2;
     valueMap["os"] = 3;
+    valueMap["dft"] = 4;
 
     initLayout();
 
@@ -37,11 +39,13 @@ void MainWindow::initLayout()
 {
     // initialize toolBar
     initBuildToolBar();
+    initDownloadToolBar();
     initSerialPortToolBar();
     createDesignerToolbars();
 
     // initialize sideBar
     initSideBar();
+
     // initialize statusBar
     initStatusBar();
 
@@ -65,6 +69,7 @@ void MainWindow::initScene()
 {
     // initialize DiagramScene
     scene = new DiagramScene(itemMenu, this);
+    scene->setMainWindow(this);
     scene->setSceneRect(QRectF(0, 0, 5000, 5000));
     scene->setBackgroundBrush(QPixmap(":/res/images/background5.png"));
     connect(scene, &DiagramScene::itemInserted,
@@ -117,8 +122,6 @@ void MainWindow::initStackedPage()
     mainWinLayout->addWidget(sidebar);
     mainWinLayout->addWidget(splitter);
     this->centralWidget()->setLayout(mainWinLayout);
-
-    QObject::connect(btn_show_log_window, &QPushButton::clicked, this, &MainWindow::showLogWindow);
 }
 
 void MainWindow::initSideBar()
@@ -155,11 +158,7 @@ void MainWindow::initSideBar()
 
 void MainWindow::initStatusBar()
 {
-    // log window
-    btn_show_log_window = new QPushButton();
-    btn_show_log_window->setText("编译输出");
-    ui->statusBar->addWidget(btn_show_log_window);
-
+    // show serial port status
     action_com_state = new QLabel("未连接串口");
     action_com_state->setMargin(2);
     action_com_state->setFixedWidth(75);
@@ -209,11 +208,46 @@ void MainWindow::initBuildToolBar()
     action_convert->setText("生成");
     action_convert->setIcon(QIcon(":/res/imgs/convert.png"));
     buildToolBar->addAction(action_convert);
+}
 
+void MainWindow::initDownloadToolBar()
+{
+    downloadToolBar = addToolBar(tr("下载"));
+
+    // connect to device
+    action_connect = new QAction();
+    action_connect->setText("连接");
+    action_connect->setIcon(QIcon(":/res/imgs/connect.png"));
+    action_connect->setCheckable(true);
+    downloadToolBar->addAction(action_connect);
+    QObject::connect(action_connect, &QAction::triggered, this, &MainWindow::action_connect_clicked);
+
+    // download to device
     action_download = new QAction();
     action_download->setText("下载");
     action_download->setIcon(QIcon(":/res/imgs/download.png"));
-    buildToolBar->addAction(action_download);
+    downloadToolBar->addAction(action_download);
+    QObject::connect(action_download, &QAction::triggered, this, &MainWindow::action_download_clicked);
+}
+
+void MainWindow::initSerialPortToolBar()
+{
+    serialPortBar = addToolBar(tr("端口"));
+
+    // show log window
+    action_show_logWin = new QAction();
+    action_show_logWin->setCheckable(true);
+    action_show_logWin->setIcon(QIcon(":/res/imgs/console.png"));
+    serialPortBar->addAction(action_show_logWin);
+    QObject::connect(action_show_logWin, &QAction::triggered, this, &MainWindow::showLogWindow);
+
+    // connect serial port
+    showSerialPortsInfo = new QAction();
+    showSerialPortsInfo->setText("显示串口信息");
+    showSerialPortsInfo->setIcon(QIcon(":/res/imgs/serialPort.png"));
+    showSerialPortsInfo->setCheckable(true);
+    QObject::connect(showSerialPortsInfo, &QAction::triggered, this, &MainWindow::openSerialPort);
+    serialPortBar->addAction(showSerialPortsInfo);
 }
 
 void MainWindow::initMenubar()
@@ -495,6 +529,7 @@ void MainWindow::createDesignerToolbars()
 void MainWindow::initLogWindow()
 {
     logWindow = new QTextBrowser();
+    // logWindow->setMinimumHeight(200);
     logWindow->setStyleSheet(QString("background-color: rgb(51, 51, 51); ") +
                              QString("color:rgb(231, 231, 231); ") +
                              QString("border-radius:4px;"));
@@ -772,11 +807,19 @@ void MainWindow::showLogWindow()
     if (logWindow->isVisible())
     {
         logWindow->hide();
+        logWindow->setMinimumHeight(200);
     }
     else
     {
         logWindow->show();
+        logWindow->setMinimumHeight(0);
     }
+}
+
+void MainWindow::update_action_com_state(QString portName)
+{
+    action_com_state->setText(portName);
+    action_com_state->setStyleSheet("QLabel { background-color : rgb(47, 219, 85); color : black;}");
 }
 
 void MainWindow::closeSerialPort()
@@ -809,8 +852,9 @@ void MainWindow::openSerialPort()
         {
             serialPortOnline = true;
             logWindow->append("已打开串口");
-            action_com_state->setText(serialPort->portName());
-            action_com_state->setStyleSheet("QLabel { background-color : rgb(47, 219, 85); color : black;}");
+            update_action_com_state(serialPort->portName());
+            // action_com_state->setText(serialPort->portName());
+            // action_com_state->setStyleSheet("QLabel { background-color : rgb(47, 219, 85); color : black;}");
             QObject::connect(serialPort, &QSerialPort::readyRead, this, &MainWindow::ReadPortData);
         }
         else
@@ -820,16 +864,7 @@ void MainWindow::openSerialPort()
     }
 }
 
-void MainWindow::initSerialPortToolBar()
-{
-    serialPortBar = addToolBar(tr("Serial Port"));
-    showSerialPortsInfo = new QAction();
-    showSerialPortsInfo->setText("显示串口信息");
-    showSerialPortsInfo->setIcon(QIcon(":/res/imgs/serialPort.png"));
-    showSerialPortsInfo->setCheckable(true);
-    QObject::connect(showSerialPortsInfo, &QAction::triggered, this, &MainWindow::openSerialPort);
-    serialPortBar->addAction(showSerialPortsInfo);
-}
+
 
 void MainWindow::getCOMs()
 {
@@ -895,11 +930,12 @@ void MainWindow::serialBuf2Plot()
     QVector<double> is_x, is_y;
     QVector<double> ow_x, ow_y;
     QVector<double> os_x, os_y;
+    double dft_res = -1;
     AnalysisVaule analysisVaule;
     int pointCnt = analyzerPage->getPointCnt();
     int sampleFreq = analyzerPage->getSampleFreq();
 
-    QList<QString> test = serialBuf;
+//    QList<QString> test = serialBuf;
 
     foreach (QString str, serialBuf)
     {
@@ -936,6 +972,9 @@ void MainWindow::serialBuf2Plot()
                     os_x.append(x);
                     os_y.append(y);
                     break;
+                // "dft"
+                case 4:
+                    dft_res = y;
                 default:
                     break;
             }
@@ -978,6 +1017,26 @@ void MainWindow::serialBuf2Plot()
             is_x[i] *= sampleFreq / pointCnt;
             is_y[i] /= 500 * pointCnt;
         }
+
+        /*
+        *   [计算输入数据]
+        *
+        *   基波频率：_x[1]
+        *   基波幅值：_y[1]
+        *   三次     _x[3]
+        *
+        */
+
+        analysisVaule.validValue = is_y[0];
+        analysisVaule.baseFreq = is_x[1];
+        analysisVaule.baseAmp = is_y[1];
+        analysisVaule._3rdFreq = is_x[3];
+        analysisVaule._3rdAmp = is_y[3];
+        analysisVaule._5thFreq = is_x[5];
+        analysisVaule._5thAmp = is_y[5];
+        analysisVaule._7thFreq = is_x[7];
+        analysisVaule._7thAmp = is_y[7];
+        analyzerPage->updateAnalyses(analysisVaule);
     }
     else
     {
@@ -1019,25 +1078,8 @@ void MainWindow::serialBuf2Plot()
     //     os_y[i] /= 500 * pointCnt;
     // }
 
-    /*
-     *   [计算输入数据]
-     *
-     *   基波频率：_x[1]
-     *   基波幅值：_y[1]
-     *   三次     _x[3]
-     *
-     */
-    analysisVaule.validValue = is_y[0];
-    analysisVaule.baseFreq = is_x[1];
-    analysisVaule.baseAmp = is_y[1];
-    analysisVaule._3rdFreq = is_x[3];
-    analysisVaule._3rdAmp = is_y[3];
-    analysisVaule._5thFreq = is_x[5];
-    analysisVaule._5thAmp = is_y[5];
-    analysisVaule._7thFreq = is_x[7];
-    analysisVaule._7thAmp = is_y[7];
 
-    analyzerPage->updateAnalyses(analysisVaule);
+
     if (iw_size)
     {
         analyzerPage->updateChartData(iw_x, iw_y, 0);
@@ -1054,6 +1096,10 @@ void MainWindow::serialBuf2Plot()
     {
         analyzerPage->updateChartData(os_x, os_y, 3);
     }
+    if(dft_res >= 0)
+    {
+        analyzerPage->updateDFT(dft_res / 1000.0);
+    }
     serialBuf.clear();
 }
 
@@ -1061,4 +1107,117 @@ void MainWindow::serialBuf2Plot()
 bool MainWindow::isSerialPortOnline()
 {
     return serialPortOnline;
+}
+
+void MainWindow::showStatusBarMessage(const QString msg)
+{
+    ui->statusBar->showMessage(msg);
+}
+
+void MainWindow::action_connect_clicked()
+{
+    if(!action_connect->isChecked() && process_connect != nullptr)
+    {
+        process_connect->close();
+        logWindow->append("设备已断开!");
+        return;
+    }
+    process_connect = new QProcess();
+    QString command = "C:\\Users\\Albre\\Desktop\\R-IDE\\openocd\\openocd.exe";
+    QStringList args;
+    args << "-f";
+    args << "C:\\Users\\Albre\\Desktop\\R-IDE\\openocd\\tinyriscv.cfg";
+    process_connect->start(command, args);
+    if(process_connect->waitForStarted())
+    {
+        QProcess::ProcessState state = process_connect->state();
+        if(state == QProcess::NotRunning)
+        {
+            logWindow->append("设备连接失败!");
+            action_connect->setChecked(false);
+        }
+        else if(state == QProcess::Running)
+        {
+            logWindow->append(readProcessOutput(process_connect));
+            logWindow->append("设备已连接!");
+        }
+    }
+
+}
+
+
+void MainWindow::action_download_clicked()
+{
+    if(process_download == nullptr)
+    {
+        process_download = new QProcess();
+    }
+    else if(process_download->state() == QProcess::Running)
+    {
+        logWindow->append("当前正在下载...");
+        delete process_download;
+        return;
+    }
+
+//    QProcess* telnet = process_download;
+
+    QString telnet = "telnet";
+    QStringList args;
+    args << "localhost" << "4444";
+
+    process_download->start(telnet, args);
+    if(process_download->waitForStarted())
+    {
+        logWindow->append(readProcessOutput(process_download));
+    }
+
+    QProcess::ProcessState state = process_download->state();
+    if(state == QProcess::Running)
+    {
+        logWindow->append("已进入Telnet");
+    }
+    else
+    {
+        logWindow->append("进入Telnet失败");
+        delete process_download;
+        return;
+    }
+
+
+    const char* HALT = "halt \n";
+    process_download->write(HALT);
+    process_download->waitForReadyRead();
+//    logWindow->append(HALT);
+
+
+//    QString LOAD_IMAGE = "load_image";
+//    QString BIN_PATH = " C:/Users/Albre/Desktop/R-IDE/example/SigDesign/main.bin";
+//    QString LOAD_IMAGE_args = " bin 0x0 0x1000000\n";
+
+//    QString DOWNLOAD_COMMAND_STRING = QString(LOAD_IMAGE + BIN_PATH + LOAD_IMAGE_args);
+//    qDebug() << DOWNLOAD_COMMAND_STRING;
+
+//    const char* DOWNLOAD_COMMAND = DOWNLOAD_COMMAND_STRING.toUtf8().data();
+//    qDebug() << DOWNLOAD_COMMAND;
+
+    process_download->write("load_image C:\\Users\\Albre\\Desktop\\R-IDE\\example\\SigDesign\\main.bin 0x0 bin 0x0 0x1000000\n");
+    process_download->waitForReadyRead();
+    logWindow->append(readProcessOutput(process_download));
+
+    process_download->write("resume 0 \n");
+    process_download->waitForReadyRead();
+//    logWindow->append("resume 0 \n");
+
+    process_download->write("exit \n");
+    process_download->waitForFinished();
+    logWindow->append(readProcessOutput(process_download));
+
+}
+
+QString MainWindow::readProcessOutput(QProcess* process)
+{
+    QByteArray qba = process->readAllStandardOutput();
+    QTextCodec* pText = QTextCodec::codecForName("System");
+    QString str = pText->toUnicode(qba);
+    return str;
 }

@@ -43,5 +43,7 @@
         <file>res/imgs/serialPort.png</file>
         <file>res/imgs/refresh.png</file>
         <file>res/imgs/convert.png</file>
+        <file>res/imgs/console.png</file>
+        <file>res/imgs/connect.png</file>
     </qresource>
 </RCC>

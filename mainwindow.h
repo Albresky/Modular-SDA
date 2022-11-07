@@ -66,7 +66,9 @@ public:
     static QString getProjectDir();
     static const int InsertTextButton = 10;
 
+    void showStatusBarMessage(const QString msg);
     bool isSerialPortOnline();
+
     QList<QSerialPortInfo*> get_qSerialPortInfo();
 
 signals:
@@ -83,6 +85,8 @@ private slots:
     void action_edit_clicked();
     void action_charts_clicked();
     void action_project_clicked();
+    void action_connect_clicked();
+    void action_download_clicked();
     void on_open_file_project_dir_triggered();
     void currentFontChanged(const QFont& font);
     void fontSizeChanged(const QString&);
@@ -125,11 +129,12 @@ private:
     Ui::MainWindow* ui;
     QPlainTextEdit* cmd_readOut;
     QPushButton* btn_execute;
-    QPushButton* btn_show_log_window;
-    QProcess* process;
+
+    static QString projectDir;
+
+
     QLineEdit* console;
     QString output;
-    static QString projectDir;
     CodeEditor* configEditor;
     MyHighLighter* highlighter;
     const QString MainWindowTitle = "RiscV-IDE";
@@ -137,6 +142,7 @@ private:
     QTextBrowser* logWindow;
     QAction* action_build;
     QAction* action_make_clean;
+    QAction* action_connect;
     QAction* action_download;
     QAction* action_convert;
     QAction* sidebar_welcome;
@@ -145,21 +151,26 @@ private:
     QAction* sidebar_charts;
     QAction* sidebar_tool;
     QAction* showSerialPortsInfo;
-    QLabel* action_com_state;
+
     SideBar* sidebar;
     CodePage* codePage;
     AnalyzerPage* analyzerPage;
     DesignerPage* designerPage;
     ProjectPage* projectPage;
     QSignalMapper* signalMapper;
-    QProcess* qProcess;
     QSerialPort* serialPort = nullptr;
-    bool serialPortOnline = false;
+
     QList<QSerialPortInfo*> list_qSerialPortInfo;
     QList<QString> serialBuf;
     QByteArray buf;
     QMap<QString, int> valueMap;
 
+    bool serialPortOnline = false;
+
+
+    QProcess* qProcess;
+    QProcess* process_connect = nullptr;
+    QProcess* process_download = nullptr;
 
     DiagramView* view = nullptr;
     DiagramScene* scene = nullptr;
@@ -169,6 +180,7 @@ private:
     QMenu* aboutMenu;
 
     QToolBar* buildToolBar;
+    QToolBar* downloadToolBar;
     QToolBar* serialPortBar;
     QToolBar* textToolBar;
     QToolBar* editToolBar;
@@ -194,16 +206,20 @@ private:
     QAction* fillAction;
     QAction* lineAction;
 
-
     QComboBox* sceneScaleCombo;
     QComboBox* itemColorCombo;
     QComboBox* textColorCombo;
     QComboBox* fontSizeCombo;
     QFontComboBox* fontCombo;
 
+    QAction* action_show_logWin;
+    QLabel* action_com_state;
+    QStatusBar* statusbar;
+
     // function
 
     void initBuildToolBar();
+    void initDownloadToolBar();
     void initSerialPortToolBar();
     void updateFileSystem();
     void updateWindowTitle();
@@ -220,12 +236,13 @@ private:
     void createDesignerToolbars();
     void closeSerialPort();
 
-
+    void update_action_com_state(QString portName);
     void executeCmd(QString command);
     void CmdExit(int exitCode);
     QString getProjectDirSysDiskPartitionSymbol();
     QIcon createColorToolButtonIcon(const QString& image, QColor color);
     QIcon createColorIcon(QColor color);
+    QString readProcessOutput(QProcess* process);
     QMenu* createColorMenu(const char* slot, QColor defaultColor);
     QWidget* createBackgroundCellWidget(const QString& text, const QString& image);
 
