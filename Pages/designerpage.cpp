@@ -1,11 +1,7 @@
 #include "designerpage.h"
 #include "ui_designerpage.h"
 
-
-
 #include <mainwindow.h>
-
-
 
 DesignerPage::DesignerPage(QGraphicsView* view, DiagramScene* scene, QMenu* itemMenu, QWidget* parent) :
     QWidget(parent),
@@ -31,8 +27,6 @@ QWidget* DesignerPage::getInstance()
 
 void DesignerPage::init()
 {
-
-
     initAttributesBox();
     initToolBox();
 
@@ -112,7 +106,6 @@ void DesignerPage::initToolBox()
     toolBoxes->setLineWidth(1);
     toolBoxes->setFixedWidth(165);
 }
-
 
 QWidget* DesignerPage::createCellWidget(QButtonGroup* buttonGroup, const QString& text, DiagramItem::ModuleType type)
 {

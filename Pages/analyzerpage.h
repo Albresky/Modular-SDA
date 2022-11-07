@@ -38,6 +38,7 @@ public:
 
     void updateChartData(QVector<double> pointsDataX, QVector<double> pointsDataY, int index);
     void updateAnalyses(AnalysisVaule analysisValue);
+    void updateDFT(double value);
     bool isIngoreEmptyDataChecked();
     bool isIngoreInvalidDataChecked();
     void setDftVisibility(bool visiable);
@@ -83,8 +84,8 @@ private:
     QLineEdit* browser_seventhOrderFreq;
     QLineEdit* browser_seventhOrderAmplitude;
     QLineEdit* browser_dftResult;
-    QWidget* dftResult_widget;
     QWidget* paramsBox;
+    QFrame* defResultFrame;
     QFrame* commonAnalysesResultsFrame;
     int pointCnt;
     int sampleFreq;
@@ -94,8 +95,8 @@ private:
     // fuction
     void initLayout();
     void initCharts();
-    void initGridChart(QGridLayout* layout, int row, int column);
-    void initSpectrumChart(QGridLayout* layout, int row, int column);
+    void initGridChart(QGridLayout* layout, int row, int column, QString title);
+    void initSpectrumChart(QGridLayout* layout, int row, int column, QString title);
     void initDefaultData();
     void populateThemeBox();
     void populateAnimationBox();
