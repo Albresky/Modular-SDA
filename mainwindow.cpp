@@ -913,6 +913,7 @@ void MainWindow::ReadPortData()
 void MainWindow::sendSerialStart()
 {
     serialBuf.clear();
+    buf.clear();
     char updateSignal = 's';
     serialPort->write(&updateSignal);
 }
@@ -934,8 +935,6 @@ void MainWindow::serialBuf2Plot()
     AnalysisVaule analysisVaule;
     int pointCnt = analyzerPage->getPointCnt();
     int sampleFreq = analyzerPage->getSampleFreq();
-
-//    QList<QString> test = serialBuf;
 
     foreach (QString str, serialBuf)
     {
