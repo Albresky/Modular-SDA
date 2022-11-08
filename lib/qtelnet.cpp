@@ -4,7 +4,7 @@
 
 QTelnet::QTelnet(QObject* parent) : QObject(parent), socket(0), notifier(0), connected(false)
 {
-    setSocket(new QTcpSocket(this));
+    setSocket(new QTcpSocket(parent));
 }
 
 QTelnet::~QTelnet()
@@ -42,10 +42,10 @@ void QTelnet::disconnectTelnet()
     socket->disconnectFromHost();
 }
 
-bool QTelnet::isConnected() const
-{
-    return connected;
-}
+//bool QTelnet::isConnected() const
+//{
+//    return connected;
+//}
 
 void QTelnet::consume()
 {
@@ -83,8 +83,7 @@ void QTelnet::socketConnected()
     connected = true;
     notifier = new QSocketNotifier(socket->socketDescriptor(), QSocketNotifier::Exception, this);
     connect(notifier, SIGNAL(activated(int)), this, SLOT(socketException(int)));
-//    emit sockConnected();
-    //sendOptions();
+    emit sockConnected();
 }
 
 void QTelnet::socketConnectionClosed()
@@ -104,7 +103,7 @@ void QTelnet::socketReadyRead()
 void QTelnet::socketError(QAbstractSocket::SocketError error)
 {
     qDebug() << error;
-    //emit q->connectionError(error);
+    emit connectionError(error);
 }
 
 void QTelnet::socketException(int)

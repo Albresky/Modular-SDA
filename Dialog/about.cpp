@@ -39,15 +39,15 @@ About::About(QWidget* parent)
     QGridLayout* authorLayout = new QGridLayout;
 
     QLabel* authorTxt = new QLabel("博客:");
-    authorTxt->setFixedWidth(50);
-    authorTxt->setAlignment(Qt::AlignCenter);
+    authorTxt->setFixedWidth(40);
+    authorTxt->setAlignment(Qt::AlignLeft);
     authorTxt->setFont(QFont("微软雅黑", 8));
     authorLink = new QLabel("<a href='url'>https://cosyspark.space</a>");
 
 
     QLabel* githubTxt = new QLabel("Github:");
-    githubTxt->setFixedWidth(50);
-    githubTxt->setAlignment(Qt::AlignCenter);
+    githubTxt->setFixedWidth(40);
+    githubTxt->setAlignment(Qt::AlignLeft);
     githubTxt->setFont(QFont("微软雅黑", 8));
     githubLink = new QLabel("<a href='url'>https://github.com/Albresky</a>");
 

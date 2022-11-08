@@ -17,7 +17,7 @@ public:
 
     void setSocket(QTcpSocket* socket);
     void connectToHost(const QString& host, quint16 port);
-    bool isConnected() const;
+//    bool isConnected() const;
     void disconnectTelnet();
 
 public slots:
@@ -29,10 +29,12 @@ public slots:
     void sendData(const QString& data);
     void sendData2(const QByteArray& data);
 
+
 signals:
     void message(const QString& data);
     void sockConnected();
     void sockDisconnected();
+    void connectionError(QAbstractSocket::SocketError error);
 
 private:
     void consume();

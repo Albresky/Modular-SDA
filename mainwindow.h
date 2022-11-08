@@ -31,12 +31,10 @@
 #include <QGraphicsView>
 #include <QMessageBox>
 #include <QTextBrowser>
-#include <lib/qtelnet.h>
-
-#include "Dialog/about.h"
 
 #include "custom/commonHeaders.h"
-#include "Diagram/diagramview.h"
+#include "custom/sidebar.h"
+#include "lib/qtelnet.h"
 #include "Pages/designerpage.h"
 #include "Pages/analyzerpage.h"
 #include "Pages/codepage.h"
@@ -44,9 +42,10 @@
 #include "syntax/Codeeditor.h"
 #include "syntax/SyntaxHighlighter.h"
 #include "syntax/typedef.h"
-#include "custom/sidebar.h"
+#include "Diagram/diagramview.h"
 #include "Diagram/diagramscene.h"
 #include "Diagram/arrow.h"
+#include "Dialog/about.h"
 
 class MainWindow : public QMainWindow
 {
@@ -110,18 +109,18 @@ private slots:
     void ReadPortData();
     void openSerialPort();
     void serialBuf2Plot();
+    void telnetError(QAbstractSocket::SocketError error);
+    void connectEstablished();
 
 public slots:
 
     void getCOMs();
     void sendSerialStart();
-    void connectEstablished();
 
 private:
 
     /* variables */
     QWidget* centralwidget;
-
 
     QPlainTextEdit* cmd_readOut;
     QPushButton* btn_execute;
@@ -157,6 +156,8 @@ private:
     QSignalMapper* signalMapper;
     QSerialPort* serialPort = nullptr;
 
+    QMetaEnum metaEnum;
+
     QList<QSerialPortInfo*> list_qSerialPortInfo;
     QList<QString> serialBuf;
     QByteArray buf;
@@ -170,6 +171,7 @@ private:
     QProcess* process_connect = nullptr;
     QProcess* process_download = nullptr;
     QTelnet* telnet = nullptr;
+    MyThread* thread_telnet = nullptr;
 
     DiagramView* view = nullptr;
     DiagramScene* scene = nullptr;
@@ -246,6 +248,7 @@ private:
 
     void switch_openOCD_state();
     void update_action_com_state(QString portName);
+    void update_telnet_functions();
     void executeCmd(QString command);
     void CmdExit(int exitCode);
     QString getProjectDirSysDiskPartitionSymbol();

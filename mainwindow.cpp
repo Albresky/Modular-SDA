@@ -1,7 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-#include "custom/mythread.h"
 
 QString MainWindow::projectDir = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
 
@@ -32,9 +31,10 @@ void MainWindow::initLayout()
 {
     // [0] initialze window
     centralwidget = new QWidget;
-    centralwidget->setMinimumWidth(1230);
+    centralwidget->setMinimumWidth(800);
+    centralwidget->setMinimumHeight(400);
     setCentralWidget(centralwidget);
-
+    this->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     this->setWindowTitle(MainWindowTitle);
     setWindowIcon(QIcon(":/res/icons/logo.ico"));
 
@@ -241,6 +241,7 @@ void MainWindow::initDownloadToolBar()
     action_halt_resume->setIcon(QIcon(":/res/imgs/halt.png"));
     action_halt_resume->setText("继续");
     action_halt_resume->setCheckable(true);
+    action_halt_resume->setDisabled(true);
     downloadToolBar->addAction(action_halt_resume);
     QObject::connect(action_halt_resume, &QAction::triggered, this, &MainWindow::action_halt_resume_clicked);
 
@@ -248,6 +249,7 @@ void MainWindow::initDownloadToolBar()
     action_download = new QAction();
     action_download->setText("下载");
     action_download->setIcon(QIcon(":/res/imgs/download.png"));
+    action_download->setDisabled(true);
     downloadToolBar->addAction(action_download);
     QObject::connect(action_download, &QAction::triggered, this, &MainWindow::action_download_clicked);
 }
@@ -580,6 +582,8 @@ void MainWindow::initLogWindow()
     logWindow->setStyleSheet(QString("background-color: rgb(51, 51, 51); ") +
                              QString("color:rgb(231, 231, 231); ") +
                              QString("border-radius:4px;"));
+
+    metaEnum = QMetaEnum::fromType<QAbstractSocket::SocketError>();
 }
 
 void MainWindow::hideDesignerToolBars()
@@ -865,7 +869,7 @@ void MainWindow::showLogWindow()
 
 void MainWindow::switch_openOCD_state()
 {
-    if(openOCD_online)
+    if(!openOCD_online)
     {
         openOCD_state->setText("OpenOCD Offline");
         openOCD_state->setStyleSheet("QLabel { background-color : gray; color : darkgray; }");
@@ -1152,6 +1156,10 @@ void MainWindow::serialBuf2Plot()
     serialBuf.clear();
 }
 
+void MainWindow::telnetError(QAbstractSocket::SocketError error)
+{
+    logWindow->append(QString("telnet>") + metaEnum.valueToKey(error));
+}
 
 bool MainWindow::isSerialPortOnline()
 {
@@ -1163,8 +1171,29 @@ void MainWindow::showStatusBarMessage(const QString msg)
     statusBar->showMessage(msg);
 }
 
+void MainWindow::update_telnet_functions()
+{
+    if(action_download->isEnabled())
+    {
+        action_halt_resume->setDisabled(true);
+        action_download->setDisabled(true);
+    }
+    else if(openOCD_online)
+    {
+        action_halt_resume->setEnabled(true);
+        action_download->setEnabled(true);
+    }
+
+}
+
 void MainWindow::action_connect_clicked()
 {
+    if(telnet == nullptr)
+    {
+        telnet = new QTelnet(this);
+        QObject::connect(telnet, &QTelnet::sockConnected, this, &MainWindow::connectEstablished);
+        QObject::connect(telnet, &QTelnet::connectionError, this, &MainWindow::telnetError);
+    }
     action_connect->setChecked(false);
     if(openOCD_online && process_connect != nullptr)
     {
@@ -1173,6 +1202,7 @@ void MainWindow::action_connect_clicked()
         action_connect->setChecked(false);
         openOCD_online = false;
         switch_openOCD_state();
+        update_telnet_functions();
         return;
     }
     delete process_connect;
@@ -1188,6 +1218,9 @@ void MainWindow::action_connect_clicked()
         if(state == QProcess::NotRunning)
         {
             logWindow->append("设备连接失败!");
+            openOCD_online = false;
+            switch_openOCD_state();
+            update_telnet_functions();
         }
         else if(state == QProcess::Running)
         {
@@ -1197,15 +1230,8 @@ void MainWindow::action_connect_clicked()
             openOCD_online = true;
             switch_openOCD_state();
 
-
             // establish telnet connection to OpenOCD
-            delete telnet;
-            telnet = new QTelnet(this);
-
-            MyThread* thread_telnet = new MyThread();
-            thread_telnet->setMainW(this);
-            thread_telnet->setTelnet(telnet);
-            thread_telnet->start();
+            telnet->connectToHost("127.0.0.1", 4444);
         }
     }
 
@@ -1215,7 +1241,6 @@ void MainWindow::action_connect_clicked()
 void MainWindow::action_download_clicked()
 {
     telnet->sendData("load_image C:/Users/Albre/Desktop/R-IDE/example/SigDesign/main.bin 0x0 bin 0x0 0x1000000\r\n");
-
 }
 
 QString MainWindow::readProcessOutput(QProcess* process)
@@ -1259,5 +1284,7 @@ void MainWindow::connectEstablished()
 {
     qDebug() << "OpenOCD and telnet connected!";
     action_connect->setChecked(true);
+    logWindow->append(QString("telnet>Connect established."));
+    update_telnet_functions();
 }
 

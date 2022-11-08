@@ -16,7 +16,7 @@ class DesignerPage;
 class DiagramScene;
 class DiagramItem;
 class DiagramView;
-
+class MyThread;
 
 extern QString prefix;
 
