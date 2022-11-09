@@ -1,5 +1,7 @@
 #include "mainwindow.h"
 
+
+
 QString MainWindow::projectDir = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
 
 
@@ -182,7 +184,7 @@ void MainWindow::initStatusBar()
 void MainWindow::executeCmd(QString command)
 {
     qProcess->start("cmd.exe", QStringList() << "/C" << command);
-    qProcess->waitForFinished();
+//    qProcess->waitForFinished();
 }
 
 void MainWindow::CmdExit(int exitCode)
@@ -191,15 +193,18 @@ void MainWindow::CmdExit(int exitCode)
     if (exitCode == QProcess::NormalExit)
     {
         QByteArray qba = qProcess->readAllStandardOutput();
-
         QTextCodec* pText = QTextCodec::codecForName("System");
         str = pText->toUnicode(qba);
-        logWindow->setPlainText(str);
     }
-    else
-    {
-        logWindow->setPlainText(str);
-    }
+    logWindow->append(str);
+}
+
+void MainWindow::openOcdConnectedOutput()
+{
+    QByteArray qba = process_connect->readAllStandardOutput();
+    QTextCodec* pText = QTextCodec::codecForName("System");
+    QString str = pText->toUnicode(qba);
+    logWindow->append(str);
 }
 
 void MainWindow::initBuildToolBar()
@@ -375,6 +380,7 @@ void MainWindow::action_convert_triggerred()
 {
     qDebug() << "action convert triggerred";
     // executeCmd(getProjectDirSysDiskPartitionSymbol() + " && cd " + MainWindow::projectDir + " && make convert");
+    // ToDo
     logWindow->append("设计合法，开始生成...");
     QThread::msleep(500);
     logWindow->append("生成成功！");
@@ -576,7 +582,6 @@ void MainWindow::createDesignerToolbars()
 void MainWindow::initLogWindow()
 {
     logWindow = new QTextBrowser();
-    // logWindow->setMinimumHeight(200);
     logWindow->setStyleSheet(QString("background-color: rgb(51, 51, 51); ") +
                              QString("color:rgb(231, 231, 231); ") +
                              QString("border-radius:4px;"));
@@ -1191,11 +1196,13 @@ void MainWindow::action_connect_clicked()
         telnet = new QTelnet(this);
         QObject::connect(telnet, &QTelnet::sockConnected, this, &MainWindow::connectEstablished);
         QObject::connect(telnet, &QTelnet::connectionError, this, &MainWindow::telnetError);
+        QObject::connect(telnet, &QTelnet::message, this, &MainWindow::message2logWindow);
     }
     action_connect->setChecked(false);
     if(openOCD_online && process_connect != nullptr)
     {
         process_connect->close();
+        telnet->disconnectTelnet();
         logWindow->append("OpenOCD已离线!");
         action_connect->setChecked(false);
         openOCD_online = false;
@@ -1205,6 +1212,7 @@ void MainWindow::action_connect_clicked()
     }
     delete process_connect;
     process_connect = new QProcess();
+    QObject::connect(process_connect, &QProcess::readyReadStandardOutput, this, &MainWindow::openOcdConnectedOutput);
     QString command = "C:\\Users\\Albre\\Desktop\\R-IDE\\openocd\\openocd.exe";
     QStringList args;
     args << "-f";
@@ -1235,10 +1243,9 @@ void MainWindow::action_connect_clicked()
 
 }
 
-
 void MainWindow::action_download_clicked()
 {
-    telnet->sendData("load_image C:/Users/Albre/Desktop/R-IDE/example/SigDesign/main.bin 0x0 bin 0x0 0x1000000\r\n");
+    telnet->sendData("load_image C:/Users/Albre/Desktop/R-IDE/example/SigDesign/main.bin 0x0 bin 0x0 0x1000000 \r\n");
 }
 
 QString MainWindow::readProcessOutput(QProcess* process)
@@ -1282,7 +1289,46 @@ void MainWindow::connectEstablished()
 {
     qDebug() << "OpenOCD and telnet connected!";
     action_connect->setChecked(true);
-    logWindow->append(QString("telnet>Connect established."));
+    logWindow->append(QString("telnet>Connect established.\n"));
     update_telnet_functions();
 }
 
+QString MainWindow::strFilter(const QString& str)
+{
+    // filter redundant symbol from OpenOCD
+    QString _str = QString(str);
+
+    QRegularExpression ascii_eignt = QRegularExpression("[\010]+");
+    if(_str.contains('\010'))
+    {
+        _str.replace(ascii_eignt, "");
+    }
+    if(_str.contains('\r'))
+    {
+        _str.replace('\r', "");
+    }
+    if(_str.contains('>'))
+    {
+        _str.replace('>', "");
+    }
+
+    // if str is all space or empty
+    QString _temp_str = _str;
+    _temp_str = _temp_str.simplified();
+    if(_temp_str == "")
+    {
+        return QString("");
+    }
+    return _str;
+}
+
+void MainWindow::message2logWindow(const QString& msg)
+{
+    QString str = strFilter(msg);
+    qDebug() << str;
+    if(str == "")
+    {
+        return;
+    }
+    logWindow->insertPlainText(str);
+}

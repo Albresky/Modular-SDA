@@ -21,6 +21,7 @@
 #include <QStandardPaths>
 #include <QDebug>
 #include <QSignalMapper>
+#include <QRegularExpression>
 #include <QFontComboBox>
 #include <QButtonGroup>
 #include <QIcon>
@@ -111,6 +112,8 @@ private slots:
     void serialBuf2Plot();
     void telnetError(QAbstractSocket::SocketError error);
     void connectEstablished();
+    void openOcdConnectedOutput();
+    void message2logWindow(const QString& msg);
 
 public slots:
 
@@ -251,6 +254,7 @@ private:
     void update_telnet_functions();
     void executeCmd(QString command);
     void CmdExit(int exitCode);
+    QString strFilter(const QString& str);
     QString getProjectDirSysDiskPartitionSymbol();
     QIcon createColorToolButtonIcon(const QString& image, QColor color);
     QIcon createColorIcon(QColor color);

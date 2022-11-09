@@ -30,6 +30,7 @@ SOURCES += \
     custom/DataItem.cpp \
     custom/commonHeaders.cpp \
     custom/globalVar.cpp \
+    custom/mythread.cpp \
     custom/sidebar.cpp \
     lib/XCustomPlot.cpp \
     lib/XTracer.cpp \
@@ -57,6 +58,7 @@ HEADERS += \
     custom/DataItem.h \
     custom/commonHeaders.h \
     custom/globalVar.h \
+    custom/mythread.h \
     custom/sidebar.h \
     lib/XCustomPlot.h \
     lib/XTracer.h \
