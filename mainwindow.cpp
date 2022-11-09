@@ -1,6 +1,4 @@
 #include "mainwindow.h"
-#include "ui_mainwindow.h"
-
 
 QString MainWindow::projectDir = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
 

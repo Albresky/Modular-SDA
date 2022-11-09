@@ -11,6 +11,7 @@ CodeEditor::CodeEditor(QWidget* parent) : QPlainTextEdit(parent)
 
     updateLineNumberAreaWidth(0);
     setMode(BROWSE);
+    setFont(QFont("Consolas"));
 
     // replace tab with 4 spaces
     setTabStopDistance(fontMetrics().horizontalAdvance(QLatin1Char(' ')) * 4.0);
