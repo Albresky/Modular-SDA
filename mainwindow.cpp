@@ -1,5 +1,7 @@
 #include "mainwindow.h"
 
+#include <Dialog/configwindow.h>
+
 
 
 QString MainWindow::projectDir = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
@@ -291,8 +293,7 @@ void MainWindow::initMenubar()
     aboutMenu = menubar->addMenu(tr("帮助"));
 
     /* Initialize FileMenu in Level-2 */
-    action_open_project_dir = new QAction(fileMenu);
-    action_open_project_dir->setText("打开文件或项目路径");
+    action_open_project_dir = new QAction(tr("打开文件或项目路径"), fileMenu);
     fileMenu->addAction(action_open_project_dir);
     QObject::connect(action_open_project_dir, &QAction::triggered, this, &MainWindow::action_open_file_project_dir_triggered);
 
@@ -308,6 +309,10 @@ void MainWindow::initMenubar()
     editMenu->addSeparator();
 
     /* Initialize ToolMenu in Level-2 */
+    action_config = new QAction(tr("配置"), toolMenu);
+    toolMenu->addAction(action_config);
+    QObject::connect(action_config, &QAction::triggered, this, &MainWindow::action_config_triggered);
+
 
     /* Initialize itemMenu in Designer right click */
     itemMenu = new QMenu(tr("模块"), editMenu);
@@ -320,8 +325,6 @@ void MainWindow::initMenubar()
     aboutAction->setStatusTip(tr("关于Rsic-V IDE"));
     aboutMenu->addAction(aboutAction);
     QObject::connect(aboutAction, &QAction::triggered, this, &MainWindow::action_about_triggered);
-
-
 }
 
 void MainWindow::initActions()
@@ -737,8 +740,14 @@ void MainWindow::lineButtonTriggered()
 
 void MainWindow::action_about_triggered()
 {
-    About* about_window = new About();
+    AboutWindow* about_window = new AboutWindow();
     about_window->show();
+}
+
+void MainWindow::action_config_triggered()
+{
+    ConfigWindow* config_window = new ConfigWindow();
+    config_window->show();
 }
 
 void MainWindow::bringToFront()

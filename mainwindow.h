@@ -46,7 +46,7 @@
 #include "Diagram/diagramview.h"
 #include "Diagram/diagramscene.h"
 #include "Diagram/arrow.h"
-#include "Dialog/about.h"
+#include "Dialog/aboutwindow.h"
 
 class MainWindow : public QMainWindow
 {
@@ -82,6 +82,7 @@ private slots:
     void action_download_clicked();
     void action_open_file_project_dir_triggered();
     void action_about_triggered();
+    void action_config_triggered();
     void currentFontChanged(const QFont& font);
     void fontSizeChanged(const QString&);
     void handleFontChange();
@@ -186,9 +187,11 @@ private:
     QMenu* action_encoding; // submenu of editMenu
     QMenu* itemMenu; // submenu of editMenu
     QMenu* toolMenu;
+    QAction* action_config; //submenu of toolMenu
     QMenu* aboutMenu;
     QAction* action_open_project_dir;
     QAction* action_exit;
+
 
 
     QToolBar* buildToolBar;

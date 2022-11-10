@@ -1,7 +1,7 @@
-#include "about.h"
+#include "aboutwindow.h"
 
 
-About::About(QWidget* parent)
+AboutWindow::AboutWindow(QWidget* parent)
     : QWidget{parent}
 {
 
@@ -10,7 +10,7 @@ About::About(QWidget* parent)
     setWindowFlags(windowFlags() & ~Qt::WindowMinMaxButtonsHint);
 
     setWindowIcon(QIcon(":/res/icons/logo.ico"));
-    setWindowTitle("关于 RiscV-IDE");
+    setWindowTitle(tr("关于 RiscV-IDE"));
     setFixedSize(350, 200);
 
     QHBoxLayout* layout = new QHBoxLayout;
@@ -56,8 +56,8 @@ About::About(QWidget* parent)
     authorLayout->addWidget(githubTxt, 1, 0);
     authorLayout->addWidget(githubLink, 1, 1);
 
-    QObject::connect(authorLink, &QLabel::linkActivated, this, &About::blog_linkActivated);
-    QObject::connect(githubLink, &QLabel::linkActivated, this, &About::github_linkActivated);
+    QObject::connect(authorLink, &QLabel::linkActivated, this, &AboutWindow::blog_linkActivated);
+    QObject::connect(githubLink, &QLabel::linkActivated, this, &AboutWindow::github_linkActivated);
     Author->setLayout(authorLayout);
 
     QVBoxLayout* infoLayout = new QVBoxLayout;
@@ -73,14 +73,14 @@ About::About(QWidget* parent)
     this->setLayout(layout);
 }
 
-void About::blog_linkActivated()
+void AboutWindow::blog_linkActivated()
 {
     QDesktopServices::openUrl(QUrl(QLatin1String("https://cosyspark.space")));
     qDebug() << "blog hyperLink triggered";
 }
 
 
-void About::github_linkActivated()
+void AboutWindow::github_linkActivated()
 {
     QDesktopServices::openUrl(QUrl(QLatin1String("https://github.com/Albresky")));
     qDebug() << "github hyperLink triggered";

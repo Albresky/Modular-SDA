@@ -1,5 +1,5 @@
-#ifndef ABOUT_H
-#define ABOUT_H
+#ifndef ABOUTWINDOW_H
+#define ABOUTWINDOW_H
 
 #include <QLabel>
 #include <QWidget>
@@ -7,11 +7,11 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
-class About : public QWidget
+class AboutWindow : public QWidget
 {
     Q_OBJECT
 public:
-    explicit About(QWidget* parent = nullptr);
+    explicit AboutWindow(QWidget* parent = nullptr);
 
 private slots:
     void blog_linkActivated();
@@ -22,4 +22,4 @@ private:
     QLabel* githubLink;
 };
 
-#endif // ABOUT_H
+#endif // ABOUTWINDOW_H

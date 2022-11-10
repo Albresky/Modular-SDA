@@ -21,7 +21,8 @@ SOURCES += \
     Diagram/diagramscene.cpp \
     Diagram/diagramtextitem.cpp \
     Diagram/diagramview.cpp \
-    Dialog/about.cpp \
+    Dialog/aboutwindow.cpp \
+    Dialog/configwindow.cpp \
     FileOperator/FileOperator.cpp \
     Pages/analyzerpage.cpp \
     Pages/codepage.cpp \
@@ -49,7 +50,8 @@ HEADERS += \
     Diagram/diagramscene.h \
     Diagram/diagramtextitem.h \
     Diagram/diagramview.h \
-    Dialog/about.h \
+    Dialog/aboutwindow.h \
+    Dialog/configwindow.h \
     FileOperator/FileOperator.h \
     Pages/analyzerpage.h \
     Pages/codepage.h \
