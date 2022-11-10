@@ -252,6 +252,7 @@ private:
     void switch_openOCD_state();
     void update_action_com_state(QString portName);
     void update_telnet_functions();
+    void updateLogWindowCursor();
     void executeCmd(QString command);
     void CmdExit(int exitCode);
     QString strFilter(const QString& str);

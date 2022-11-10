@@ -83,5 +83,5 @@ void About::blog_linkActivated()
 void About::github_linkActivated()
 {
     QDesktopServices::openUrl(QUrl(QLatin1String("https://github.com/Albresky")));
-    qDebug() << "blog hyperLink triggered";
+    qDebug() << "github hyperLink triggered";
 }

@@ -197,6 +197,7 @@ void MainWindow::CmdExit(int exitCode)
         str = pText->toUnicode(qba);
     }
     logWindow->append(str);
+    updateLogWindowCursor();
 }
 
 void MainWindow::openOcdConnectedOutput()
@@ -205,6 +206,7 @@ void MainWindow::openOcdConnectedOutput()
     QTextCodec* pText = QTextCodec::codecForName("System");
     QString str = pText->toUnicode(qba);
     logWindow->append(str);
+    updateLogWindowCursor();
 }
 
 void MainWindow::initBuildToolBar()
@@ -384,6 +386,7 @@ void MainWindow::action_convert_triggerred()
     logWindow->append("设计合法，开始生成...");
     QThread::msleep(500);
     logWindow->append("生成成功！");
+    updateLogWindowCursor();
 }
 
 QString MainWindow::getProjectDirSysDiskPartitionSymbol()
@@ -585,7 +588,6 @@ void MainWindow::initLogWindow()
     logWindow->setStyleSheet(QString("background-color: rgb(51, 51, 51); ") +
                              QString("color:rgb(231, 231, 231); ") +
                              QString("border-radius:4px;"));
-
     metaEnum = QMetaEnum::fromType<QAbstractSocket::SocketError>();
 }
 
@@ -1331,4 +1333,10 @@ void MainWindow::message2logWindow(const QString& msg)
         return;
     }
     logWindow->insertPlainText(str);
+    updateLogWindowCursor();
+}
+
+void MainWindow::updateLogWindowCursor()
+{
+    logWindow->moveCursor(logWindow->textCursor().End);
 }
