@@ -16,11 +16,11 @@ void XCustomPlot::mouseMoveEvent(QMouseEvent* event)
 
     if(m_isShowTracer)
     {
-        //当前鼠标位置（像素坐标）
+        // current mouse coordinate (pixel-wize)
         int x_pos = event->pos().x();
         int y_pos = event->pos().y();
 
-        //像素坐标转成实际的x,y轴的坐标
+        // convert pixel-wize coordinate to real axises
         double x_val = this->xAxis->pixelToCoord(x_pos);
         double y_val = this->yAxis->pixelToCoord(y_pos);
 
@@ -76,10 +76,10 @@ void XCustomPlot::mouseMoveEvent(QMouseEvent* event)
 
         if(Q_NULLPTR == m_lineTracer)
         {
-            m_lineTracer = new XTraceLine(this, XTraceLine::Both);    //直线
+            m_lineTracer = new XTraceLine(this, XTraceLine::Both);  // straight line
         }
         m_lineTracer->updatePosition(x_val, y_val);
 
-        this->replot();//曲线重绘
+        this->replot();
     }
 }

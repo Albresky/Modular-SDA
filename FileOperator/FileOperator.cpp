@@ -70,44 +70,44 @@ bool copyPic(QString resFile, const QString& targetDir, QString num)
     return false;
 }
 
-//bool storeIni(const QStringList &fileNameList,QString& targetDir)
-//{
-//    QString IniName = "picname.ini";
-//    QFile file(IniName);
-//    if(!isFile(IniName)&&file.open(QIODevice::ReadWrite|QIODevice::Text))
-//    {
-//       qDebug()<<"picname do not exists! Cteate new file Success!";
-//    }
-//    QStringList existNames;
-//    QTextStream _ini(&file);
-//    while(!_ini.atEnd())
-//    {
-//        QString str=_ini.readLine();
-//        qDebug()<<str;
-//        existNames.append(str);
-//    }
-//    file.close();
-//    file.open(QIODevice::ReadWrite|QIODevice::Append|QIODevice::Text);
-//    for(int i=0;i<fileNameList.size();++i)
-//    {
-//        QString s=fileNameList[i];
-//        if(existNames.indexOf(s)==-1)
-//        {
-//            _ini<<s<<"\r\n";
-//            qDebug()<<"storeIni()|prefix=>"<<prefix;
-//            if(!copyPic(prefix+"\\"+s,targetDir,QString::number(i)))
-//            {
-//                qDebug()<<"filename => "<<s<<"store fail!";
-//                file.close();
-//                return false;
-//            }
-//            qDebug()<<"filename => "<<s<<"store Success!";
-//        }
-//    }
-//    qDebug()<<"filename ALL store Success!";
-//    file.close();
-//    return true;
-//}
+bool storeIni(const QStringList& fileNameList, QString& targetDir)
+{
+    QString IniName = "config.ini";
+    QFile file(IniName);
+    if(!isFile(IniName) && file.open(QIODevice::ReadWrite | QIODevice::Text))
+    {
+        qDebug() << "config.ini does not exist! Create new file Success!";
+    }
+    QStringList existNames;
+    QTextStream _ini(&file);
+    while(!_ini.atEnd())
+    {
+        QString str = _ini.readLine();
+        qDebug() << str;
+        existNames.append(str);
+    }
+    file.close();
+    file.open(QIODevice::ReadWrite | QIODevice::Append | QIODevice::Text);
+    for(int i = 0; i < fileNameList.size(); ++i)
+    {
+        QString s = fileNameList[i];
+        if(existNames.indexOf(s) == -1)
+        {
+            _ini << s << "\r\n";
+            qDebug() << "storeIni()|prefix=>" << prefix;
+            if(!copyPic(prefix + "\\" + s, targetDir, QString::number(i)))
+            {
+                qDebug() << "filename => " << s << "store fail!";
+                file.close();
+                return false;
+            }
+            qDebug() << "filename => " << s << "store Success!";
+        }
+    }
+    qDebug() << "filename ALL store Success!";
+    file.close();
+    return true;
+}
 
 
 bool createFile(const QString& fileName)

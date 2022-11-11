@@ -25,18 +25,10 @@ void ConfigWindow::init()
     // tab for Make
     make_widget = new QWidget();
 
-    make_groupbox = new QGroupBox(tr("Make工具路径"));
+    make_groupbox = new QGroupBox(tr("Make工具"));
     make_path_edit = new QLineEdit();
-    QString make_path = getDirFromPATH("MinGW");
-    if(make_path.isEmpty())
-    {
-        make_path_edit->setPlaceholderText("make.exe所在路径");
-    }
-    else
-    {
-        make_path_edit->setText(make_path);
-    }
     make_path_button = new QToolButton();
+    make_path_edit->setPlaceholderText("make工具可执行文件路径");
     QObject::connect(make_path_button, &QToolButton::clicked, this, &ConfigWindow::setMakePath);
 
     QHBoxLayout* make_groupbox_layout = new QHBoxLayout;
@@ -52,19 +44,11 @@ void ConfigWindow::init()
     // tab for GCC toolchain
     toolchain_widget = new QWidget();
 
-    toolchain_groupbox = new QGroupBox(tr("GCC工具链路径"));
+    toolchain_groupbox = new QGroupBox(tr("GCC工具链"));
     toolchain_path_edit = new QLineEdit();
-    QString toolchain_path = getDirFromPATH("riscv");
-    if(toolchain_path.isEmpty())
-    {
-        toolchain_path_edit->setPlaceholderText("riscv-gcc工具链所在路径");
-    }
-    else
-    {
-        toolchain_path_edit->setText(make_path);
-    }
     toolchain_path_button = new QToolButton();
-    QObject::connect(toolchain_path_button, &QToolButton::clicked, this, &ConfigWindow::setToolChainPath);
+    toolchain_path_edit->setPlaceholderText("GCC工具链可执行文件路径");
+    QObject::connect(toolchain_path_button, &QToolButton::clicked, this, &ConfigWindow::setToolChainDir);
 
     QHBoxLayout* toolchain_groupbox_layout = new QHBoxLayout;
     toolchain_groupbox_layout->addWidget(toolchain_path_edit);
@@ -79,30 +63,22 @@ void ConfigWindow::init()
     // tab for OpenOCD
     openOCD_widget = new QWidget();
 
-    openOCD_path_groupbox = new QGroupBox(tr("OpenOCD路径"));
+    openOCD_path_groupbox = new QGroupBox(tr("OpenOCD调试器"));
     openOCD_path_edit = new QLineEdit();
     openOCD_path_button = new QToolButton();
-    QObject::connect(toolchain_path_button, &QToolButton::clicked, this, &ConfigWindow::setOpenOCDPath);
-
-    QString openOCD_path = getDirFromPATH("openocd");
-    if(openOCD_path.isEmpty())
-    {
-        openOCD_path_edit->setText("openocd/openocd.exe");
-    }
-    else
-    {
-        openOCD_path_edit->setText(make_path + "/openocd.exe");
-    }
+    openOCD_path_edit->setPlaceholderText("OpenOCD可执行文件路径");
+    QObject::connect(openOCD_path_button, &QToolButton::clicked, this, &ConfigWindow::setOpenOCDPath);
 
     QHBoxLayout* openOCD_path_layout = new QHBoxLayout;
     openOCD_path_layout->addWidget(openOCD_path_edit);
     openOCD_path_layout->addWidget(openOCD_path_button);
     openOCD_path_groupbox->setLayout(openOCD_path_layout);
 
-    openOCD_config_groupbox = new QGroupBox("OpenOCD配置文件");
+    openOCD_config_groupbox = new QGroupBox("OpenOCD调试器配置");
     openOCD_config_edit = new QLineEdit();
     openOCD_config_button = new QToolButton();
-    QObject::connect(openOCD_path_button, &QToolButton::clicked, this, &ConfigWindow::setOpenOCDConfigPath);
+    openOCD_config_edit->setPlaceholderText("OpenOCD配置文件路径");
+    QObject::connect(openOCD_config_button, &QToolButton::clicked, this, &ConfigWindow::setOpenOCDConfigPath);
 
     QHBoxLayout* openOCD_config_layout = new QHBoxLayout;
     openOCD_config_layout->addWidget(openOCD_config_edit);
@@ -117,11 +93,42 @@ void ConfigWindow::init()
     tabWidget->addTab(openOCD_widget, tr("OpenOCD"));
 
     dialogBtnBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal);
+    btn_ok = dialogBtnBox->button(QDialogButtonBox::Ok);
+    btn_cancel = dialogBtnBox->button(QDialogButtonBox::Cancel);
+    btn_ok->setText(tr("确定"));
+    btn_cancel->setText(tr("取消"));
+    QObject::connect(btn_ok, &QPushButton::clicked, this, &ConfigWindow::btn_ok_clicked);
+    QObject::connect(btn_cancel, &QPushButton::clicked, this, &ConfigWindow::btn_cancel_clicked);
 
     QVBoxLayout* layout = new QVBoxLayout;
     layout->addWidget(tabWidget);
     layout->addWidget(dialogBtnBox);
     this->setLayout(layout);
+
+    // load config file
+    configINI = new Config("config.ini");
+    configs["nodename"] = "Settings";
+    configs["make"] = configINI->Get("Settings", "make").toString();
+    configs["Toolchain"] = configINI->Get("Settings", "Toolchain").toString();
+    configs["OpenOcdExecutable"] = configINI->Get("Settings", "OpenOcdExecutable").toString();
+    configs["OpenOcdConfig"] = configINI->Get("Settings", "OpenOcdConfig").toString();
+
+    if(configs["make"] != "")
+    {
+        make_path_edit->setText(configs["make"]);
+    }
+    if(configs["Toolchain"] != "")
+    {
+        toolchain_path_edit->setText(configs["Toolchain"]);
+    }
+    if(configs["OpenOcdExecutable"] != "")
+    {
+        openOCD_path_edit->setText(configs["OpenOcdExecutable"]);
+    }
+    if(configs["OpenOcdConfig"] != "")
+    {
+        openOCD_config_edit->setText(configs["OpenOcdConfig"]);
+    }
 }
 
 
@@ -142,26 +149,71 @@ QString ConfigWindow::getDirFromPATH(QString type)
 
 void ConfigWindow::setMakePath()
 {
-    make_path_edit->setText(openExplorer());
+    QString dir = openExplorerForFile("make工具可执行文件");
+    if(!dir.isEmpty())
+    {
+        make_path_edit->setText(dir);
+    }
+
 }
 
-void ConfigWindow::setToolChainPath()
+void ConfigWindow::setToolChainDir()
 {
-    toolchain_path_edit->setText(openExplorer());
+    QString dir = openExplorerForDir();
+    if(!dir.isEmpty())
+    {
+        toolchain_path_edit->setText(dir);
+    }
 }
 
 void ConfigWindow::setOpenOCDPath()
 {
-    openOCD_path_edit->setText(openExplorer());
+    QString path = openExplorerForFile("OpenOCD调试器可执行文件");
+    if(!path.isEmpty())
+    {
+        openOCD_path_edit->setText(path);
+    }
 }
 
 void ConfigWindow::setOpenOCDConfigPath()
 {
-    openOCD_config_edit->setText(openExplorer());
+    QString path = openExplorerForFile("OpenOCD调试器配置文件");
+    if(!path.isEmpty())
+    {
+        openOCD_config_edit->setText(path);
+    }
 }
 
-QString ConfigWindow::openExplorer()
+QString ConfigWindow::openExplorerForDir()
 {
     QString dir = QFileDialog::getExistingDirectory(nullptr, tr("选择文件夹"),  QDir::currentPath());
     return dir;
+}
+
+QString ConfigWindow::openExplorerForFile(QString type)
+{
+    QString path = QFileDialog::getOpenFileName(nullptr, type);
+    return path;
+}
+
+void ConfigWindow::saveChanges()
+{
+    // ["nodename"] has been initialized in Constructor
+    configs["make"] = make_path_edit->text();
+    configs["Toolchain"] = make_path_edit->text();
+    configs["OpenOcdExecutable"] = openOCD_path_edit->text();
+    configs["OpenOcdConfig"] = openOCD_config_edit->text();
+    configINI->loadConfig(configs);
+}
+
+void ConfigWindow::btn_ok_clicked()
+{
+    saveChanges();
+    emit changesSaved();
+    this->close();
+}
+
+void ConfigWindow::btn_cancel_clicked()
+{
+    this->close();
 }

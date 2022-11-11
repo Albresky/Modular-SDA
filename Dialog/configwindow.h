@@ -11,6 +11,10 @@
 #include <QHBoxLayout>
 #include <QToolButton>
 #include <QDialogButtonBox>
+#include <QPushButton>
+
+#include "custom/config.h"
+
 
 class ConfigWindow : public QWidget
 {
@@ -19,24 +23,32 @@ public:
     explicit ConfigWindow(QWidget* parent = nullptr);
 
 signals:
+    void changesSaved();
 
 private slots:
 
     void setMakePath();
-    void setToolChainPath();
+    void setToolChainDir();
     void setOpenOCDPath();
     void setOpenOCDConfigPath();
-
+    void saveChanges();
+    void btn_ok_clicked();
+    void btn_cancel_clicked();
 private:
 
     void init();
     QString getDirFromPATH(QString type);
-    QString openExplorer();
+    QString openExplorerForFile(QString type);
+    QString openExplorerForDir();
+    QPushButton* btn_ok;
+    QPushButton* btn_cancel;
 
     QTabWidget* tabWidget;
     QWidget* make_widget;
     QWidget* toolchain_widget;
     QWidget* openOCD_widget;
+    Config* configINI;
+    QMap<QString, QString> configs;
 
     QGroupBox* make_groupbox;
     QGroupBox* toolchain_groupbox;

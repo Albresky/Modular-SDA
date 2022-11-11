@@ -21,7 +21,7 @@ CodePage::~CodePage()
 void CodePage::initElements()
 {
 
-    //自定义比例
+    // customized ratio
 //    QSplitter *spliter = new QSplitter(Qt::Horizontal,this);
 //    spliter->addWidget(ui->file_sys_treeview);
 //    spliter->addWidget(ui->tabWidget);

@@ -27,6 +27,7 @@ MainWindow::MainWindow(QWidget* parent)
 
     qDebug() << "Desktop=>" << QStandardPaths::writableLocation(QStandardPaths::DesktopLocation) << "\n"
              << projectDir;
+    loadConfig();
 }
 
 void MainWindow::initLayout()
@@ -372,7 +373,8 @@ void MainWindow::initQProcess()
 void MainWindow::action_build_clicked()
 {
     qDebug() << "action BUILD clicked";
-    executeCmd(getProjectDirSysDiskPartitionSymbol() + " && cd " + MainWindow::projectDir + " && make");
+    executeCmd(QString("%1,%2,%3,%4,%5").arg(getProjectDirSysDiskPartitionSymbol(), " && cd ", MainWindow::projectDir, " && ", configs["make"]));
+//    executeCmd(getProjectDirSysDiskPartitionSymbol() + " && cd " + MainWindow::projectDir + " && make");
 }
 
 void MainWindow::action_make_clean_clicked()
@@ -747,6 +749,7 @@ void MainWindow::action_about_triggered()
 void MainWindow::action_config_triggered()
 {
     ConfigWindow* config_window = new ConfigWindow();
+    QObject::connect(config_window, &ConfigWindow::changesSaved, this, &MainWindow::loadConfig);
     config_window->show();
 }
 
@@ -1309,10 +1312,10 @@ QString MainWindow::strFilter(const QString& str)
     // filter redundant symbol from OpenOCD
     QString _str = QString(str);
 
-    QRegularExpression ascii_eignt = QRegularExpression("[\010]+");
+    const QRegularExpression ascii_eight = QRegularExpression("[\010]+");
     if(_str.contains('\010'))
     {
-        _str.replace(ascii_eignt, "");
+        _str.replace(ascii_eight, "");
     }
     if(_str.contains('\r'))
     {
@@ -1348,4 +1351,66 @@ void MainWindow::message2logWindow(const QString& msg)
 void MainWindow::updateLogWindowCursor()
 {
     logWindow->moveCursor(logWindow->textCursor().End);
+}
+
+
+void MainWindow::loadConfig()
+{
+    if(configINI != nullptr)
+    {
+        delete configINI;
+    }
+    configINI = new Config("config.ini");
+    
+    configs["make"]=configINI->Get("Settings","make").toString();
+    configs["Toolchain"]=configINI->Get("Settings","Toolchain").toString();
+    configs["OpenOcdExecutable"]=configINI->Get("Settings","OpenOcdExecutable").toString();
+    configs["OpenOcdConfig"]=configINI->Get("Settings","OpenOcdConfig").toString();
+
+    qDebug() << "make path: " << configs["make"];
+    qDebug() << "toolchain path: " <<  configs["Toolchain"];
+    qDebug() << "openocd path: " << configs["OpenOcdExecutable"];
+    qDebug() << "openocd config: " << configs["OpenOcdConfig"];
+
+    bool buildable = true;
+    bool connectable = true;
+    if(configs["OpenOcdConfig"] == "")
+    {
+        logWindow->append("未配置make工具");
+        buildable = false;
+    }
+    if(configs["Toolchain"] == "")
+    {
+        logWindow->append("未配置GCC工具链");
+        buildable = false;
+    }
+    if(configs["OpenOcdExecutable"] == "")
+    {
+        logWindow->append("未配置OpenOCD可执行文件");
+        connectable = false;
+    }
+    if(configs["OpenOcdConfig"] == "")
+    {
+        logWindow->append("未加载OpenOCD配置文件");
+        connectable = false;
+    }
+
+    if(buildable)
+    {
+        action_build->setEnabled(true);
+        action_make_clean->setEnabled(true);
+    }
+    else
+    {
+        action_build->setDisabled(true);
+        action_make_clean->setDisabled(true);
+    }
+    if(connectable)
+    {
+        action_connect->setEnabled(true);
+    }
+    else
+    {
+        action_connect->setDisabled(true);
+    }
 }

@@ -6,9 +6,9 @@ XTracer::XTracer(QCustomPlot* _plot, TracerType _type, QObject* parent)
       m_plot(_plot)
 {
     m_visible = true;
-    m_tracer = Q_NULLPTR;// 跟踪的点
-    m_label = Q_NULLPTR;// 显示的数值
-    m_arrow = Q_NULLPTR;// 箭头
+    m_tracer = Q_NULLPTR;   // point of tracker
+    m_label = Q_NULLPTR;    // value of tracker
+    m_arrow = Q_NULLPTR;    // arrows of tracker
     if (m_plot)
     {
         QColor clrDefault(Qt::red);
@@ -52,7 +52,7 @@ XTracer::XTracer(QCustomPlot* _plot, TracerType _type, QObject* parent)
 
                     m_arrow->end->setParentAnchor(m_tracer->position);
                     m_arrow->start->setParentAnchor(m_arrow->end);
-                    m_arrow->start->setCoords(0, 20);//偏移量
+                    m_arrow->start->setCoords(0, 20);   // offset of the arraws in tracker
                     break;
                 }
             case YAxisTracer:
@@ -64,7 +64,7 @@ XTracer::XTracer(QCustomPlot* _plot, TracerType _type, QObject* parent)
 
                     m_arrow->end->setParentAnchor(m_tracer->position);
                     m_arrow->start->setParentAnchor(m_label->position);
-                    m_arrow->start->setCoords(-20, 0);//偏移量
+                    m_arrow->start->setCoords(-20, 0);
                     break;
                 }
             case DataTracer:
@@ -189,8 +189,8 @@ void XTracer::updatePosition(double xValue, double yValue)
             {
                 m_tracer->position->setCoords(0, yValue);
                 m_label->position->setCoords(-20, 0);
-//        m_arrow->start->setCoords(20, 0);
-//        m_arrow->end->setCoords(0, 0);
+//                m_arrow->start->setCoords(20, 0);
+//                m_arrow->end->setCoords(0, 0);
                 setText(QString::number(yValue));
                 break;
             }

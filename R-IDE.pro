@@ -6,14 +6,6 @@ CONFIG += c++17
 
 requires(qtConfig(combobox))
 
-#win32{
-#    LIBS += -lc
-#}
-
-
-# You can make your code fail to compile if it uses deprecated APIs.
-# In order to do so, uncomment the following line.
-#DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
     Diagram/arrow.cpp \
@@ -30,6 +22,7 @@ SOURCES += \
     Pages/projectpage.cpp \
     custom/DataItem.cpp \
     custom/commonHeaders.cpp \
+    custom/config.cpp \
     custom/globalVar.cpp \
     custom/mythread.cpp \
     custom/sidebar.cpp \
@@ -41,7 +34,6 @@ SOURCES += \
     mainwindow.cpp \
     syntax/CodeEditor.cpp \
     syntax/SyntaxHighlighter.cpp
-
 
 
 HEADERS += \
@@ -59,6 +51,7 @@ HEADERS += \
     Pages/projectpage.h \
     custom/DataItem.h \
     custom/commonHeaders.h \
+    custom/config.h \
     custom/globalVar.h \
     custom/mythread.h \
     custom/sidebar.h \
@@ -126,4 +119,3 @@ DISTFILES += \
     res/sidebar/tool_selected.png \
     res/sidebar/welcome.png \
     res/sidebar/welcome_selected.png
-

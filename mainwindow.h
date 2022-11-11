@@ -1,7 +1,6 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-
 #include <QtCore5Compat/QTextCodec>
 #include <QMainWindow>
 #include <QPlainTextEdit>
@@ -47,6 +46,7 @@
 #include "Diagram/diagramscene.h"
 #include "Diagram/arrow.h"
 #include "Dialog/aboutwindow.h"
+#include "custom/config.h"
 
 class MainWindow : public QMainWindow
 {
@@ -115,6 +115,7 @@ private slots:
     void connectEstablished();
     void openOcdConnectedOutput();
     void message2logWindow(const QString& msg);
+    void loadConfig();
 
 public slots:
 
@@ -231,6 +232,10 @@ private:
     QLabel* action_com_state;
     QLabel* openOCD_state;
     QStatusBar* statusBar;
+    Config* configINI = nullptr;
+
+    // Config Variables
+    QMap<QString, QString> configs;
 
     // function
 
