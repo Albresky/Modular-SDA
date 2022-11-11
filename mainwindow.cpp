@@ -373,14 +373,21 @@ void MainWindow::initQProcess()
 void MainWindow::action_build_clicked()
 {
     qDebug() << "action BUILD clicked";
-    executeCmd(QString("%1,%2,%3,%4,%5").arg(getProjectDirSysDiskPartitionSymbol(), " && cd ", MainWindow::projectDir, " && ", configs["make"]));
-//    executeCmd(getProjectDirSysDiskPartitionSymbol() + " && cd " + MainWindow::projectDir + " && make");
+    QString command = QString("%1 %2 %3 %4 %5").arg(getProjectDirSysDiskPartitionSymbol(), " && cd ", MainWindow::projectDir, " && ", configs["make"]);
+    executeCmd(command);
 }
 
 void MainWindow::action_make_clean_clicked()
 {
     qDebug() << "action make clean clicked";
-    executeCmd(getProjectDirSysDiskPartitionSymbol() + " && cd " + MainWindow::projectDir + " && make clean");
+    QString command = QString("%1 %2 %3 %4 %5 %6").
+                      arg(getProjectDirSysDiskPartitionSymbol(),
+                          " && cd ",
+                          MainWindow::projectDir,
+                          " && ",
+                          configs["make"],
+                          " clean");
+    executeCmd(command);
 }
 
 void MainWindow::action_convert_triggerred()
@@ -1361,11 +1368,11 @@ void MainWindow::loadConfig()
         delete configINI;
     }
     configINI = new Config("config.ini");
-    
-    configs["make"]=configINI->Get("Settings","make").toString();
-    configs["Toolchain"]=configINI->Get("Settings","Toolchain").toString();
-    configs["OpenOcdExecutable"]=configINI->Get("Settings","OpenOcdExecutable").toString();
-    configs["OpenOcdConfig"]=configINI->Get("Settings","OpenOcdConfig").toString();
+
+    configs["make"] = configINI->Get("Settings", "make").toString();
+    configs["Toolchain"] = configINI->Get("Settings", "Toolchain").toString();
+    configs["OpenOcdExecutable"] = configINI->Get("Settings", "OpenOcdExecutable").toString();
+    configs["OpenOcdConfig"] = configINI->Get("Settings", "OpenOcdConfig").toString();
 
     qDebug() << "make path: " << configs["make"];
     qDebug() << "toolchain path: " <<  configs["Toolchain"];

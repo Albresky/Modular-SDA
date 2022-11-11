@@ -13,10 +13,11 @@ AboutWindow::AboutWindow(QWidget* parent)
     setWindowTitle(tr("关于 RiscV-IDE"));
     setFixedSize(350, 200);
 
-    QHBoxLayout* layout = new QHBoxLayout;
+    QVBoxLayout* layout = new QVBoxLayout;
+    QHBoxLayout* top = new QHBoxLayout;
 
     QFrame* logo = new QFrame();
-    logo->setGeometry(QRect(10, 10, 72, 72));
+    logo->setGeometry(QRect(10, 10, 48, 48));
     logo->setStyleSheet("image: url(:/res/icons/logo.ico);");
 
     QLabel* head = new QLabel("Risc-V IDE");
@@ -28,10 +29,10 @@ AboutWindow::AboutWindow(QWidget* parent)
     QLabel* version = new QLabel("版本: 0.1.2");
     subHead->setFont(QFont("微软雅黑", 8));
 
-    QLabel* platform = new QLabel("Based on Qt 6.3.0(MSVC 2019, 64 bit)");
+    QLabel* platform = new QLabel("Based on Qt 6.3.0(MinGW, 64 bit)");
     subHead->setFont(QFont("微软雅黑", 8));
 
-    QLabel* buildDate = new QLabel("Built on Nov 7 2022 18:44");
+    QLabel* buildDate = new QLabel("Built on Nov 11 2022 18:44");
     subHead->setFont(QFont("微软雅黑", 8));
 
 
@@ -39,15 +40,15 @@ AboutWindow::AboutWindow(QWidget* parent)
     QGridLayout* authorLayout = new QGridLayout;
 
     QLabel* authorTxt = new QLabel("博客:");
-    authorTxt->setFixedWidth(40);
-    authorTxt->setAlignment(Qt::AlignLeft);
+    authorTxt->setFixedWidth(100);
+    authorTxt->setAlignment(Qt::AlignRight);
     authorTxt->setFont(QFont("微软雅黑", 8));
     authorLink = new QLabel("<a href='url'>https://cosyspark.space</a>");
 
 
     QLabel* githubTxt = new QLabel("Github:");
-    githubTxt->setFixedWidth(40);
-    githubTxt->setAlignment(Qt::AlignLeft);
+    githubTxt->setFixedWidth(100);
+    githubTxt->setAlignment(Qt::AlignRight);
     githubTxt->setFont(QFont("微软雅黑", 8));
     githubLink = new QLabel("<a href='url'>https://github.com/Albresky</a>");
 
@@ -66,10 +67,11 @@ AboutWindow::AboutWindow(QWidget* parent)
     infoLayout->addWidget(version);
     infoLayout->addWidget(platform);
     infoLayout->addWidget(buildDate);
-    infoLayout->addWidget(Author);
 
-    layout->addWidget(logo, Qt::AlignTop);
-    layout->addLayout(infoLayout);
+    top->addWidget(logo);
+    top->addLayout(infoLayout);
+    layout->addLayout(top);
+    layout->addWidget(Author, Qt::AlignHCenter);
     this->setLayout(layout);
 }
 

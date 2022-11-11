@@ -1,5 +1,7 @@
 #include "configwindow.h"
 
+#include <QMessageBox>
+
 
 
 ConfigWindow::ConfigWindow(QWidget* parent)
@@ -187,12 +189,22 @@ void ConfigWindow::setOpenOCDConfigPath()
 QString ConfigWindow::openExplorerForDir()
 {
     QString dir = QFileDialog::getExistingDirectory(nullptr, tr("选择文件夹"),  QDir::currentPath());
+    if(dir.contains(" "))
+    {
+        QMessageBox::warning(nullptr, "路径非法", tr("路径不能含有空格！"));
+        return "";
+    }
     return dir;
 }
 
 QString ConfigWindow::openExplorerForFile(QString type)
 {
     QString path = QFileDialog::getOpenFileName(nullptr, type);
+    if(path.contains(" "))
+    {
+        QMessageBox::warning(nullptr, "路径非法", tr("路径不能含有空格！"));
+        return "";
+    }
     return path;
 }
 
