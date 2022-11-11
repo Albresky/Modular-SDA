@@ -4,7 +4,7 @@
 
 
 
-QString MainWindow::projectDir = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
+QString MainWindow::projectDir = "";
 
 
 MainWindow::MainWindow(QWidget* parent)
@@ -27,7 +27,6 @@ MainWindow::MainWindow(QWidget* parent)
 
     qDebug() << "Desktop=>" << QStandardPaths::writableLocation(QStandardPaths::DesktopLocation) << "\n"
              << projectDir;
-    loadConfig();
 }
 
 void MainWindow::initLayout()
@@ -61,6 +60,9 @@ void MainWindow::initLayout()
 
     // initialize logWindow
     initLogWindow();
+
+    // load configs
+    loadConfig();
 
     // initialize QStackedWidget
     initStackedPage();
@@ -412,10 +414,11 @@ QString MainWindow::getProjectDirSysDiskPartitionSymbol()
 void MainWindow::action_open_file_project_dir_triggered()
 {
     QString ManualSelectedDir =
-        QDir::toNativeSeparators(QFileDialog::getExistingDirectory(this, tr("Save Path"), QDir::currentPath()));
+        QDir::toNativeSeparators(QFileDialog::getExistingDirectory(this, tr("打开项目文件"), QDir::currentPath()));
     if (!ManualSelectedDir.isEmpty())
     {
         MainWindow::projectDir = ManualSelectedDir;
+        configINI->Set("Project", "LastProjectDir", MainWindow::projectDir);
         emit transmitProDir();
     }
 }
@@ -1369,6 +1372,10 @@ void MainWindow::loadConfig()
     }
     configINI = new Config("config.ini");
 
+    // last project path
+    projectDir = configINI->Get("Project", "LastProjectDir").toString();
+
+    // settings config
     configs["make"] = configINI->Get("Settings", "make").toString();
     configs["Toolchain"] = configINI->Get("Settings", "Toolchain").toString();
     configs["OpenOcdExecutable"] = configINI->Get("Settings", "OpenOcdExecutable").toString();

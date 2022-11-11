@@ -46,7 +46,7 @@ void CodePage::initElements()
 void CodePage::showFileSystem()
 {
     fileSystemModel = new QFileSystemModel(this);
-    fileSystemModel->setRootPath(QDir::currentPath());
+    fileSystemModel->setRootPath("");
     ui->file_sys_treeview->setModel(fileSystemModel);
     ui->file_sys_treeview->setColumnHidden(1, true);
     ui->file_sys_treeview->setColumnHidden(2, true);
@@ -54,12 +54,14 @@ void CodePage::showFileSystem()
 }
 
 
-
 void CodePage::updateFileSystem()
 {
     qDebug() << MainWindow::getProjectDir();
     QString projectDir = MainWindow::getProjectDir();
-    fileSystemModel->setRootPath(projectDir);
+    if(QDir(projectDir).exists())
+    {
+        fileSystemModel->setRootPath(projectDir);
+    }
     ui->file_sys_treeview->setModel(fileSystemModel);
     ui->file_sys_treeview->setRootIndex(fileSystemModel->index(projectDir));
 }
